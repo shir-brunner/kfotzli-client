@@ -1,0 +1,183 @@
+.background {
+  position: absolute;
+}
+
+.menu-page {
+  display: none;
+  position: absolute;
+  left: 0px;
+  top: 0px;
+  width: 100vw;
+  height: calc(100vh - 50px - 100px); //for the bottom buttons to be clickable
+  text-align: center;
+  margin-top: 70px;
+}
+
+.big-title {
+  font-size: 70px;
+  margin-bottom: 10px;
+}
+
+.menu-buttons-left {
+  position: absolute;
+  left: 20px;
+  bottom: 10px;
+  .menu-button {
+    margin-right: 10px;
+  }
+}
+
+.menu-buttons-right {
+  position: absolute;
+  right: 20px;
+  bottom: 10px;
+  .menu-button {
+    margin-left: 10px;
+  }
+}
+
+.menu-button {
+  width: 48px;
+  height: 48px;
+  cursor: pointer;
+  background-size: cover;
+  color: white;
+  font-size: 25px;
+}
+
+.menu-button-xl {
+  cursor: pointer;
+  display: inline-block;
+  margin: 50px;
+  img {
+    width: 150px;
+    height: 150px;
+  }
+  h3 {
+    margin-top: 0px;
+  }
+}
+
+.menu-button-lg {
+  height: 45px;
+  width: 108px;
+  display: inline-block;
+  background-size: cover;
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  padding-top: 3px;
+}
+
+#client-name {
+  margin-top: 30px;
+  width: 230px;
+  height: 45px;
+}
+
+.slot {
+  background-size: cover;
+  display: inline-block;
+  vertical-align: top;
+  position: relative;
+}
+
+.slot-head {
+  background-size: cover;
+  position: absolute;
+  color: white;
+}
+
+.slot.vertical {
+  width: 220px;
+  height: 333px;
+  background-image: url('../img/menu/vertical_slot.png');
+  .slot-head {
+    background-image: url('../img/menu/vertical_slot_head.png');
+    width: 270px;
+    height: 88px;
+    left: -30px;
+    top: -40px;
+    font-size: 30px;
+  }
+}
+
+.slot.horizontal {
+  background-image: url('../img/menu/horizontal_slot.png');
+  width: 462px;
+  height: 320px;
+  .slot-head {
+    background-image: url('../img/menu/horizontal_slot_head.png');
+    width: 422px;
+    height: 112px;
+    left: 15px;
+    top: -50px;
+    font-size: 30px;
+    z-index: 1;
+    line-height: 65px;
+  }
+}
+
+.room-slot {
+  margin: 30px;
+}
+
+.slot-player {
+  left: 41px;
+  top: 99px;
+  width: 131px;
+  height: 188px;
+  position: absolute;
+}
+
+#room {
+  .mini-map {
+    margin-top: 47px;
+    margin-left: 24px;
+    margin-right: 40px;
+  }
+
+  .leave-button {
+    position: absolute;
+    bottom: -15px;
+    left: 56px;
+  }
+
+  .clock {
+    position: absolute;
+    bottom: 0px;
+    left: 205px;
+  }
+}
+
+.level-preview {
+  position: relative;
+}
+
+.menu-button-lg.red {
+  background-image: url('../img/buttons/empty_red.png');
+}
+
+.menu-button-lg.blue {
+  background-image: url('../img/buttons/empty_blue.png');
+}
+
+.menu-button-lg.green {
+  background-image: url('../img/buttons/empty_green.png');
+}
+
+.menu-button.red {
+  background-image: url('../img/buttons/empty_red_small.png');
+}
+
+.menu-button.blue {
+  background-image: url('../img/buttons/empty_blue_small.png');
+}
+
+.menu-button.green {
+  background-image: url('../img/buttons/empty_green_small.png');
+}
+
+.text-center {
+  text-align: center;
+}

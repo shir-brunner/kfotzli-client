@@ -1,0 +1,56 @@
+@import './menu';
+
+@font-face {
+  font-family: 'makabi';
+  src: url('./fonts/MakabiYG.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  font-family: makabi;
+}
+
+.no-select {
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.rtl {
+  direction: rtl;
+}
+
+.hide {
+  display: none;
+}
+
+input {
+  border: 0;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 22px;
+  font-family: makabi;
+}
+
+input:focus {
+  outline: 0;
+}
+
+.m-t-20 {
+  margin-top: 20px;
+}
+
+.m-t-30 {
+  margin-top: 30px;
+}
+
+.m-t-40 {
+  margin-top: 40px;
+}
