@@ -13,17 +13,12 @@ let $clock = $room.find('.clock');
 module.exports = {
     enter(room, connection) {
         $clock.hide();
-        $mainMenu.fadeOut('slow', function () {
-            renderRoom(room, connection);
+        renderRoom(room, connection);
+        levelPreview.appendTo($miniMap, room.level, { width: 396, height: 216 });
+        $mainMenu.fadeOut('slow', () => $room.fadeIn());
 
-            levelPreview.appendTo($miniMap, room.level, { width: 396, height: 216 });
-            $room.fadeIn();
-        });
-
-        connection.on('message.ROOM', updatedRoom => {
-            room = updatedRoom;
-            renderRoom(room, connection);
-        });
+        connection.on('message.ROOM', room => renderRoom(room, connection));
+        connection.on('message.GAME_STARTED', () => $room.fadeOut('slow'));
     }
 };
 
@@ -55,7 +50,7 @@ function renderRoom(room, connection) {
 
     clearInterval(clockInterval);
     if (shouldRestartClock(room, previousRoom)) {
-        let remainingSeconds = Math.round(room.roomTimeout / 1000);
+        let remainingSeconds = Math.round(room.roomTimeout / 1000) - 1;
 
         $clock.html(remainingSeconds).fadeIn();
         clockInterval = setInterval(() => $clock.html(Math.max(--remainingSeconds, 0)), 1000);
