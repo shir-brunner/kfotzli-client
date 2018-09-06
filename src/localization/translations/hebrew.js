@@ -7,4 +7,5 @@ module.exports = {
     connecting: 'מתחבר...',
     join: 'הצטרף',
     leave: 'עזיבה',
+    loadingGame: 'המשחק נטען...',
 };

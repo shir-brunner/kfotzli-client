@@ -20,11 +20,15 @@ let backgroundInterval = setInterval(() => {
         $background.after($background2);
         $background2.css({ width: imageSize, height: imageSize, left: imageSize, top: stopY + 3 });
         background2X = imageSize;
-        clearInterval(backgroundInterval);
-        setInterval(moveHorizontally, _.get(config, 'menu.background.horizontalMovementInterval', 15));
+        startMovingHorizontally();
         backgroundReadyCallback && backgroundReadyCallback();
     }
 }, _.get(config, 'menu.background.verticalMovementInterval', 5));
+
+function startMovingHorizontally() {
+    clearInterval(backgroundInterval);
+    backgroundInterval = setInterval(moveHorizontally, _.get(config, 'menu.background.horizontalMovementInterval', 15));
+}
 
 function moveHorizontally() {
     $background.css({ left: backgroundX -= velocity });
@@ -52,5 +56,11 @@ function getRandomBackgroundUrl() {
 module.exports = {
     onBackgroundReady(callback) {
         backgroundReadyCallback = callback;
+    },
+    start() {
+        startMovingHorizontally();
+    },
+    stop() {
+        clearInterval(backgroundInterval);
     }
 };

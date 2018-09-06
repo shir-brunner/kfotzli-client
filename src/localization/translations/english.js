@@ -7,4 +7,5 @@ module.exports = {
     connecting: 'Connecting...',
     join: 'Join',
     leave: 'Leave',
+    loadingGame: 'Loading game...',
 };

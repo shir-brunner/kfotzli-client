@@ -3,12 +3,17 @@ const localization = require('../localization');
 const config = require('../config');
 const textUtil = require('../utils/text');
 const levelPreview = require('../utils/level_preview');
+const assets = require('../services/assets');
+const Game = require('../game');
+const background = require('./background');
 
 let $mainMenu = $('#main-menu');
 let $room = $('#room');
 let $slots = $room.find('.slots');
 let $miniMap = $room.find('.mini-map');
 let $clock = $room.find('.clock');
+let $loadingGame = $('#loading-game');
+$loadingGame.find('.text').html(localization.translate('loadingGame'));
 
 module.exports = {
     enter(room, connection) {
@@ -18,7 +23,7 @@ module.exports = {
         $mainMenu.fadeOut('slow', () => $room.fadeIn());
 
         connection.on('message.ROOM', room => renderRoom(room, connection));
-        connection.on('message.GAME_STARTED', () => $room.fadeOut('slow'));
+        connection.on('message.PREPARE', () => loadAssets(connection, room));
     }
 };
 
@@ -65,8 +70,21 @@ function shouldRestartClock(newRoom, oldRoom) {
     if (newRoom.clients.length < 2)
         return false;
 
-    if(!oldRoom)
+    if (!oldRoom)
         return true;
 
     return !_.isEqual(newRoom.clients, oldRoom.clients);
+}
+
+function loadAssets(connection, room) {
+    $room.fadeOut('slow', () => {
+        $loadingGame.fadeIn();
+        let $progress = $loadingGame.find('.progress');
+        assets.loadRoom(room, { $progress: $progress }).then(() => {
+            connection.send('READY').on('message.GAME_STARTED', room => {
+                background.stop();
+                (new Game(room)).start();
+            });
+        });
+    });
 }

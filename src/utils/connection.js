@@ -14,6 +14,8 @@ class Connection {
             this._messageHandlers[eventName.slice('message.'.length)] = callback;
         else
             this._connection.addEventListener(eventName, callback);
+
+        return this;
     }
 
     off(eventName) {
@@ -21,6 +23,8 @@ class Connection {
             delete this._messageHandlers[eventName.slice('message.'.length)];
         else
             this._connection.removeEventListener(eventName);
+
+        return this;
     }
 
     send(messageType, body) {
@@ -28,6 +32,8 @@ class Connection {
             type: messageType,
             body: body
         }));
+
+        return this;
     }
 
     close() {

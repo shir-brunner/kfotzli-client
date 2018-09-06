@@ -93,7 +93,7 @@ function connect(clientName) {
     connecting = true;
     let connection = new Connection(config.serverUrl);
     connection.on('open', () => {
-        connection.send('FIND_ROOM', { client: { name: clientName } });
+        connection.send('CLIENT_DETAILS', { client: { name: clientName } });
         connection.on('message.ROOM', room => {
             connection.off('message.ROOM');
             setTimeout(() => connecting = false, 2000);
