@@ -16,7 +16,7 @@ let backgroundInterval = setInterval(() => {
     $background.css({ top: backgroundY-- });
 
     let stopY = -450;
-    if (backgroundY <= stopY) {
+    if (backgroundY <= stopY || config.debug.quickStart) {
         $background.after($background2);
         $background2.css({ width: imageSize, height: imageSize, left: imageSize, top: stopY + 3 });
         background2X = imageSize;

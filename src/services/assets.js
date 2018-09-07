@@ -41,6 +41,7 @@ class Assets {
         });
 
         room.clients.forEach(client => {
+            imageUrls.push(client.character.image);
             imageUrls.push(...this._getImagesFromAnimations(client.character.animations));
         });
 

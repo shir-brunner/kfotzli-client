@@ -7,6 +7,9 @@ const assets = require('../services/assets');
 const Game = require('../game');
 const background = require('./background');
 
+let $game = $('#game');
+let $gameCanvas = $('#game-canvas');
+let gameCanvas = $gameCanvas[0];
 let $mainMenu = $('#main-menu');
 let $room = $('#room');
 let $slots = $room.find('.slots');
@@ -23,7 +26,7 @@ module.exports = {
         $mainMenu.fadeOut('slow', () => $room.fadeIn());
 
         connection.on('message.ROOM', room => renderRoom(room, connection));
-        connection.on('message.PREPARE', () => loadAssets(connection, room));
+        connection.on('message.PREPARE', room => loadAssets(connection, room));
     }
 };
 
@@ -83,7 +86,10 @@ function loadAssets(connection, room) {
         assets.loadRoom(room, { $progress: $progress }).then(() => {
             connection.send('READY').on('message.GAME_STARTED', room => {
                 background.stop();
-                (new Game(room)).start();
+                $loadingGame.fadeOut('slow', () => {
+                    $game.fadeIn('slow');
+                    (new Game(room, connection, gameCanvas)).start();
+                });
             });
         });
     });

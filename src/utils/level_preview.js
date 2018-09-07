@@ -23,8 +23,8 @@ module.exports = {
             let $gameObject = $('<img src="' + config.assetsBaseUrl + '/' + gameObject.image + '" />');
             $gameObject.css({
                 position: 'absolute',
-                left: gameObject.position.x / level.size.width * previewWidth,
-                top: gameObject.position.y / level.size.height * previewHeight,
+                left: gameObject.x / level.size.width * previewWidth,
+                top: gameObject.y / level.size.height * previewHeight,
                 width: 100 / level.size.width * previewWidth,
                 height: 100 / level.size.height * previewHeight,
             });
