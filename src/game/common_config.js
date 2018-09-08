@@ -1,5 +1,5 @@
 module.exports = {
-    gravity: 1,
+    gravity: 2,
     animationChangeRate: 100,
     squareSize: 100,
 };

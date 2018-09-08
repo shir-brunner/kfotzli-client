@@ -2,28 +2,31 @@ const Renderer = require('./graphics/renderer');
 const _ = require('lodash');
 const GameState = require('./engine/game_state');
 const config = require('../config');
-const $debug = require('../utils/debug')();
 const Physics = require('./engine/physics/index');
+const Input = require('./input');
 const FRAME_RATE = Math.round(1000 / config.fps);
-const moment = require('moment');
+const $debug = require('../utils/debug')();
 
 module.exports = class Game {
-    constructor(room, connection, gameCanvas) {
+    constructor(room, connection, gameCanvas, latency) {
         this.renderer = new Renderer(gameCanvas, room.level);
-        this.lastTimestamp = Date.now();
+        this.absoluteStartTime = Date.now();
+        this.lastTimestamp = this.absoluteStartTime;
         this.gameState = GameState.create(room.level, room.clients);
         this.physics = new Physics(this.gameState);
         this.connection = connection;
-        this.absoluteStartTime = Date.now();
+        this.latency = latency;
+        this.gameTime = 0;
+
+        let localPlayer = this.gameState.players.find(player => player.isLocal);
+        new Input(localPlayer, connection);
     }
 
-    start(latency) {
+    start() {
         this.connection.on('message.SHARED_STATE', sharedState => {
-
+            this.gameState.setSharedState(sharedState);
         });
 
-        this.gameTime = 0;
-        this.latency = latency;
         window.requestAnimationFrame(this._mainLoop.bind(this));
     }
 
@@ -45,7 +48,8 @@ module.exports = class Game {
             }
             this.renderer.render(this.gameState);
             this.lastTimestamp = now;
-            console.log(this.gameTime);
+
+            config.debug.showGameInfo && this._showGameInfo(deltaTime);
         }
 
         if (config.debug.stopGameAfter && actualGameTime >= config.debug.stopGameAfter) {
@@ -57,7 +61,6 @@ module.exports = class Game {
         }
 
         window.requestAnimationFrame(this._mainLoop.bind(this));
-        config.debug.showGameInfo && this._showGameInfo(deltaTime);
     }
 
     _showGameInfo(deltaTime) {
@@ -67,13 +70,15 @@ module.exports = class Game {
             'DESIRED FRAME RATE: ' + FRAME_RATE + ' MS',
             'ACTUAL FRAME RATE: ' + deltaTime + ' MS',
             'GAME TIME: ' + this.gameTime,
-            'SERVER GAME TIME: ' + (this.gameTime - this.latency),
-            'LATENCY: ' + this.latency,
+            'NETWORK LATENCY: ' + this.latency + ' MS',
             'NUMBER OF PLAYERS: ' + this.gameState.players.length,
             '---------------------------------------'
         ];
 
-        info.push(...this.gameState.players.map(player => `${player.name}:  X = ${player.x}, Y = ${player.y}`));
+        info.push(...this.gameState.players.map(player => {
+            return `${player.name}:  X = ${Math.round(player.x)}, Y = ${Math.round(player.y)}` + (player.isLocal ? ' (LOCAL)' : '');
+        }));
+
         $debug.html(info.join('<br/>'));
     }
 };

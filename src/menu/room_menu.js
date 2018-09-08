@@ -91,8 +91,8 @@ function loadAssets(connection, room) {
                     background.stop();
                     $loadingGame.fadeOut('slow', () => {
                         $game.fadeIn('slow');
-                        let game = new Game(room, connection, gameCanvas);
-                        game.start(latency);
+                        let game = new Game(room, connection, gameCanvas, latency);
+                        game.start();
                     });
                 });
             });

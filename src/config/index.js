@@ -3,9 +3,9 @@ const ms = require('ms');
 module.exports = {
     debug: {
         showGameInfo: true,
-        quickStart: true,
+        quickStart: false,
         fullLevelView: false,
-        stopGameAfter: ms('10 seconds')
+        stopGameAfter: ms('0 seconds')
     },
     serverUrl: 'ws://localhost:4001',
     language: 'hebrew',

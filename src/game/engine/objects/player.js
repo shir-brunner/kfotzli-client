@@ -12,7 +12,12 @@ module.exports = class Player extends Drawable {
         this.speed = params.speed;
         this.verticalSpeed = 0;
         this.sharedState = new Timeline();
-        this.controller = {};
+        this.controller = {
+            isLeftPressed: false,
+            isRightPressed: false,
+            isUpPressed: false,
+            isDownPressed: false
+        };
     }
 
     update(delta, gameTime) {
@@ -24,7 +29,7 @@ module.exports = class Player extends Drawable {
         return this.sharedState.at(gameTime) || _.pick(this, SHARED_ATTRIBUTES);
     }
 
-    setSharedState(gameTime, state) {
+    setSharedState(state) {
         this.sharedState.set(gameTime, state);
     }
 };

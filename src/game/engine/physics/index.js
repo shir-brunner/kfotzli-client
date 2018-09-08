@@ -20,6 +20,11 @@ module.exports = class Physics {
             player.y += player.verticalSpeed * delta;
 
             this._stopFallingIfLanded(player, intersectionsByPlayer[player.id]);
+
+            if(player.controller.isLeftPressed)
+                player.x -= player.speed * delta;
+            else if(player.controller.isRightPressed)
+                player.x += player.speed * delta;
         });
     }
 

@@ -1,5 +1,4 @@
 const _ = require('lodash');
-const Timeline = require('./timeline');
 const Player = require('./objects/player');
 const GameObject = require('./objects/game_object');
 const config = require('../common_config');
@@ -25,6 +24,10 @@ module.exports = class GameState {
             gameTime: gameTime,
             players: this.players.map(player => player.getSharedState(gameTime))
         };
+    }
+
+    setSharedState(sharedState) {
+        //console.log('apply inputs');
     }
 
     static create(level, clients) {
