@@ -23,7 +23,7 @@ module.exports = class Game {
                 let playerParams = client.character;
                 playerParams.x = spawnPoint.x;
                 playerParams.y = spawnPoint.y - client.character.height + config.squareSize;
-                _.assign(playerParams, _.omit(client, ['name']));
+                _.assign(playerParams, client);
                 return new Player(playerParams);
             }),
             gameObjects: room.level.gameObjects.map(gameObject => new GameObject(gameObject))
@@ -38,10 +38,10 @@ module.exports = class Game {
     _mainLoop(ss) {
         let now = Date.now();
         let deltaTime = now - this.lastTimestamp;
-        if(deltaTime > FRAME_RATE) {
+        if (deltaTime > FRAME_RATE) {
             let deltaInFrameRates = deltaTime / FRAME_RATE;
-            while(deltaInFrameRates > 0) {
-                if(deltaInFrameRates % 1) //is whole number
+            while (deltaInFrameRates > 0) {
+                if (deltaInFrameRates % 1) //is whole number
                     this.physics.update(1, ++this.ticks);
                 else
                     this.physics.update(deltaInFrameRates, ++this.ticks);
@@ -52,12 +52,18 @@ module.exports = class Game {
         }
 
         window.requestAnimationFrame(this._mainLoop.bind(this));
+        config.debug.showGameInfo && this._showGameInfo(deltaTime);
+    }
 
-        config.debug.showFps && $debug.html([
+    _showGameInfo(deltaTime) {
+        let info = [
             'DESIRED FPS: ' + config.fps,
             'ACTUAL FPS: ' + Math.round(1000 / deltaTime),
-            'DELTA: ' + deltaTime / 1000,
-            'PLAYERS: ' + this.gameState.players.length
-        ].join('<br>'));
+            'NUMBER OF PLAYERS: ' + this.gameState.players.length,
+            '---------------------------------------'
+        ];
+
+        info.push(...this.gameState.players.map(player => `${player.name}:  X = ${player.x}, Y = ${player.y}`));
+        $debug.html(info.join('<br/>'));
     }
 };

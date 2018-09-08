@@ -6,6 +6,7 @@ module.exports = class Player extends Drawable {
     constructor(params) {
         super(_.pick(params, ['x', 'y', 'width', 'height', 'image', 'animations']));
         this.id = params.id;
+        this.name = params.name;
         this.isLocal = params.isLocal;
         this.speed = params.speed;
         this.verticalSpeed = 0;

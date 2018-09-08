@@ -1,6 +1,6 @@
 module.exports = {
     debug: {
-        showFps: true,
+        showGameInfo: true,
         quickStart: true,
         fullLevelView: false,
     },
