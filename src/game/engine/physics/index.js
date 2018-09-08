@@ -7,9 +7,9 @@ module.exports = class Physics {
         this.gameState = gameState;
     }
 
-    update(delta, ticks) {
-        this._updatePlayersPhysics(delta, ticks);
-        this.gameState.update(delta, ticks);
+    update(delta, gameTime) {
+        this._updatePlayersPhysics(delta, gameTime);
+        this.gameState.update(delta, gameTime);
     }
 
     _updatePlayersPhysics(delta) {

@@ -19,6 +19,11 @@ class Connection {
     }
 
     off(eventName) {
+        if(!eventName) {
+            this._messageHandlers = {};
+            return this;
+        }
+
         if (_.startsWith(eventName, 'message'))
             delete this._messageHandlers[eventName.slice('message.'.length)];
         else

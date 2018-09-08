@@ -1,5 +1,3 @@
-const $debug = require('../../utils/debug')();
-
 module.exports = class Camera {
     constructor(viewSize, levelSize, fullLevelView = false) {
         this.viewSize = viewSize;

@@ -1,6 +1,7 @@
 const Drawable = require('../../graphics/drawable');
 const _ = require('lodash');
 const Timeline = require('../timeline');
+const SHARED_ATTRIBUTES = ['id', 'x', 'y', 'verticalSpeed', 'controller'];
 
 module.exports = class Player extends Drawable {
     constructor(params) {
@@ -10,14 +11,20 @@ module.exports = class Player extends Drawable {
         this.isLocal = params.isLocal;
         this.speed = params.speed;
         this.verticalSpeed = 0;
-        this.timeline = new Timeline();
+        this.sharedState = new Timeline();
         this.controller = {};
     }
 
-    update(delta, ticks) {
-        //TODO: update timeline
-        //timeline state elements: x, y, verticalSpeed, controller
-        //this.timeline.set(state, time);
-        return super.update(delta, ticks);
+    update(delta, gameTime) {
+        this.sharedState.set(gameTime, _.pick(this, SHARED_ATTRIBUTES));
+        return super.update(delta, gameTime);
+    }
+
+    getSharedState(gameTime) {
+        return this.sharedState.at(gameTime) || _.pick(this, SHARED_ATTRIBUTES);
+    }
+
+    setSharedState(gameTime, state) {
+        this.sharedState.set(gameTime, state);
     }
 };

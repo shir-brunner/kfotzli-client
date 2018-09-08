@@ -1,4 +1,5 @@
 const Drawable = require('../../graphics/drawable');
+const _ = require('lodash');
 
 module.exports = class GameObject extends Drawable {
     constructor(params) {

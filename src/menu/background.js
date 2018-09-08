@@ -4,7 +4,7 @@ const config = require('../config');
 
 let velocity = 1;
 let backgroundReadyCallback = null;
-let defaultBackgroundUrl = config.menu.background.defaultBackground;
+let defaultBackgroundUrl = config.assetsBaseUrl + '/' + config.menu.background.defaultBackground;
 let $background = $('#menu .background').attr('src', defaultBackgroundUrl);
 let $background2 = $background.clone();
 let imageSize = $(window).width();
@@ -50,7 +50,7 @@ function moveHorizontally() {
 function getRandomBackgroundUrl() {
     let slidingBackgrounds = config.menu.background.slidingBackgrounds;
     let index = _.random(0, slidingBackgrounds.length - 1);
-    return slidingBackgrounds[index];
+    return config.assetsBaseUrl + '/' + slidingBackgrounds[index];
 }
 
 module.exports = {

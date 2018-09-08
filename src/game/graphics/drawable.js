@@ -13,7 +13,7 @@ module.exports = class Drawable {
         this.currentAnimation = 'idle';
         this.currentFrame = this.image;
         this.currentFrameIndex = 0;
-        this.lastFrameChangeTick = 0;
+        this.lastFrameChangeTime = 0;
     }
 
     render(context) {
@@ -21,18 +21,17 @@ module.exports = class Drawable {
         context.drawImage(image, this.x, this.y, this.width, this.height);
     }
 
-    update(delta, ticks) {
-        console.log(ticks);
+    update(delta, gameTime) {
         let currentAnimation = this.currentAnimation;
         let frames = _.get(this, `animations.${currentAnimation}.frames`, []);
         if(frames.length) {
-            if(ticks > this.lastFrameChangeTick + config.animationChangeRate) {
+            if(gameTime > this.lastFrameChangeTime + config.animationChangeRate) {
                 this.currentFrameIndex++;
                 if(this.currentFrameIndex > (frames.length - 1)) {
                     this.currentFrameIndex = 0;
                 }
                 this.currentFrame = frames[this.currentFrameIndex];
-                this.lastFrameChangeTick = ticks;
+                this.lastFrameChangeTime = gameTime;
             }
         } else {
             this.currentFrame = this.image;

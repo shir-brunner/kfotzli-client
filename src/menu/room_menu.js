@@ -6,6 +6,8 @@ const levelPreview = require('../utils/level_preview');
 const assets = require('../services/assets');
 const Game = require('../game');
 const background = require('./background');
+const mathUtil = require('../utils/math');
+const Promise = require('bluebird');
 
 let $game = $('#game');
 let $gameCanvas = $('#game-canvas');
@@ -70,7 +72,7 @@ function renderRoom(room, connection) {
 }
 
 function shouldRestartClock(newRoom, oldRoom) {
-    if (newRoom.clients.length < 2)
+    if (newRoom.clients.length < newRoom.level.minPlayers)
         return false;
 
     if (!oldRoom)
@@ -84,13 +86,39 @@ function loadAssets(connection, room) {
         $loadingGame.fadeIn();
         let $progress = $loadingGame.find('.progress');
         assets.loadRoom(room, { $progress: $progress }).then(() => {
-            connection.send('READY').on('message.GAME_STARTED', room => {
-                background.stop();
-                $loadingGame.fadeOut('slow', () => {
-                    $game.fadeIn('slow');
-                    (new Game(room, connection, gameCanvas)).start();
+            synchronizeClocks(connection).then(latency => {
+                connection.send('READY').on('message.GAME_STARTED', room => {
+                    background.stop();
+                    $loadingGame.fadeOut('slow', () => {
+                        $game.fadeIn('slow');
+                        let game = new Game(room, connection, gameCanvas);
+                        game.start(latency);
+                    });
                 });
             });
+        });
+    });
+}
+
+function synchronizeClocks(connection) {
+    return new Promise(resolve => {
+        let roundTripTimes = [];
+        Promise.each(Array(5), () => ping(connection, roundTripTimes)).then(() => {
+            let averageRoundTrip = mathUtil.median(roundTripTimes);
+            let averageToServer = averageRoundTrip / 2;
+            resolve(averageToServer);
+        });
+    });
+}
+
+function ping(connection, roundTripTimes) {
+    return new Promise(resolve => {
+        let sentTime = Date.now();
+        connection.send('PING');
+        connection.on('message.PONG', () => {
+            connection.off('message.PONG');
+            roundTripTimes.push(Date.now() - sentTime);
+            resolve();
         });
     });
 }
