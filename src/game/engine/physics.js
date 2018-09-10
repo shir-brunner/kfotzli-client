@@ -1,4 +1,4 @@
-const config = require('../../common_config');
+const config = require('../common_config');
 const _ = require('lodash');
 const intersectionUtil = require('../utils/intersection');
 
@@ -7,6 +7,7 @@ module.exports = class Physics {
         this.gameState = gameState;
         this.stuckables = gameState.gameObjects.filter(gameObject => gameObject.stuckable);
         this.climbables = gameState.gameObjects.filter(gameObject => gameObject.climbable);
+        this.levelSize = this.gameState.level.size;
     }
 
     update(delta, gameTime) {
@@ -16,8 +17,8 @@ module.exports = class Physics {
 
     _updatePlayersPhysics(delta) {
         this.gameState.players.forEach(player => {
-            let canMoveLeft = true;
-            let canMoveRight = true;
+            let canMoveLeft = player.x > 0;
+            let canMoveRight = (player.x + player.width) < this.levelSize.width;
             let climbing = false;
             let speed = player.speed * delta;
             player.isStanding = false;
@@ -52,17 +53,17 @@ module.exports = class Physics {
                 player.verticalSpeed += config.gravity * delta;
                 player.y += player.verticalSpeed;
                 player.setAnimation('jump');
-
-                this.stuckables.forEach(gameObject => {
-                    let collidablePosition = gameObject.getCollidablePosition();
-
-                    if (this._canLand(player, collidablePosition))
-                        this._land(player, collidablePosition);
-
-                    if (this._canButt(player, collidablePosition))
-                        this._butt(player, collidablePosition);
-                });
             }
+
+            this.stuckables.forEach(gameObject => {
+                let collidablePosition = gameObject.getCollidablePosition();
+
+                if (this._canLand(player, collidablePosition))
+                    this._land(player, collidablePosition);
+
+                if (this._canButt(player, collidablePosition))
+                    this._butt(player, collidablePosition);
+            });
 
             if (player.controller.isLeftPressed && canMoveLeft)
                 player.move('left', speed);

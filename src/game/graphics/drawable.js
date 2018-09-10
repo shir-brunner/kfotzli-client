@@ -1,6 +1,7 @@
 const assets = require('../../services/assets');
 const config = require('../common_config');
 const _ = require('lodash');
+const intersectionUtil = require('../utils/intersection');
 
 module.exports = class Drawable {
     constructor(params) {
@@ -14,14 +15,14 @@ module.exports = class Drawable {
         this.currentFrame = this.image;
         this.currentFrameIndex = 0;
         this.lastFrameChangeTime = 0;
-        this.direction = 'front';
     }
 
-    render(context) {
-        let image = assets.getImage(this.currentFrame);
-        if(this.direction === 'left') {
-            
+    render(context, camera) {
+        if(!intersectionUtil.intersects(this, camera.location)) {
+            return;
         }
+
+        let image = assets.getImage(this.currentFrame);
         context.drawImage(image, this.x, this.y, this.width, this.height);
     }
 

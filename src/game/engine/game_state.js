@@ -4,9 +4,10 @@ const GameObject = require('./objects/game_object');
 const config = require('../common_config');
 
 module.exports = class GameState {
-    constructor({ players, gameObjects }) {
+    constructor({ players, level }) {
         this.players = players;
-        this.gameObjects = gameObjects;
+        this.level = level;
+        this.gameObjects = level.gameObjects.map(gameObject => new GameObject(gameObject));
     }
 
     update(delta, gameTime) {
@@ -14,9 +15,9 @@ module.exports = class GameState {
         this.gameObjects.forEach(gameObject => gameObject.update(delta, gameTime));
     }
 
-    render(context) {
-        this.gameObjects.forEach(gameObject => gameObject.render(context));
-        this.players.forEach(player => player.render(context));
+    render(context, camera) {
+        this.gameObjects.forEach(gameObject => gameObject.render(context, camera));
+        this.players.forEach(player => player.render(context, camera));
     }
 
     getSharedState(gameTime) {
@@ -36,7 +37,7 @@ module.exports = class GameState {
                 _.assign(playerParams, client);
                 return new Player(playerParams);
             }),
-            gameObjects: level.gameObjects.map(gameObject => new GameObject(gameObject))
+            level: level
         });
     }
 };

@@ -1,5 +1,5 @@
 const Camera = require('./camera');
-const Drawable = require('./drawable');
+const Background = require('./background');
 const config = require('../../config');
 
 module.exports = class Renderer {
@@ -12,33 +12,27 @@ module.exports = class Renderer {
         screenCanvas.width = viewSize.width;
         screenCanvas.height = viewSize.height;
 
-        this._offScreenContext = offScreenCanvas.getContext('2d');
-        this._screenContext = screenCanvas.getContext('2d');
-        this._level = level;
-        this._camera = new Camera(viewSize, this._level.size, config.debug.fullLevelView);
-        this._background = new Drawable({
-            x: 0,
-            y: 0,
-            width: level.size.width,
-            height: level.size.height,
-            image: level.background
-        });
+        this.offScreenContext = offScreenCanvas.getContext('2d');
+        this.screenContext = screenCanvas.getContext('2d');
+        this.level = level;
+        this.camera = new Camera(viewSize, this.level.size, config.debug.fullLevelView);
+        this.background = new Background(level);
 
-        if(this._camera.fullLevelView) {
-            this._screenContext.canvas.width = level.size.width;
-            this._screenContext.canvas.height = level.size.height;
+        if(this.camera.fullLevelView) {
+            this.screenContext.canvas.width = level.size.width;
+            this.screenContext.canvas.height = level.size.height;
         }
     }
 
     render(gameState) {
-        this._background.render(this._offScreenContext);
-        gameState.render(this._offScreenContext);
+        this.background.render(this.offScreenContext, this.camera);
+        gameState.render(this.offScreenContext, this.camera);
 
-        this._camera.follow(gameState.players.find(player => player.isLocal));
-        this._camera.update();
+        this.camera.follow(gameState.players.find(player => player.isLocal));
+        this.camera.update();
 
-        let cameraLocation = this._camera.location;
-        let offScreenImage = this._offScreenContext.getImageData(cameraLocation.x, cameraLocation.y, cameraLocation.width, cameraLocation.height);
-        this._screenContext.putImageData(offScreenImage, 0, 0);
+        let cameraLocation = this.camera.location;
+        let offScreenImage = this.offScreenContext.getImageData(cameraLocation.x, cameraLocation.y, cameraLocation.width, cameraLocation.height);
+        this.screenContext.putImageData(offScreenImage, 0, 0);
     }
 };

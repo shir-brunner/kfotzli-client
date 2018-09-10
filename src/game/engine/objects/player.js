@@ -1,6 +1,6 @@
 const Drawable = require('../../graphics/drawable');
 const _ = require('lodash');
-const Timeline = require('../timeline');
+const Timeline = require('./timeline');
 const SHARED_ATTRIBUTES = ['id', 'x', 'y', 'verticalSpeed', 'controller'];
 
 module.exports = class Player extends Drawable {
@@ -13,6 +13,7 @@ module.exports = class Player extends Drawable {
         this.jumpHeight = params.jumpHeight;
         this.climbSpeed = params.climbSpeed;
         this.verticalSpeed = 0;
+        this.direction = 'front';
         this.sharedState = new Timeline();
         this.controller = {
             isLeftPressed: false,

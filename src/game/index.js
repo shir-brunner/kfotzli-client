@@ -2,7 +2,7 @@ const Renderer = require('./graphics/renderer');
 const _ = require('lodash');
 const GameState = require('./engine/game_state');
 const config = require('../config');
-const Physics = require('./engine/physics/index');
+const Physics = require('./engine/physics');
 const Input = require('./input');
 const FRAME_RATE = Math.round(1000 / config.fps);
 const $debug = require('../utils/debug')();
@@ -35,11 +35,11 @@ module.exports = class Game {
             let deltaFrames = deltaTime / FRAME_RATE;
             while (deltaFrames > 0) {
                 if (deltaFrames >= 1) {
-                    this.physics.update(1, this.gameTime);
                     this.gameTime += FRAME_RATE;
+                    this.physics.update(1, this.gameTime);
                 } else {
-                    this.physics.update(deltaFrames, this.gameTime);
                     this.gameTime += deltaFrames * FRAME_RATE;
+                    this.physics.update(deltaFrames, this.gameTime);
                 }
                 deltaFrames--;
             }
