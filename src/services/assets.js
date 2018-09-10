@@ -15,6 +15,7 @@ class Assets {
     }
 
     loadRoom(room, options = {}) {
+        console.log(room);
         let imageUrls = this._getRoomImages(room);
         let loadedCount = 0;
 

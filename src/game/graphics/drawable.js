@@ -14,12 +14,15 @@ module.exports = class Drawable {
         this.currentFrame = this.image;
         this.currentFrameIndex = 0;
         this.lastFrameChangeTime = 0;
+        this.direction = 'front';
     }
 
     render(context) {
         let image = assets.getImage(this.currentFrame);
+        if(this.direction === 'left') {
+            
+        }
         context.drawImage(image, this.x, this.y, this.width, this.height);
-
     }
 
     update(delta, gameTime) {

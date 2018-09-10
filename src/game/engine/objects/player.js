@@ -11,6 +11,7 @@ module.exports = class Player extends Drawable {
         this.isLocal = params.isLocal || false;
         this.speed = params.speed;
         this.jumpHeight = params.jumpHeight;
+        this.climbSpeed = params.climbSpeed;
         this.verticalSpeed = 0;
         this.sharedState = new Timeline();
         this.controller = {
@@ -34,11 +35,48 @@ module.exports = class Player extends Drawable {
         this.sharedState.set(gameTime, state);
     }
 
+    setAnimation(animationType) {
+        if(animationType === 'walk')
+            animationType = this.direction === 'left' ? 'walkLeft' : 'walkRight';
+
+        if(animationType === 'jump')
+            animationType = this.direction === 'left' ? 'jumpLeft' : 'jumpRight';
+
+        this.currentAnimation = animationType;
+    }
+
     isFalling() {
         return this.verticalSpeed > 0;
     }
 
     isJumping() {
         return this.verticalSpeed < 0;
+    }
+
+    bump(height) {
+        this.verticalSpeed = -height;
+    }
+
+    move(direction, speed) {
+        if(direction === 'left')
+            this.x -= speed;
+        else
+            this.x += speed;
+
+        this.direction = direction;
+
+        if(this.verticalSpeed !== 0)
+            this.setAnimation('jump');
+        else
+            this.setAnimation('walk');
+    }
+
+    climb(direction, speed) {
+        if(direction === 'up')
+            this.y -= speed;
+        else
+            this.y += speed;
+
+        this.setAnimation('climb');
     }
 };
