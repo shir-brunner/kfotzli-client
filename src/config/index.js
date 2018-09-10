@@ -3,7 +3,7 @@ const ms = require('ms');
 module.exports = {
     debug: {
         showGameInfo: true,
-        quickStart: false,
+        quickStart: true,
         fullLevelView: false,
         stopGameAfter: ms('0 seconds')
     },

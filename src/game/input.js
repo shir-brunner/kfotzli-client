@@ -10,6 +10,7 @@ module.exports = class Input {
     constructor(localPlayer, connection) {
         this.localPlayer = localPlayer;
         this.connection = connection;
+        this.statesByKey = {};
 
         $document.off('keydown keyup');
         $document.on('keydown', event => this._handleInput(event.keyCode, true));
@@ -17,15 +18,24 @@ module.exports = class Input {
     }
 
     _handleInput(keyCode, isPressed) {
+        if(this.statesByKey[keyCode] === isPressed)
+            return;
+
+        this.statesByKey[keyCode] = isPressed;
+
         switch(keyCode) {
             case LEFT_KEY:
                 this.localPlayer.controller.isLeftPressed = isPressed;
+                break;
             case RIGHT_KEY:
                 this.localPlayer.controller.isRightPressed = isPressed;
+                break;
             case UP_KEY:
                 this.localPlayer.controller.isUpPressed = isPressed;
+                break;
             case DOWN_KEY:
                 this.localPlayer.controller.isDownPressed = isPressed;
+                break;
         }
 
         this.connection.send('INPUT', { keyCode: keyCode, isPressed: isPressed });

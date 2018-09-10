@@ -8,8 +8,9 @@ module.exports = class Player extends Drawable {
         super(_.pick(params, ['x', 'y', 'width', 'height', 'image', 'animations']));
         this.id = params.id;
         this.name = params.name;
-        this.isLocal = params.isLocal;
+        this.isLocal = params.isLocal || false;
         this.speed = params.speed;
+        this.jumpHeight = params.jumpHeight;
         this.verticalSpeed = 0;
         this.sharedState = new Timeline();
         this.controller = {
@@ -31,5 +32,13 @@ module.exports = class Player extends Drawable {
 
     setSharedState(state) {
         this.sharedState.set(gameTime, state);
+    }
+
+    isFalling() {
+        return this.verticalSpeed > 0;
+    }
+
+    isJumping() {
+        return this.verticalSpeed < 0;
     }
 };

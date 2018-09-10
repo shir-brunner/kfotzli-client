@@ -15,8 +15,8 @@ module.exports = class GameState {
     }
 
     render(context) {
-        this.players.forEach(player => player.render(context));
         this.gameObjects.forEach(gameObject => gameObject.render(context));
+        this.players.forEach(player => player.render(context));
     }
 
     getSharedState(gameTime) {
@@ -24,10 +24,6 @@ module.exports = class GameState {
             gameTime: gameTime,
             players: this.players.map(player => player.getSharedState(gameTime))
         };
-    }
-
-    setSharedState(sharedState) {
-        //console.log('apply inputs');
     }
 
     static create(level, clients) {

@@ -19,6 +19,7 @@ module.exports = class Drawable {
     render(context) {
         let image = assets.getImage(this.currentFrame);
         context.drawImage(image, this.x, this.y, this.width, this.height);
+
     }
 
     update(delta, gameTime) {

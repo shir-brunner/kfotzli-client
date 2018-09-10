@@ -23,10 +23,7 @@ module.exports = class Game {
     }
 
     start() {
-        this.connection.on('message.SHARED_STATE', sharedState => {
-            this.gameState.setSharedState(sharedState);
-        });
-
+        this.connection.on('message.SHARED_STATE', sharedState => this.setSharedState(sharedState));
         window.requestAnimationFrame(this._mainLoop.bind(this));
     }
 
@@ -76,9 +73,18 @@ module.exports = class Game {
         ];
 
         info.push(...this.gameState.players.map(player => {
-            return `${player.name}:  X = ${Math.round(player.x)}, Y = ${Math.round(player.y)}` + (player.isLocal ? ' (LOCAL)' : '');
+            return `${player.name}:  X = ${Math.round(player.x)}, Y = ${Math.round(player.y)}, VERTICAL SPEED: ${Math.round(player.verticalSpeed)}` + (player.isLocal ? ' (LOCAL)' : '');
         }));
 
         $debug.html(info.join('<br/>'));
+    }
+
+    setSharedState(sharedState) {
+        let gameTime = sharedState.gameTime;
+
+        sharedState.players.forEach(playerState => {
+            let player = this.gameState.players.find(player => player.id === playerState.id);
+
+        });
     }
 };
