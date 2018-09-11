@@ -4,7 +4,7 @@ module.exports = {
     debug: {
         showGameInfo: true,
         quickStart: true,
-        fullLevelView: false,
+        fullLevelView: true,
         stopGameAfter: ms('0 seconds')
     },
     serverUrl: 'ws://localhost:4001',

@@ -1,7 +1,8 @@
 const Drawable = require('../../graphics/drawable');
 const _ = require('lodash');
-const Timeline = require('./timeline');
+const Timeline = require('../../utils/timeline');
 const SHARED_ATTRIBUTES = ['id', 'x', 'y', 'verticalSpeed', 'controller'];
+const config = require('../../common_config');
 
 module.exports = class Player extends Drawable {
     constructor(params) {
@@ -14,7 +15,7 @@ module.exports = class Player extends Drawable {
         this.climbSpeed = params.climbSpeed;
         this.verticalSpeed = 0;
         this.direction = 'front';
-        this.sharedState = new Timeline();
+        this.sharedState = new Timeline(_.get(config, 'player.sharedState.maxHistorySize'));
         this.controller = {
             isLeftPressed: false,
             isRightPressed: false,
@@ -30,10 +31,6 @@ module.exports = class Player extends Drawable {
 
     getSharedState(gameTime) {
         return this.sharedState.at(gameTime) || _.pick(this, SHARED_ATTRIBUTES);
-    }
-
-    setSharedState(state) {
-        this.sharedState.set(gameTime, state);
     }
 
     setAnimation(animationType) {

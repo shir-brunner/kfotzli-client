@@ -1,6 +1,6 @@
 const config = require('../common_config');
-const _ = require('lodash');
 const intersectionUtil = require('../utils/intersection');
+const _ = require('lodash');
 
 module.exports = class Physics {
     constructor(gameState) {
@@ -11,7 +11,7 @@ module.exports = class Physics {
     }
 
     update(delta, gameTime) {
-        this._updatePlayersPhysics(delta, gameTime);
+        this._updatePlayersPhysics(delta);
         this.gameState.update(delta, gameTime);
     }
 
@@ -67,8 +67,9 @@ module.exports = class Physics {
 
             if (player.controller.isLeftPressed && canMoveLeft)
                 player.move('left', speed);
-            else if (player.controller.isRightPressed && canMoveRight)
+            else if (player.controller.isRightPressed && canMoveRight) {
                 player.move('right', speed);
+            }
 
             if (player.controller.isUpPressed && climbing)
                 player.climb('up', player.climbSpeed * delta);

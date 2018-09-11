@@ -10,25 +10,26 @@ const $debug = require('../utils/debug')();
 module.exports = class Game {
     constructor(room, connection, gameCanvas, latency) {
         this.renderer = new Renderer(gameCanvas, room.level);
-        this.absoluteStartTime = Date.now();
-        this.lastTimestamp = this.absoluteStartTime;
+        this.startTime = Date.now() - latency;
+        this.lastTimestamp = this.startTime;
         this.gameState = GameState.create(room.level, room.clients);
         this.physics = new Physics(this.gameState);
         this.connection = connection;
         this.latency = latency;
-        this.gameTime = 0;
+        this.gameTime = latency;
 
         let localPlayer = this.gameState.players.find(player => player.isLocal);
-        new Input(localPlayer, connection);
+        this.input = new Input(localPlayer, connection, this);
+
+        this.sharedState = null;
     }
 
     start() {
-        this.connection.on('message.SHARED_STATE', sharedState => this.setSharedState(sharedState));
-        window.requestAnimationFrame(this._mainLoop.bind(this));
+        this.connection.on('message.SHARED_STATE', sharedState => this.sharedState = sharedState);
+        window.requestAnimationFrame(() => this._mainLoop());
     }
 
     _mainLoop() {
-        let actualGameTime = Date.now() - this.absoluteStartTime;
         let now = Date.now();
         let deltaTime = now - this.lastTimestamp;
         if (deltaTime > FRAME_RATE) {
@@ -43,21 +44,17 @@ module.exports = class Game {
                 }
                 deltaFrames--;
             }
+
+            if(this.sharedState)
+                this.setSharedState(this.sharedState);
+
             this.renderer.render(this.gameState);
             this.lastTimestamp = now;
 
             config.debug.showGameInfo && this._showGameInfo(deltaTime);
         }
 
-        if (config.debug.stopGameAfter && actualGameTime >= config.debug.stopGameAfter) {
-            console.log(`Game has been stopped for debugging after ${config.debug.stopGameAfter / 1000} seconds`);
-            console.log('latency:', this.latency);
-            console.log(`actualGameTime: ${actualGameTime}`);
-            console.log(`gameTime: ${this.gameTime}`);
-            return;
-        }
-
-        window.requestAnimationFrame(this._mainLoop.bind(this));
+        window.requestAnimationFrame(() => this._mainLoop());
     }
 
     _showGameInfo(deltaTime) {
@@ -81,10 +78,26 @@ module.exports = class Game {
 
     setSharedState(sharedState) {
         let gameTime = sharedState.gameTime;
+        let deltaTime = (Date.now() - this.startTime) - gameTime;
+        let deltaFrames = deltaTime / FRAME_RATE;
 
         sharedState.players.forEach(playerState => {
             let player = this.gameState.players.find(player => player.id === playerState.id);
-
+            _.assign(player, playerState);
         });
+
+        while (deltaFrames > 0) {
+            if (deltaFrames >= 1) {
+                this.physics.update(1, gameTime);
+                gameTime += FRAME_RATE;
+            } else {
+                this.physics.update(deltaFrames, gameTime);
+                gameTime += deltaFrames * FRAME_RATE;
+            }
+            this.input.applyControllerAt(gameTime);
+            deltaFrames--;
+        }
+
+        this.sharedState = null;
     }
 };

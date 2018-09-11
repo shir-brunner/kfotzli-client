@@ -1,9 +1,9 @@
 const _ = require('lodash');
 
 module.exports = class Timeline {
-    constructor() {
+    constructor(maxHistorySize) {
+        this.maxHistorySize = maxHistorySize;
         this.history = [];
-        this.maxHistorySize = 30;
     }
 
     set(gameTime, state) {
@@ -38,5 +38,9 @@ module.exports = class Timeline {
         }
 
         return this.history[closestEntryIndex] && this.history[closestEntryIndex].state;
+    }
+
+    getAllAfter(gameTime) {
+        return this.history.filter(entry => entry.gameTime > gameTime).map(entry => _.cloneDeep(entry));
     }
 };

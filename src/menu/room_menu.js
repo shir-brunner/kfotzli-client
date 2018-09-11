@@ -88,12 +88,11 @@ function loadAssets(connection, room) {
         assets.loadRoom(room, { $progress: $progress }).then(() => {
             synchronizeClocks(connection).then(latency => {
                 connection.send('READY').on('message.GAME_STARTED', room => {
+                    let game = new Game(room, connection, gameCanvas, latency);
+                    game.start();
                     background.stop();
-                    $loadingGame.fadeOut('slow', () => {
-                        $game.fadeIn('slow');
-                        let game = new Game(room, connection, gameCanvas, latency);
-                        game.start();
-                    });
+
+                    $loadingGame.fadeOut('slow', () => $game.fadeIn('slow'));
                 });
             });
         });
@@ -106,7 +105,7 @@ function synchronizeClocks(connection) {
         Promise.each(Array(5), () => ping(connection, roundTripTimes)).then(() => {
             let averageRoundTrip = mathUtil.median(roundTripTimes);
             let averageToServer = averageRoundTrip / 2;
-            resolve(averageToServer);
+            resolve(Math.round(averageToServer));
         });
     });
 }

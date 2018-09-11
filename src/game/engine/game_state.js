@@ -22,7 +22,6 @@ module.exports = class GameState {
 
     getSharedState(gameTime) {
         return {
-            gameTime: gameTime,
             players: this.players.map(player => player.getSharedState(gameTime))
         };
     }
