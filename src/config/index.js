@@ -11,7 +11,7 @@ module.exports = {
     language: 'hebrew',
     assetsBaseUrl: 'diststatic',
     pingsCount: 2,
-    mispredictionDistance: 100,
+    mispredictionDistance: 20,
     menu: {
         background: {
             defaultBackground: 'img/backgrounds/colored_land.png',

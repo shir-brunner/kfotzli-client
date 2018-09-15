@@ -11,4 +11,8 @@ module.exports = class Background extends Drawable {
             image: level.background
         });
     }
+
+    render(context) {
+        context.clearRect(0, 0, this.width, this.height);
+    }
 };

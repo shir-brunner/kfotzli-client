@@ -10,6 +10,7 @@ const mathUtil = require('../utils/math');
 const Promise = require('bluebird');
 
 let $game = $('#game');
+let $gameBackground = $('#game-background');
 let $gameCanvas = $('#game-canvas');
 let gameCanvas = $gameCanvas[0];
 let $mainMenu = $('#main-menu');
@@ -83,6 +84,7 @@ function shouldRestartClock(newRoom, oldRoom) {
 }
 
 function loadAssets(connection, room) {
+    $gameBackground.attr('src', config.assetsBaseUrl + '/' + room.level.background);
     $room.fadeOut('slow', () => {
         $loadingGame.fadeIn();
         assets.loadRoom(room, { $progress: $loadingProgress }).then(() => {
@@ -93,8 +95,10 @@ function loadAssets(connection, room) {
                     let game = new Game(room, connection, gameCanvas, latency);
                     game.start();
                     background.stop();
-
-                    $loadingGame.fadeOut('slow', () => $game.fadeIn('slow'));
+                    $loadingGame.fadeOut('slow', () => {
+                        $gameBackground.fadeIn('slow');
+                        $game.fadeIn('slow');
+                    });
                 });
             });
         });

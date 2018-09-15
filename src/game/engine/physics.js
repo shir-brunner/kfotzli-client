@@ -2,7 +2,6 @@ const config = require('../common_config');
 const physicsUtil = require('../utils/physics');
 const _ = require('lodash');
 const FRAME_RATE = Math.round(1000 / config.fps);
-const debug = require('../utils/debug');
 
 module.exports = class Physics {
     constructor(gameState) {
@@ -73,10 +72,10 @@ module.exports = class Physics {
             player.move('right', speed);
         }
 
-        if(player.x < 0)
+        if (player.x < 0)
             player.x = 0;
 
-        if(player.x + player.width > this.levelSize.width)
+        if (player.x + player.width > this.levelSize.width)
             player.x = this.levelSize.width - player.width;
 
         if (player.controller.isUpPressed && climbing)
@@ -122,19 +121,22 @@ module.exports = class Physics {
         });
     }
 
-    fastForward(fromTime, deltaTime, input) {
+    fastForward(now, deltaTime, input) {
         let deltaFrames = deltaTime / FRAME_RATE;
         while (deltaFrames > 0) {
+            let inputEntry = input.history.at(now - deltaTime);
+            if (inputEntry)
+                input.applyInput(this.localPlayer, inputEntry.keyCode, inputEntry.isPressed);
+
             if (deltaFrames >= 1) {
-                fromTime += FRAME_RATE;
+                now += FRAME_RATE;
                 this._updatePlayerPhysics(this.localPlayer, 1);
             } else {
-                fromTime += (deltaFrames * FRAME_RATE);
+                now += (deltaFrames * FRAME_RATE);
                 this._updatePlayerPhysics(this.localPlayer, deltaFrames);
             }
 
             deltaFrames--;
-            input.applyInput(input.history.at(fromTime)); //TODO: THINK IF NEEDED
         }
     }
 };

@@ -33,25 +33,25 @@ module.exports = class Input {
 
         let historyEntry = { keyCode: keyCode, isPressed: isPressed };
         this.history.set(this.game.timestamp, historyEntry);
-        this.applyInput(keyCode, isPressed);
+        this.applyInput(this.localPlayer, keyCode, isPressed);
 
         if (this._shouldSendInput(keyCode, isPressed))
             this.connection.send('INPUT', historyEntry);
     }
 
-    applyInput(keyCode, isPressed) {
+    applyInput(player, keyCode, isPressed) {
         switch (keyCode) {
             case LEFT_KEY:
-                this.localPlayer.controller.isLeftPressed = isPressed;
+                player.controller.isLeftPressed = isPressed;
                 break;
             case RIGHT_KEY:
-                this.localPlayer.controller.isRightPressed = isPressed;
+                player.controller.isRightPressed = isPressed;
                 break;
             case UP_KEY:
-                this.localPlayer.controller.isUpPressed = isPressed;
+                player.controller.isUpPressed = isPressed;
                 break;
             case DOWN_KEY:
-                this.localPlayer.controller.isDownPressed = isPressed;
+                player.controller.isDownPressed = isPressed;
                 break;
         }
     }

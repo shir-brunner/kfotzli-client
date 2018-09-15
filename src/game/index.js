@@ -24,12 +24,12 @@ module.exports = class Game {
         this.stopEngine = false;
         this.lastFrame = 0;
         this.timestamp = 0;
+        this.lastUpdateTimestamp = 0;
     }
 
     start() {
         this.connection.on('message.SHARED_STATE', sharedState => this.sharedState = sharedState);
         window.requestAnimationFrame(timestamp => this._mainLoop(timestamp));
-        console.log = text => debug.log(text);
     }
 
     _mainLoop(timestamp) {
@@ -68,14 +68,14 @@ module.exports = class Game {
         let deltaTime = this.latency * 2;
 
         this.physicsSimulator.applySharedState(sharedState);
-        this.physicsSimulator.fastForward(now - sharedState.time, deltaTime, this.input);
+        this.physicsSimulator.fastForward(now, deltaTime, this.input);
 
         let shouldCorrectPositions = false;
         this.physicsSimulator.gameState.players.forEach(simulatedPlayer => {
-            if(!simulatedPlayer.positionChanged)
+            if (!simulatedPlayer.positionChanged)
                 return;
 
-            if(!simulatedPlayer.isLocal) {
+            if (!simulatedPlayer.isLocal) {
                 shouldCorrectPositions = true;
                 return;
             }
@@ -92,14 +92,8 @@ module.exports = class Game {
 
         if (shouldCorrectPositions) {
             this.physics.applySharedState(sharedState);
-            this.physics.fastForward(now - sharedState.time, deltaTime, this.input);
+            this.physics.fastForward(now, deltaTime, this.input);
         }
-
-        if (this.been) {
-            //this.stopEngine = true;
-        }
-        this.been = true;
-        //this.stopEngine = true;
 
         this.sharedState = null;
     }
