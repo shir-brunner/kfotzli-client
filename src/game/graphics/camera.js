@@ -30,5 +30,8 @@ module.exports = class Camera {
 
         if(this.location.y > this.levelSize.height - this.viewSize.height)
             this.location.y = this.levelSize.height - this.viewSize.height;
+
+        this.location.x = Math.round(this.location.x);
+        this.location.y = Math.round(this.location.y);
     }
 };

@@ -8,4 +8,5 @@ module.exports = {
     join: 'Join',
     leave: 'Leave',
     loadingGame: 'Loading game...',
+    syncingWithServer: 'Syncing with server...',
 };

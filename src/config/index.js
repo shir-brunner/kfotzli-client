@@ -4,13 +4,14 @@ module.exports = {
     debug: {
         showGameInfo: true,
         quickStart: true,
-        fullLevelView: true,
-        stopGameAfter: ms('0 seconds')
+        fullLevelView: false,
+        preventNetworkCorrections: false
     },
     serverUrl: 'ws://localhost:4001',
     language: 'hebrew',
     assetsBaseUrl: 'diststatic',
-    fps: 30,
+    pingsCount: 2,
+    mispredictionDistance: 100,
     menu: {
         background: {
             defaultBackground: 'img/backgrounds/colored_land.png',

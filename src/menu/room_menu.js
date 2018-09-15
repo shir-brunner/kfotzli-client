@@ -18,7 +18,8 @@ let $slots = $room.find('.slots');
 let $miniMap = $room.find('.mini-map');
 let $clock = $room.find('.clock');
 let $loadingGame = $('#loading-game');
-$loadingGame.find('.text').html(localization.translate('loadingGame'));
+let $loadingText = $loadingGame.find('.text').html(localization.translate('loadingGame'));
+let $loadingProgress = $loadingGame.find('.progress');
 
 module.exports = {
     enter(room, connection) {
@@ -84,8 +85,9 @@ function shouldRestartClock(newRoom, oldRoom) {
 function loadAssets(connection, room) {
     $room.fadeOut('slow', () => {
         $loadingGame.fadeIn();
-        let $progress = $loadingGame.find('.progress');
-        assets.loadRoom(room, { $progress: $progress }).then(() => {
+        assets.loadRoom(room, { $progress: $loadingProgress }).then(() => {
+            $loadingText.html(localization.translate('syncingWithServer'));
+            $loadingProgress.html('0%');
             synchronizeClocks(connection).then(latency => {
                 connection.send('READY').on('message.GAME_STARTED', room => {
                     let game = new Game(room, connection, gameCanvas, latency);
@@ -102,7 +104,7 @@ function loadAssets(connection, room) {
 function synchronizeClocks(connection) {
     return new Promise(resolve => {
         let roundTripTimes = [];
-        Promise.each(Array(5), () => ping(connection, roundTripTimes)).then(() => {
+        Promise.each(Array(config.pingsCount), () => ping(connection, roundTripTimes)).then(() => {
             let averageRoundTrip = mathUtil.median(roundTripTimes);
             let averageToServer = averageRoundTrip / 2;
             resolve(Math.round(averageToServer));
@@ -117,6 +119,7 @@ function ping(connection, roundTripTimes) {
         connection.on('message.PONG', () => {
             connection.off('message.PONG');
             roundTripTimes.push(Date.now() - sentTime);
+            $loadingProgress.html(parseInt(roundTripTimes.length / config.pingsCount * 100) + '%');
             resolve();
         });
     });

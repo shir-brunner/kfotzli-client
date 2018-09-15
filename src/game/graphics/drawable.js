@@ -1,7 +1,7 @@
 const assets = require('../../services/assets');
 const config = require('../common_config');
 const _ = require('lodash');
-const intersectionUtil = require('../utils/intersection');
+const physicsUtil = require('../utils/physics');
 
 module.exports = class Drawable {
     constructor(params) {
@@ -18,25 +18,26 @@ module.exports = class Drawable {
     }
 
     render(context, camera) {
-        if(!intersectionUtil.intersects(this, camera.location)) {
+        if(!physicsUtil.intersects(this, camera.location)) {
             return;
         }
 
         let image = assets.getImage(this.currentFrame);
-        context.drawImage(image, this.x, this.y, this.width, this.height);
+        context.drawImage(image, Math.round(this.x), Math.round(this.y), this.width, this.height);
     }
 
-    update(delta, gameTime) {
+    update() {
         let currentAnimation = this.currentAnimation;
         let frames = _.get(this, `animations.${currentAnimation}.frames`, []);
         if(frames.length) {
-            if(gameTime > this.lastFrameChangeTime + config.animationChangeRate) {
+            let now = Date.now();
+            if(now > this.lastFrameChangeTime + config.animationChangeRate) {
                 this.currentFrameIndex++;
                 if(this.currentFrameIndex > (frames.length - 1)) {
                     this.currentFrameIndex = 0;
                 }
                 this.currentFrame = frames[this.currentFrameIndex];
-                this.lastFrameChangeTime = gameTime;
+                this.lastFrameChangeTime = now;
             }
         } else {
             this.currentFrame = this.image;

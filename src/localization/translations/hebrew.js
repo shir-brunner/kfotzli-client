@@ -8,4 +8,5 @@ module.exports = {
     join: 'הצטרף',
     leave: 'עזיבה',
     loadingGame: 'המשחק נטען...',
+    syncingWithServer: 'מסתנכרן עם השרת...',
 };

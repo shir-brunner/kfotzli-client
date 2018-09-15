@@ -2,101 +2,104 @@ const Renderer = require('./graphics/renderer');
 const _ = require('lodash');
 const GameState = require('./engine/game_state');
 const config = require('../config');
+const commonConfig = require('./common_config');
 const Physics = require('./engine/physics');
 const Input = require('./input');
-const FRAME_RATE = Math.round(1000 / config.fps);
-const $debug = require('../utils/debug')();
+const FRAME_RATE = Math.round(1000 / commonConfig.fps);
+const physicsUtil = require('./utils/physics');
+const debug = require('./utils/debug');
 
 module.exports = class Game {
     constructor(room, connection, gameCanvas, latency) {
         this.renderer = new Renderer(gameCanvas, room.level);
-        this.startTime = Date.now() - latency;
-        this.lastTimestamp = this.startTime;
         this.gameState = GameState.create(room.level, room.clients);
         this.physics = new Physics(this.gameState);
+        this.physicsSimulator = new Physics(_.cloneDeep(this.gameState));
         this.connection = connection;
         this.latency = latency;
-        this.gameTime = latency;
 
         let localPlayer = this.gameState.players.find(player => player.isLocal);
         this.input = new Input(localPlayer, connection, this);
 
-        this.sharedState = null;
+        this.stopEngine = false;
+        this.lastFrame = 0;
+        this.timestamp = 0;
     }
 
     start() {
         this.connection.on('message.SHARED_STATE', sharedState => this.sharedState = sharedState);
-        window.requestAnimationFrame(() => this._mainLoop());
+        window.requestAnimationFrame(timestamp => this._mainLoop(timestamp));
+        console.log = text => debug.log(text);
     }
 
-    _mainLoop() {
-        let now = Date.now();
-        let deltaTime = now - this.lastTimestamp;
-        if (deltaTime > FRAME_RATE) {
+    _mainLoop(timestamp) {
+        this.lastTimestamp = this.lastTimestamp || timestamp;
+
+        let currentFrame = Math.round((timestamp - this.lastTimestamp) / FRAME_RATE);
+        let deltaTime = (currentFrame - this.lastFrame) * FRAME_RATE;
+
+        if (deltaTime) {
             let deltaFrames = deltaTime / FRAME_RATE;
+
             while (deltaFrames > 0) {
                 if (deltaFrames >= 1) {
-                    this.gameTime += FRAME_RATE;
-                    this.physics.update(1, this.gameTime);
+                    this.physics.update(1);
                 } else {
-                    this.gameTime += deltaFrames * FRAME_RATE;
-                    this.physics.update(deltaFrames, this.gameTime);
+                    this.physics.update(deltaFrames);
                 }
+
                 deltaFrames--;
             }
 
-            if(this.sharedState)
-                this.setSharedState(this.sharedState);
-
+            this.sharedState && this._onServerUpdate(timestamp, this.sharedState);
             this.renderer.render(this.gameState);
-            this.lastTimestamp = now;
+            if (this.stopEngine)
+                throw new Error('Engine has been stopped');
 
-            config.debug.showGameInfo && this._showGameInfo(deltaTime);
+            debug.setDebugInfo(deltaTime, this);
         }
 
-        window.requestAnimationFrame(() => this._mainLoop());
+        this.lastFrame = currentFrame;
+        this.timestamp = timestamp;
+        window.requestAnimationFrame(timestamp => this._mainLoop(timestamp));
     }
 
-    _showGameInfo(deltaTime) {
-        let info = [
-            'DESIRED FPS: ' + config.fps,
-            'ACTUAL FPS: ' + Math.round(1000 / deltaTime),
-            'DESIRED FRAME RATE: ' + FRAME_RATE + ' MS',
-            'ACTUAL FRAME RATE: ' + deltaTime + ' MS',
-            'GAME TIME: ' + this.gameTime,
-            'NETWORK LATENCY: ' + this.latency + ' MS',
-            'NUMBER OF PLAYERS: ' + this.gameState.players.length,
-            '---------------------------------------'
-        ];
+    _onServerUpdate(now, sharedState) {
+        let deltaTime = this.latency * 2;
 
-        info.push(...this.gameState.players.map(player => {
-            return `${player.name}:  X = ${Math.round(player.x)}, Y = ${Math.round(player.y)}, VERTICAL SPEED: ${Math.round(player.verticalSpeed)}` + (player.isLocal ? ' (LOCAL)' : '');
-        }));
+        this.physicsSimulator.applySharedState(sharedState);
+        this.physicsSimulator.fastForward(now - sharedState.time, deltaTime, this.input);
 
-        $debug.html(info.join('<br/>'));
-    }
+        let shouldCorrectPositions = false;
+        this.physicsSimulator.gameState.players.forEach(simulatedPlayer => {
+            if(!simulatedPlayer.positionChanged)
+                return;
 
-    setSharedState(sharedState) {
-        let gameTime = sharedState.gameTime;
-        let deltaTime = (Date.now() - this.startTime) - gameTime;
-        let deltaFrames = deltaTime / FRAME_RATE;
+            if(!simulatedPlayer.isLocal) {
+                shouldCorrectPositions = true;
+                return;
+            }
 
-        sharedState.players.forEach(playerState => {
-            let player = this.gameState.players.find(player => player.id === playerState.id);
-            _.assign(player, playerState);
+            let predictedPlayer = this.gameState.players.find(player => player.id === simulatedPlayer.id);
+
+            debug.point(simulatedPlayer.x, simulatedPlayer.y, 'blue', 'corrected position ' + simulatedPlayer.verticalSpeed);
+            debug.point(predictedPlayer.x, predictedPlayer.y, 'red', 'previous position ' + predictedPlayer.verticalSpeed);
+
+            let distance = physicsUtil.getDistance(simulatedPlayer, predictedPlayer);
+            if (distance > config.mispredictionDistance && !config.debug.preventNetworkCorrections)
+                shouldCorrectPositions = true;
         });
 
-        while (deltaFrames > 0) {
-            if (deltaFrames >= 1) {
-                this.physics.update(1, gameTime);
-                gameTime += FRAME_RATE;
-            } else {
-                this.physics.update(deltaFrames, gameTime);
-                gameTime += deltaFrames * FRAME_RATE;
-            }
-            this.input.applyControllerAt(gameTime);
-            deltaFrames--;
+        if (shouldCorrectPositions) {
+            this.physics.applySharedState(sharedState);
+            this.physics.fastForward(now - sharedState.time, deltaTime, this.input);
         }
+
+        if (this.been) {
+            //this.stopEngine = true;
+        }
+        this.been = true;
+        //this.stopEngine = true;
 
         this.sharedState = null;
     }

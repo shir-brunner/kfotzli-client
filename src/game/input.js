@@ -5,6 +5,7 @@ const RIGHT_KEY = 39;
 const UP_KEY = 38;
 const DOWN_KEY = 40;
 const ACTION_KEYS = [LEFT_KEY, RIGHT_KEY, UP_KEY, DOWN_KEY];
+const debug = require('./utils/debug');
 
 let $document = $(document);
 
@@ -22,7 +23,7 @@ module.exports = class Input {
     }
 
     _handleInput(keyCode, isPressed) {
-        if(ACTION_KEYS.indexOf(keyCode) === -1)
+        if (ACTION_KEYS.indexOf(keyCode) === -1)
             return;
 
         if (this.statesByKey[keyCode] === isPressed)
@@ -31,12 +32,14 @@ module.exports = class Input {
         this.statesByKey[keyCode] = isPressed;
 
         let historyEntry = { keyCode: keyCode, isPressed: isPressed };
-        this.history.set(this.game.gameTime, historyEntry);
-        this.connection.send('INPUT', historyEntry);
-        this._applyInput(keyCode, isPressed);
+        this.history.set(this.game.timestamp, historyEntry);
+        this.applyInput(keyCode, isPressed);
+
+        if (this._shouldSendInput(keyCode, isPressed))
+            this.connection.send('INPUT', historyEntry);
     }
 
-    _applyInput(keyCode, isPressed) {
+    applyInput(keyCode, isPressed) {
         switch (keyCode) {
             case LEFT_KEY:
                 this.localPlayer.controller.isLeftPressed = isPressed;
@@ -53,8 +56,12 @@ module.exports = class Input {
         }
     }
 
-    applyControllerAt(gameTime) {
-        let historyEntry = this.history.at(gameTime);
-        historyEntry && this._applyInput(historyEntry.keyCode, historyEntry.isPressed);
+    _shouldSendInput(keyCode, isPressed) {
+        if (this.localPlayer.isJumping()) {
+            if (keyCode === UP_KEY && isPressed)
+                return false;
+        }
+
+        return true;
     }
 };

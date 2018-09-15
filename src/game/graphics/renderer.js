@@ -1,6 +1,7 @@
 const Camera = require('./camera');
 const Background = require('./background');
 const config = require('../../config');
+const debug = require('../utils/debug');
 
 module.exports = class Renderer {
     constructor(screenCanvas, level) {
@@ -18,7 +19,7 @@ module.exports = class Renderer {
         this.camera = new Camera(viewSize, this.level.size, config.debug.fullLevelView);
         this.background = new Background(level);
 
-        if(this.camera.fullLevelView) {
+        if (this.camera.fullLevelView) {
             this.screenContext.canvas.width = level.size.width;
             this.screenContext.canvas.height = level.size.height;
         }
@@ -31,8 +32,11 @@ module.exports = class Renderer {
         this.camera.follow(gameState.players.find(player => player.isLocal));
         this.camera.update();
 
+        debug.renderDebugPoints(this.offScreenContext);
         let cameraLocation = this.camera.location;
         let offScreenImage = this.offScreenContext.getImageData(cameraLocation.x, cameraLocation.y, cameraLocation.width, cameraLocation.height);
         this.screenContext.putImageData(offScreenImage, 0, 0);
+        debug.renderDebugTexts(this.screenContext);
+        debug.renderDebugInfo(this.screenContext);
     }
 };

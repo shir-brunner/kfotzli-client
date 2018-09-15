@@ -23,9 +23,12 @@
     "webpack-dev-server": "^2.4.2"
   },
   "dependencies": {
+    "assert": "^1.4.1",
     "bluebird": "^3.5.1",
+    "chalk": "^2.4.1",
     "jquery": "^3.3.1",
     "moment": "^2.22.2",
+    "should": "^13.2.3",
     "uuid": "^3.3.2"
   }
 }

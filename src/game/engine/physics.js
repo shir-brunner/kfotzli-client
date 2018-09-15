@@ -1,6 +1,8 @@
 const config = require('../common_config');
-const intersectionUtil = require('../utils/intersection');
+const physicsUtil = require('../utils/physics');
 const _ = require('lodash');
+const FRAME_RATE = Math.round(1000 / config.fps);
+const debug = require('../utils/debug');
 
 module.exports = class Physics {
     constructor(gameState) {
@@ -8,76 +10,81 @@ module.exports = class Physics {
         this.stuckables = gameState.gameObjects.filter(gameObject => gameObject.stuckable);
         this.climbables = gameState.gameObjects.filter(gameObject => gameObject.climbable);
         this.levelSize = this.gameState.level.size;
+        this.localPlayer = this.gameState.players.find(player => player.isLocal);
     }
 
-    update(delta, gameTime) {
-        this._updatePlayersPhysics(delta);
-        this.gameState.update(delta, gameTime);
+    update(delta) {
+        this.gameState.players.forEach(player => this._updatePlayerPhysics(player, delta));
+        this.gameState.update(delta);
     }
 
-    _updatePlayersPhysics(delta) {
-        this.gameState.players.forEach(player => {
-            let canMoveLeft = player.x > 0;
-            let canMoveRight = (player.x + player.width) < this.levelSize.width;
-            let climbing = false;
-            let speed = player.speed * delta;
-            player.isStanding = false;
+    _updatePlayerPhysics(player, delta) {
+        let canMoveLeft = player.x > 0;
+        let canMoveRight = (player.x + player.width) < this.levelSize.width;
+        let climbing = false;
+        let speed = player.speed * delta;
+        player.isStanding = false;
 
-            this.stuckables.forEach(gameObject => {
-                let collidablePosition = gameObject.getCollidablePosition();
+        this.stuckables.forEach(gameObject => {
+            let collidablePosition = gameObject.getCollidablePosition();
 
-                if (player.y + player.height > collidablePosition.y &&
-                    player.y < collidablePosition.y + collidablePosition.height) {
+            if (player.y + player.height > collidablePosition.y &&
+                player.y < collidablePosition.y + collidablePosition.height) {
 
-                    if (player.x + player.width + speed >= collidablePosition.x &&
-                        player.x + speed <= collidablePosition.x + collidablePosition.width) {
-                        canMoveRight = false;
-                    }
-
-                    if (player.x - speed <= collidablePosition.x + collidablePosition.width &&
-                        player.x + player.width - speed >= collidablePosition.x) {
-                        canMoveLeft = false;
-                    }
+                if (player.x + player.width + speed >= collidablePosition.x &&
+                    player.x + speed <= collidablePosition.x + collidablePosition.width) {
+                    canMoveRight = false;
                 }
-            });
 
-            this.climbables.forEach(gameObject => {
-                let collidablePosition = gameObject.getCollidablePosition();
-                if (intersectionUtil.intersects(player, collidablePosition) &&
-                    (player.controller.isUpPressed || player.controller.isDownPressed)) {
-                    climbing = true;
+                if (player.x - speed <= collidablePosition.x + collidablePosition.width &&
+                    player.x + player.width - speed >= collidablePosition.x) {
+                    canMoveLeft = false;
                 }
-            });
-
-            if (!climbing) {
-                player.verticalSpeed += config.gravity * delta;
-                player.y += player.verticalSpeed;
-                player.setAnimation('jump');
             }
-
-            this.stuckables.forEach(gameObject => {
-                let collidablePosition = gameObject.getCollidablePosition();
-
-                if (this._canLand(player, collidablePosition))
-                    this._land(player, collidablePosition);
-
-                if (this._canButt(player, collidablePosition))
-                    this._butt(player, collidablePosition);
-            });
-
-            if (player.controller.isLeftPressed && canMoveLeft)
-                player.move('left', speed);
-            else if (player.controller.isRightPressed && canMoveRight) {
-                player.move('right', speed);
-            }
-
-            if (player.controller.isUpPressed && climbing)
-                player.climb('up', player.climbSpeed * delta);
-            else if (player.controller.isDownPressed && climbing)
-                player.climb('down', player.climbSpeed * delta);
-            else if (player.controller.isUpPressed && player.isStanding)
-                player.bump(player.jumpHeight);
         });
+
+        this.climbables.forEach(gameObject => {
+            let collidablePosition = gameObject.getCollidablePosition();
+            if (physicsUtil.intersects(player, collidablePosition) &&
+                (player.controller.isUpPressed || player.controller.isDownPressed)) {
+                climbing = true;
+            }
+        });
+
+        if (!climbing) {
+            player.verticalSpeed += config.gravity * delta;
+            player.y += player.verticalSpeed;
+            player.setAnimation('jump');
+        }
+
+        this.stuckables.forEach(gameObject => {
+            let collidablePosition = gameObject.getCollidablePosition();
+
+            if (this._canLand(player, collidablePosition))
+                this._land(player, collidablePosition);
+
+            if (this._canButt(player, collidablePosition))
+                this._butt(player, collidablePosition);
+        });
+
+        if (player.controller.isLeftPressed && canMoveLeft)
+            player.move('left', speed);
+        else if (player.controller.isRightPressed && canMoveRight) {
+            player.move('right', speed);
+        }
+
+        if(player.x < 0)
+            player.x = 0;
+
+        if(player.x + player.width > this.levelSize.width)
+            player.x = this.levelSize.width - player.width;
+
+        if (player.controller.isUpPressed && climbing)
+            player.climb('up', player.climbSpeed * delta);
+        else if (player.controller.isDownPressed && climbing)
+            player.climb('down', player.climbSpeed * delta);
+        else if (player.controller.isUpPressed && player.isStanding)
+            player.bump(player.jumpHeight);
     }
 
     _canLand(player, collidablePosition) {
@@ -106,5 +113,28 @@ module.exports = class Physics {
     _butt(player, collidablePosition) {
         player.verticalSpeed = 0;
         player.y = collidablePosition.y + collidablePosition.height;
+    }
+
+    applySharedState(sharedState) {
+        sharedState.players.forEach(playerState => {
+            let player = this.gameState.players.find(player => player.id === playerState.id);
+            _.assign(player, playerState);
+        });
+    }
+
+    fastForward(fromTime, deltaTime, input) {
+        let deltaFrames = deltaTime / FRAME_RATE;
+        while (deltaFrames > 0) {
+            if (deltaFrames >= 1) {
+                fromTime += FRAME_RATE;
+                this._updatePlayerPhysics(this.localPlayer, 1);
+            } else {
+                fromTime += (deltaFrames * FRAME_RATE);
+                this._updatePlayerPhysics(this.localPlayer, deltaFrames);
+            }
+
+            deltaFrames--;
+            input.applyInput(input.history.at(fromTime)); //TODO: THINK IF NEEDED
+        }
     }
 };

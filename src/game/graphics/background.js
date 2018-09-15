@@ -1,4 +1,5 @@
 const Drawable = require('./drawable');
+const assets = require('../../services/assets');
 
 module.exports = class Background extends Drawable {
     constructor(level) {

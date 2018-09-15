@@ -10,9 +10,9 @@ module.exports = class GameState {
         this.gameObjects = level.gameObjects.map(gameObject => new GameObject(gameObject));
     }
 
-    update(delta, gameTime) {
-        this.players.forEach(player => player.update(delta, gameTime));
-        this.gameObjects.forEach(gameObject => gameObject.update(delta, gameTime));
+    update(delta) {
+        this.players.forEach(player => player.update(delta));
+        this.gameObjects.forEach(gameObject => gameObject.update(delta));
     }
 
     render(context, camera) {
@@ -20,10 +20,8 @@ module.exports = class GameState {
         this.players.forEach(player => player.render(context, camera));
     }
 
-    getSharedState(gameTime) {
-        return {
-            players: this.players.map(player => player.getSharedState(gameTime))
-        };
+    getLocalPlayer() {
+        return this.players.find(player => player.isLocal);
     }
 
     static create(level, clients) {

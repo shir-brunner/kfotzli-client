@@ -6,41 +6,58 @@ module.exports = class Timeline {
         this.history = [];
     }
 
-    set(gameTime, state) {
-        //remove any future values after "gameTime"
-        this.history = this.history.filter(entry => entry.gameTime < gameTime);
-        this.history.push({ gameTime: gameTime, state: _.cloneDeep(state) });
-
+    set(time, state) {
         if (this.history.length >= this.maxHistorySize)
             this.history.shift();
+
+        //remove any future values after "time"
+        this.history = this.history.filter(entry => entry.time < time);
+        this.history.push({ time: time, state: _.cloneDeep(state) });
     }
 
-    at(gameTime, interpolate = true) {
+    at(time, strategy = 'floor') {
         let index = this.history.length - 1;
-        let closestEntryIndex = -1;
+        let selectedEntryIndex = -1;
 
         while (index > -1) {
-            let entry = this.history[index];
-            if (closestEntryIndex === -1) {
-                closestEntryIndex = index;
+            let currentEntry = this.history[index];
+            if (selectedEntryIndex === -1) {
+                selectedEntryIndex = index;
             } else {
-                let closestEntryDiff = Math.abs(this.history[closestEntryIndex].gameTime - gameTime);
-                let entryDiff = Math.abs(entry.gameTime - gameTime);
+                if (currentEntry.time === time) {
+                    selectedEntryIndex = index;
+                    break;
+                }
+
+                let closestEntryDiff = Math.abs(this.history[selectedEntryIndex].time - time);
+                let entryDiff = Math.abs(currentEntry.time - time);
                 if (entryDiff < closestEntryDiff) {
-                    closestEntryIndex = index;
+                    selectedEntryIndex = index;
                 }
             }
             index--;
         }
 
-        if (interpolate) {
-            //TODO: interpolate
+        let selectedEntry = this.history[selectedEntryIndex];
+        if(selectedEntryIndex > 0 && strategy === 'floor' && selectedEntry.time !== time) {
+            let prevEntry = this.history[selectedEntryIndex - 1];
+            if(time < selectedEntry.time) {
+                selectedEntry = prevEntry;
+            }
         }
 
-        return this.history[closestEntryIndex] && this.history[closestEntryIndex].state;
+        return selectedEntry && selectedEntry.state;
     }
 
-    getAllAfter(gameTime) {
-        return this.history.filter(entry => entry.gameTime > gameTime).map(entry => _.cloneDeep(entry));
+    getAllAfter(time) {
+        return this.history.filter(entry => entry.time > time).map(entry => _.cloneDeep(entry));
+    }
+
+    clear() {
+        this.history = [];
+    }
+
+    first() {
+        return this.history[0];
     }
 };
