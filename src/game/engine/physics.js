@@ -3,17 +3,16 @@ const physicsUtil = require('../utils/physics');
 const _ = require('lodash');
 
 module.exports = class Physics {
-    constructor(gameState) {
-        this.gameState = gameState;
-        this.stuckables = gameState.gameObjects.filter(gameObject => gameObject.stuckable);
-        this.climbables = gameState.gameObjects.filter(gameObject => gameObject.climbable);
-        this.levelSize = this.gameState.level.size;
-        this.localPlayer = this.gameState.players.find(player => player.isLocal);
+    constructor(world) {
+        this.world = world;
+        this.stuckables = world.gameObjects.filter(gameObject => gameObject.stuckable);
+        this.climbables = world.gameObjects.filter(gameObject => gameObject.climbable);
+        this.levelSize = this.world.level.size;
+        this.players = this.world.players;
     }
 
     update(delta) {
-        this.gameState.players.forEach(player => this._updatePlayerPhysics(player, delta));
-        this.gameState.update(delta);
+        this.world.players.forEach(player => this._updatePlayerPhysics(player, delta));
     }
 
     _updatePlayerPhysics(player, delta) {
@@ -41,7 +40,7 @@ module.exports = class Physics {
             }
         });
 
-        this.gameState.players.forEach(otherPlayer => {
+        this.players.forEach(otherPlayer => {
             if(otherPlayer.id === player.id)
                 return;
 
@@ -132,20 +131,13 @@ module.exports = class Physics {
         player.y = collidablePosition.y + collidablePosition.height;
     }
 
-    applySharedState(sharedState) {
-        sharedState.players.forEach(playerState => {
-            let player = this.gameState.players.find(player => player.id === playerState.id);
-            _.assign(player, playerState);
-        });
-    }
-
     fastForwardLocalPlayer(framesForward, inputHandler, currentFrame) {
         for (let frame = framesForward; frame > 0; frame--) {
             let input = inputHandler.inputBuffer.at(currentFrame - frame);
             if (input)
-                inputHandler.applyInput(this.localPlayer, input);
+                inputHandler.applyInput(this.world.localPlayer, input);
 
-            this._updatePlayerPhysics(this.localPlayer, 1);
+            this._updatePlayerPhysics(this.world.localPlayer, 1);
         }
     }
 };

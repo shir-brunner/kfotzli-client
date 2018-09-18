@@ -10,7 +10,6 @@ module.exports = class InputBuffer {
         if (this.buffer.length >= this.bufferSize)
             this.buffer.shift();
 
-        console.log('adding input at frame ' + input.frame);
         this.buffer.push(input);
     }
 

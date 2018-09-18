@@ -25,11 +25,11 @@ module.exports = class Renderer {
         }
     }
 
-    render(gameState) {
+    render(world) {
         this.background.render(this.offScreenContext, this.camera);
-        gameState.render(this.offScreenContext, this.camera);
+        world.render(this.offScreenContext, this.camera);
 
-        this.camera.follow(gameState.players.find(player => player.isLocal));
+        this.camera.follow(world.players.find(player => player.isLocal));
         this.camera.update();
 
         debug.renderDebugPoints(this.offScreenContext);

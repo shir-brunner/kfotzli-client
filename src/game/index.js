@@ -1,6 +1,6 @@
 const Renderer = require('./graphics/renderer');
 const _ = require('lodash');
-const GameState = require('./engine/game_state');
+const World = require('./engine/world');
 const config = require('../config');
 const commonConfig = require('./common_config');
 const Physics = require('./engine/physics');
@@ -12,14 +12,12 @@ const debug = require('./utils/debug');
 module.exports = class Game {
     constructor(room, connection, gameCanvas, latency) {
         this.renderer = new Renderer(gameCanvas, room.level);
-        this.gameState = GameState.create(room.level, room.clients);
-        this.physics = new Physics(this.gameState);
-        this.physicsSimulator = new Physics(_.cloneDeep(this.gameState));
+        this.world = World.create(room.level, room.clients);
+        this.worldPlayground = _.cloneDeep(this.world);
         this.connection = connection;
         this.latency = latency;
-
-        let localPlayer = this.gameState.players.find(player => player.isLocal);
-        this.inputHandler = new InputHandler(localPlayer, connection, this);
+        this.localPlayer = this.world.localPlayer;
+        this.inputHandler = new InputHandler(this.localPlayer, connection, this);
 
         this.stopEngine = false;
         this.lastFrame = 0;
@@ -39,10 +37,10 @@ module.exports = class Game {
         if (deltaTime) {
             let deltaFrames = deltaTime / FRAME_RATE;
             for (let frame = 1; frame <= deltaFrames; frame++)
-                this.physics.update(1);
+                this.world.update(1);
 
             this.sharedState && this._onServerUpdate(this.sharedState, currentFrame);
-            this.renderer.render(this.gameState);
+            this.renderer.render(this.world);
             if (this.stopEngine)
                 throw new Error('Engine has been stopped');
 
@@ -56,21 +54,21 @@ module.exports = class Game {
     _onServerUpdate(sharedState, currentFrame) {
         let framesForward = Math.round((this.latency * 2) / FRAME_RATE);
 
-        this.physicsSimulator.applySharedState(sharedState);
-        this.physicsSimulator.fastForwardLocalPlayer(framesForward, this.inputHandler, currentFrame);
+        this.worldPlayground.applySharedState(sharedState);
+        this.worldPlayground.physics.fastForwardLocalPlayer(framesForward, this.inputHandler, currentFrame);
 
-        if (this.shouldCorrectPositions()) {
-            this.physics.applySharedState(sharedState);
-            this.physics.fastForwardLocalPlayer(framesForward, this.inputHandler, currentFrame);
+        if (this._shouldCorrectPositions()) {
+            this.world.applySharedState(sharedState);
+            this.world.physics.fastForwardLocalPlayer(framesForward, this.inputHandler, currentFrame);
         }
 
-        this.inputHandler.inputBuffer.removeOldInputs(this.physicsSimulator.localPlayer.lastProcessedFrame);
+        this.inputHandler.inputBuffer.removeOldInputs(this.localPlayer.lastProcessedFrame);
         this.sharedState = null;
     }
 
-    shouldCorrectPositions() {
+    _shouldCorrectPositions() {
         let shouldCorrectPositions = false;
-        this.physicsSimulator.gameState.players.forEach(simulatedPlayer => {
+        this.worldPlayground.players.forEach(simulatedPlayer => {
             if (!simulatedPlayer.positionChanged)
                 return;
 
@@ -80,7 +78,7 @@ module.exports = class Game {
                 return;
             }
 
-            let predictedPlayer = this.gameState.players.find(player => player.id === simulatedPlayer.id);
+            let predictedPlayer = this.world.players.find(player => player.id === simulatedPlayer.id);
 
             if(config.debug.showNetworkCorrections) {
                 debug.point(simulatedPlayer.x, simulatedPlayer.y, 'blue', 'corrected position ' + simulatedPlayer.verticalSpeed);

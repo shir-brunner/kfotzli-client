@@ -60,7 +60,7 @@ class Debug {
             'LATENCY: ' + game.latency + ' MS, ROUNDTRIP: ' + (game.latency * 2) + ', FRAMES LATENCY: ' + Math.round(game.latency / desiredFrameRate)
         ];
 
-        this.info.push(...game.gameState.players.map(player => {
+        this.info.push(...game.world.players.map(player => {
             return `${player.name}:  X = ${Math.round(player.x)}, Y = ${Math.round(player.y)}, VERTICAL SPEED: ${Math.round(player.verticalSpeed)}` + (player.isLocal ? ' (LOCAL)' : '');
         }));
     }
