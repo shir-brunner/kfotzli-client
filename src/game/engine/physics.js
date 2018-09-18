@@ -41,6 +41,25 @@ module.exports = class Physics {
             }
         });
 
+        this.gameState.players.forEach(otherPlayer => {
+            if(otherPlayer.id === player.id)
+                return;
+
+            if (player.y + player.height > otherPlayer.y &&
+                player.y < otherPlayer.y + otherPlayer.height) {
+
+                if (player.x + player.width + speed >= otherPlayer.x &&
+                    player.x + speed <= otherPlayer.x + otherPlayer.width) {
+                    canMoveRight = false;
+                }
+
+                if (player.x - speed <= otherPlayer.x + otherPlayer.width &&
+                    player.x + player.width - speed >= otherPlayer.x) {
+                    canMoveLeft = false;
+                }
+            }
+        });
+
         this.climbables.forEach(gameObject => {
             let collidablePosition = gameObject.getCollidablePosition();
             if (physicsUtil.intersects(player, collidablePosition) &&
