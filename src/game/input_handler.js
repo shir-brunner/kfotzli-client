@@ -8,7 +8,7 @@ const ACTION_KEYS = [LEFT_KEY, RIGHT_KEY, UP_KEY, DOWN_KEY];
 
 let $document = $(document);
 
-module.exports = class Input {
+module.exports = class InputHandler {
     constructor(localPlayer, connection, game) {
         this.localPlayer = localPlayer;
         this.connection = connection;

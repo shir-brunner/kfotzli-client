@@ -4,7 +4,7 @@ const GameState = require('./engine/game_state');
 const config = require('../config');
 const commonConfig = require('./common_config');
 const Physics = require('./engine/physics');
-const Input = require('./input');
+const InputHandler = require('./input_handler');
 const FRAME_RATE = Math.round(1000 / commonConfig.fps);
 const physicsUtil = require('./utils/physics');
 const debug = require('./utils/debug');
@@ -19,7 +19,7 @@ module.exports = class Game {
         this.latency = latency;
 
         let localPlayer = this.gameState.players.find(player => player.isLocal);
-        this.input = new Input(localPlayer, connection, this);
+        this.inputHandler = new InputHandler(localPlayer, connection, this);
 
         this.stopEngine = false;
         this.lastFrame = 0;
@@ -60,7 +60,7 @@ module.exports = class Game {
         let deltaTime = this.latency * 2;
 
         this.physicsSimulator.applySharedState(sharedState);
-        this.physicsSimulator.fastForwardLocalPlayer(now, deltaTime, this.input);
+        this.physicsSimulator.fastForwardLocalPlayer(now, deltaTime, this.inputHandler);
 
         let shouldCorrectPositions = false;
         this.physicsSimulator.gameState.players.forEach(simulatedPlayer => {
@@ -84,7 +84,7 @@ module.exports = class Game {
 
         if (shouldCorrectPositions) {
             this.physics.applySharedState(sharedState);
-            this.physics.fastForwardLocalPlayer(now, deltaTime, this.input);
+            this.physics.fastForwardLocalPlayer(now, deltaTime, this.inputHandler);
         }
 
         this.sharedState = null;

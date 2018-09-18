@@ -121,10 +121,10 @@ module.exports = class Physics {
         });
     }
 
-    fastForwardLocalPlayer(now, deltaTime, input) {
+    fastForwardLocalPlayer(now, deltaTime, inputHandler) {
         let deltaFrames = deltaTime / FRAME_RATE;
         for (let frame = 1; frame <= deltaFrames; frame++) {
-            let inputEntry = input.history.at(now - deltaTime);
+            let inputEntry = inputHandler.history.at(now - deltaTime);
             if (inputEntry)
                 input.applyInput(this.localPlayer, inputEntry.keyCode, inputEntry.isPressed);
             deltaTime -= FRAME_RATE;
