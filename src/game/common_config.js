@@ -6,8 +6,8 @@ module.exports = {
     squareSize: 100,
     fps: 30,
     bodyParts: {
-        count: 30,
-        expiration: 5000
+        count: 25,
+        expiration: 6000
     },
     respawnTime: ms('2 seconds')
 };

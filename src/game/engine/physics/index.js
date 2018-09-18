@@ -159,13 +159,15 @@ module.exports = class Physics {
     }
 
     _updateBodyPartPhysics(bodyPart, delta) {
-        this.stuckables.forEach(gameObject => {
-            let collidablePosition = gameObject.getCollidablePosition();
-            if(physicsUtil.intersects(bodyPart, collidablePosition)) {
-                bodyPart.verticalSpeed *= -1;
-                bodyPart.y = collidablePosition.y - bodyPart.height;
-            }
-        });
+        if(!bodyPart.ignorePhysics) {
+            this.stuckables.forEach(gameObject => {
+                let collidablePosition = gameObject.getCollidablePosition();
+                if(physicsUtil.intersects(bodyPart, collidablePosition)) {
+                    bodyPart.verticalSpeed *= -1;
+                    bodyPart.y = collidablePosition.y - bodyPart.height;
+                }
+            });
+        }
 
         bodyPart.x += bodyPart.horizontalSpeed * delta;
         bodyPart.verticalSpeed += config.gravity * delta;

@@ -42,6 +42,11 @@ module.exports = class World {
 
     removeExpiredBodyParts() {
         let now = Date.now();
+        this.bodyParts.forEach(bodyPart => {
+            if(now > bodyPart.expiration - 2500)
+                bodyPart.ignorePhysics = true;
+        });
+
         this.bodyParts = this.bodyParts.filter(bodyPart => now < bodyPart.expiration);
     }
 
