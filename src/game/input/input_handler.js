@@ -1,10 +1,11 @@
-const Timeline = require('./utils/timeline');
+const InputBuffer = require('./input_buffer');
 const $ = require('jquery');
 const LEFT_KEY = 37;
 const RIGHT_KEY = 39;
 const UP_KEY = 38;
 const DOWN_KEY = 40;
 const ACTION_KEYS = [LEFT_KEY, RIGHT_KEY, UP_KEY, DOWN_KEY];
+const config = require('../../config');
 
 let $document = $(document);
 
@@ -13,7 +14,7 @@ module.exports = class InputHandler {
         this.localPlayer = localPlayer;
         this.connection = connection;
         this.statesByKey = {};
-        this.history = new Timeline(10);
+        this.inputBuffer = new InputBuffer(config.inputBufferSize);
         this.game = game;
 
         $document.off('keydown keyup');
@@ -30,34 +31,34 @@ module.exports = class InputHandler {
 
         this.statesByKey[keyCode] = isPressed;
 
-        let historyEntry = { keyCode: keyCode, isPressed: isPressed };
-        this.history.set(this.game.timestamp, historyEntry);
-        this.applyInput(this.localPlayer, keyCode, isPressed);
+        let input = { frame: this.game.lastFrame, keyCode: keyCode, isPressed: isPressed };
+        if (this._shouldSendInput(input))
+            this.connection.send('INPUT', input);
 
-        if (this._shouldSendInput(keyCode, isPressed))
-            this.connection.send('INPUT', historyEntry);
+        this.inputBuffer.addInput(input);
+        this.applyInput(this.localPlayer, input);
     }
 
-    applyInput(player, keyCode, isPressed) {
-        switch (keyCode) {
+    applyInput(player, input) {
+        switch (input.keyCode) {
             case LEFT_KEY:
-                player.controller.isLeftPressed = isPressed;
+                player.controller.isLeftPressed = input.isPressed;
                 break;
             case RIGHT_KEY:
-                player.controller.isRightPressed = isPressed;
+                player.controller.isRightPressed = input.isPressed;
                 break;
             case UP_KEY:
-                player.controller.isUpPressed = isPressed;
+                player.controller.isUpPressed = input.isPressed;
                 break;
             case DOWN_KEY:
-                player.controller.isDownPressed = isPressed;
+                player.controller.isDownPressed = input.isPressed;
                 break;
         }
     }
 
-    _shouldSendInput(keyCode, isPressed) {
+    _shouldSendInput(input) {
         if (this.localPlayer.isJumping()) {
-            if (keyCode === UP_KEY && isPressed)
+            if (input.keyCode === UP_KEY && input.isPressed)
                 return false;
         }
 

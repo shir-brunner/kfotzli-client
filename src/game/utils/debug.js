@@ -57,7 +57,7 @@ class Debug {
         this.info = [
             'DESIRED FPS: ' + commonConfig.fps + ', ACTUAL: ' + Math.round(1000 / deltaTime),
             'DESIRED FRAME RATE: ' + desiredFrameRate + ' MS, ACTUAL: ' + deltaTime + ' MS',
-            'LATENCY: ' + game.latency + ' MS, FRAMES LATENCY: ' + Math.round(game.latency / desiredFrameRate)
+            'LATENCY: ' + game.latency + ' MS, ROUNDTRIP: ' + (game.latency * 2) + ', FRAMES LATENCY: ' + Math.round(game.latency / desiredFrameRate)
         ];
 
         this.info.push(...game.gameState.players.map(player => {

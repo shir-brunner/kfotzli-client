@@ -10,7 +10,7 @@ const assertEquals = (actual, expected) => {
     assert(actual === expected, `expected ${actual} to equal ${expected}`);
 };
 
-const testMaxHistorySize = () => {
+const maxHistorySize = () => {
     let timeline = new Timeline(5);
     timeline.set(0, { x: 0 });
     timeline.set(100, { x: 2 });
@@ -65,7 +65,7 @@ const getAllAfter = () => {
     assertEquals(allAfter[0].state.x, 8);
 };
 
-testMaxHistorySize();
+maxHistorySize();
 futureValuesShouldBeRemoved();
 getHistory();
 getAllAfter();

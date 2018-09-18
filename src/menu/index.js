@@ -11,6 +11,8 @@ let $mainMenu = $('#main-menu').show();
 let $gameTitle = $mainMenu.find('.big-title').html(localization.translate('gameTitle'));
 let $clientName = $('#client-name');
 
+document.title = localization.translate('gameTitle');
+
 background.onBackgroundReady(() => {
     let $playWithFriends = createExtraLargeButton(localization.translate('playWithFriends'), 'friends').hide();
     let $playWithStrangers = createExtraLargeButton(localization.translate('playWithStrangers'), 'play').hide();

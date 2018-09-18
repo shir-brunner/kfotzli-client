@@ -1,7 +1,6 @@
 const config = require('../common_config');
 const physicsUtil = require('../utils/physics');
 const _ = require('lodash');
-const FRAME_RATE = Math.round(1000 / config.fps);
 
 module.exports = class Physics {
     constructor(gameState) {
@@ -121,13 +120,12 @@ module.exports = class Physics {
         });
     }
 
-    fastForwardLocalPlayer(now, deltaTime, inputHandler) {
-        let deltaFrames = deltaTime / FRAME_RATE;
-        for (let frame = 1; frame <= deltaFrames; frame++) {
-            let inputEntry = inputHandler.history.at(now - deltaTime);
-            if (inputEntry)
-                input.applyInput(this.localPlayer, inputEntry.keyCode, inputEntry.isPressed);
-            deltaTime -= FRAME_RATE;
+    fastForwardLocalPlayer(framesForward, inputHandler, currentFrame) {
+        for (let frame = framesForward; frame > 0; frame--) {
+            let input = inputHandler.inputBuffer.at(currentFrame - frame);
+            if (input)
+                inputHandler.applyInput(this.localPlayer, input);
+
             this._updatePlayerPhysics(this.localPlayer, 1);
         }
     }

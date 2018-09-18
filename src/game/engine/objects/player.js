@@ -1,6 +1,6 @@
 const Drawable = require('../../graphics/drawable');
 const _ = require('lodash');
-const SHARED_ATTRIBUTES = ['id', 'x', 'y', 'verticalSpeed', 'controller', 'positionChanged', 'lastInputId'];
+const SHARED_ATTRIBUTES = ['id', 'x', 'y', 'verticalSpeed', 'controller', 'positionChanged', 'lastProcessedFrame'];
 
 module.exports = class Player extends Drawable {
     constructor(params) {
