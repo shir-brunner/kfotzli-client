@@ -23,8 +23,11 @@ module.exports = class Player extends Drawable {
     }
 
     render(context, camera) {
+        if(this.isDead)
+            return;
+
         super.render(context, camera);
-        context.font = "20px Arial";
+        context.font = "20px makabi";
         context.textAlign = "center";
         context.fillText(this.name, this.x + (this.width / 2), this.y - 20);
     }
@@ -79,6 +82,17 @@ module.exports = class Player extends Drawable {
     }
 
     die() {
-        console.log(this.name + ' has died!!!!');
+        this.verticalSpeed = 0;
+        this.controller.isRightPressed = false;
+        this.controller.isLeftPressed = false;
+        this.controller.isUpPressed = false;
+        this.controller.isDownPressed = false;
+        this.isDead = true;
+    }
+
+    respawn(spawnPoint) {
+        this.x = spawnPoint.x;
+        this.y = spawnPoint.y;
+        this.isDead = false;
     }
 };

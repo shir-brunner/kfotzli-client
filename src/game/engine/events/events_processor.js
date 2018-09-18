@@ -1,5 +1,6 @@
 const handlersByType = {
-    DEATH: require('./handlers/death')
+    DEATH: require('./handlers/death'),
+    RESPAWN: require('./handlers/respawn'),
 };
 
 module.exports = class EventsProcessor {

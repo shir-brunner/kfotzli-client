@@ -8,11 +8,13 @@ const FRAME_RATE = Math.round(1000 / commonConfig.fps);
 const physicsUtil = require('./utils/physics');
 const debug = require('./utils/debug');
 const EventsProcessor = require('./engine/events/events_processor');
+const Camera = require('./graphics/camera');
 
 module.exports = class Game {
     constructor(room, connection, gameCanvas, latency) {
         this.renderer = new Renderer(gameCanvas, room.level);
-        this.world = World.create(room.level, room.clients);
+        this.camera = new Camera(config.camera.viewSize, room.level.size, config.debug.fullLevelView);
+        this.world = World.create(room.level, room.clients, this.camera);
         this.worldPlayground = _.cloneDeep(this.world);
         this.connection = connection;
         this.latency = latency;
@@ -43,7 +45,6 @@ module.exports = class Game {
             this.sharedState && this._onServerUpdate(this.sharedState, currentFrame);
             this.eventsProcessor.process(this.pendingEvents);
             this.pendingEvents = [];
-
             this.renderer.render(this.world);
 
             debug.setDebugInfo(deltaTime, this);
@@ -82,7 +83,7 @@ module.exports = class Game {
 
             let predictedPlayer = this.world.players.find(player => player.id === simulatedPlayer.id);
 
-            if(config.debug.showNetworkCorrections) {
+            if (config.debug.showNetworkCorrections) {
                 debug.point(simulatedPlayer.x, simulatedPlayer.y, 'blue', 'corrected position ' + simulatedPlayer.verticalSpeed);
                 debug.point(predictedPlayer.x, predictedPlayer.y, 'red', 'predicted position ' + predictedPlayer.verticalSpeed);
             }

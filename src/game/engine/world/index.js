@@ -1,18 +1,21 @@
 const _ = require('lodash');
 const Player = require('../objects/player');
 const GameObject = require('../objects/game_object');
-const config = require('../../common_config');
-const Physics = require('../physics');
+const commonConfig = require('../../common_config');
+const Physics = require('../physics/index');
 const WorldEvents = require('../events/world_events');
 
 module.exports = class World {
-    constructor({ players, level }) {
+    constructor({ players, level, camera }) {
         this.players = players;
         this.level = level;
         this.gameObjects = level.gameObjects.map(gameObject => new GameObject(gameObject));
         this.physics = new Physics(this);
         this.localPlayer = this.players.find(player => player.isLocal);
         this.worldEvents = new WorldEvents(this);
+        this.bodyParts = [];
+        this.camera = camera;
+        this.camera.follow(this.localPlayer);
     }
 
     update(delta) {
@@ -20,6 +23,14 @@ module.exports = class World {
         this.players.forEach(player => player.update(delta));
         this.gameObjects.forEach(gameObject => gameObject.update(delta));
         this.worldEvents.updateEvents();
+        this.removeExpiredBodyParts();
+        this.camera && this.camera.update(delta);
+    }
+
+    render(context) {
+        this.gameObjects.forEach(gameObject => gameObject.render(context, this.camera));
+        this.players.forEach(player => player.render(context, this.camera));
+        this.bodyParts.forEach(bodyPart => bodyPart.render(context, this.camera));
     }
 
     setPlayersPositions(players) {
@@ -29,22 +40,23 @@ module.exports = class World {
         });
     }
 
-    render(context, camera) {
-        this.gameObjects.forEach(gameObject => gameObject.render(context, camera));
-        this.players.forEach(player => player.render(context, camera));
+    removeExpiredBodyParts() {
+        let now = Date.now();
+        this.bodyParts = this.bodyParts.filter(bodyPart => now < bodyPart.expiration);
     }
 
-    static create(level, clients) {
+    static create(level, clients, camera) {
         return new World({
             players: clients.map((client, index) => {
                 let spawnPoint = level.spawnPoints[index];
                 let playerParams = client.character;
                 playerParams.x = spawnPoint.x;
-                playerParams.y = spawnPoint.y - client.character.height + config.squareSize;
+                playerParams.y = spawnPoint.y - client.character.height + commonConfig.squareSize;
                 _.assign(playerParams, client);
                 return new Player(playerParams);
             }),
-            level: level
+            level: level,
+            camera: camera
         });
     }
 };

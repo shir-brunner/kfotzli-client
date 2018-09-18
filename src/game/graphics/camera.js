@@ -1,3 +1,6 @@
+const physicsUtil = require('../utils/physics');
+const config = require('../../config');
+
 module.exports = class Camera {
     constructor(viewSize, levelSize, fullLevelView = false) {
         this.viewSize = viewSize;
@@ -8,30 +11,49 @@ module.exports = class Camera {
 
     follow(followed) {
         this.followed = followed;
+        let targetPoint = this._getTargetPoint();
+        this.location.x = targetPoint.x;
+        this.location.y = targetPoint.y;
     }
 
     update() {
-        if(this.fullLevelView) {
+        if (this.fullLevelView) {
             this.location = { x: 0, y: 0, width: this.levelSize.width, height: this.levelSize.height };
             return;
         }
 
-        this.location.x = this.followed.x - this.viewSize.width / 2 + (this.followed.width / 2);
-        this.location.y = this.followed.y - this.viewSize.height / 2 + (this.followed.height / 2);
+        let targetPoint = this._getTargetPoint();
+        if(physicsUtil.getDistance(targetPoint, this.location) > 50) {
+            if (targetPoint.x > this.location.x)
+                this.location.x += config.camera.speed;
+            else if (targetPoint.x < this.location.x)
+                this.location.x -= config.camera.speed;
+            if (targetPoint.y > this.location.y)
+                this.location.y += config.camera.speed;
+            else if (targetPoint.y < this.location.y)
+                this.location.y -= config.camera.speed;
+        } else {
+            this.location.x = targetPoint.x;
+            this.location.y = targetPoint.y;
+        }
+    }
 
-        if(this.location.x < 0)
-            this.location.x = 0;
+    _getTargetPoint() {
+        let x = this.followed.x - this.viewSize.width / 2 + (this.followed.width / 2);
+        let y = this.followed.y - this.viewSize.height / 2 + (this.followed.height / 2);
 
-        if(this.location.x > this.levelSize.width - this.viewSize.width)
-            this.location.x = this.levelSize.width - this.viewSize.width;
+        if (x < 0)
+            x = 0;
 
-        if(this.location.y < 0)
-            this.location.y = 0;
+        if (x > this.levelSize.width - this.viewSize.width)
+            x = this.levelSize.width - this.viewSize.width;
 
-        if(this.location.y > this.levelSize.height - this.viewSize.height)
-            this.location.y = this.levelSize.height - this.viewSize.height;
+        if (y < 0)
+            y = 0;
 
-        this.location.x = Math.round(this.location.x);
-        this.location.y = Math.round(this.location.y);
+        if (y > this.levelSize.height - this.viewSize.height)
+            y = this.levelSize.height - this.viewSize.height;
+
+        return { x: Math.round(x), y: Math.round(y) };
     }
 };

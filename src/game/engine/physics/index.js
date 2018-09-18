@@ -1,5 +1,5 @@
-const config = require('../common_config');
-const physicsUtil = require('../utils/physics');
+const config = require('../../common_config');
+const physicsUtil = require('../../utils/physics');
 const _ = require('lodash');
 
 module.exports = class Physics {
@@ -15,6 +15,7 @@ module.exports = class Physics {
     update(delta) {
         this.events = [];
         this.world.players.forEach(player => this._updatePlayerPhysics(player, delta));
+        this.world.bodyParts.forEach(bodyPart => this._updateBodyPartPhysics(bodyPart, delta))
     }
 
     _updatePlayerPhysics(player, delta) {
@@ -43,7 +44,7 @@ module.exports = class Physics {
         });
 
         this.players.forEach(otherPlayer => {
-            if (otherPlayer.id === player.id)
+            if (otherPlayer.id === player.id || otherPlayer.isDead)
                 return;
 
             if (player.y + player.height > otherPlayer.y &&
@@ -155,5 +156,19 @@ module.exports = class Physics {
             player.climb('down', player.climbSpeed * delta);
         else if (player.controller.isUpPressed && player.isStanding)
             player.bump(player.jumpHeight);
+    }
+
+    _updateBodyPartPhysics(bodyPart, delta) {
+        this.stuckables.forEach(gameObject => {
+            let collidablePosition = gameObject.getCollidablePosition();
+            if(physicsUtil.intersects(bodyPart, collidablePosition)) {
+                bodyPart.verticalSpeed *= -1;
+                bodyPart.y = collidablePosition.y - bodyPart.height;
+            }
+        });
+
+        bodyPart.x += bodyPart.horizontalSpeed * delta;
+        bodyPart.verticalSpeed += config.gravity * delta;
+        bodyPart.y += bodyPart.verticalSpeed;
     }
 };

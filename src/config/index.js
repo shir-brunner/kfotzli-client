@@ -1,5 +1,3 @@
-const ms = require('ms');
-
 module.exports = {
     debug: {
         showGameInfo: true,
@@ -7,6 +5,10 @@ module.exports = {
         fullLevelView: false,
         preventNetworkCorrections: false,
         showNetworkCorrections: false
+    },
+    camera: {
+        speed: 40,
+        viewSize: { width: 1920, height: 1280 }
     },
     serverUrl: 'ws://localhost:4001',
     language: 'hebrew',

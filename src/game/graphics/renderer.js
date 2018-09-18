@@ -1,5 +1,3 @@
-const Camera = require('./camera');
-const Background = require('./background');
 const config = require('../../config');
 const debug = require('../utils/debug');
 
@@ -9,31 +7,26 @@ module.exports = class Renderer {
         offScreenCanvas.width = level.size.width;
         offScreenCanvas.height = level.size.height;
 
-        let viewSize = { width: 1920, height: 1280 };
+        let viewSize = config.camera.viewSize;
         screenCanvas.width = viewSize.width;
         screenCanvas.height = viewSize.height;
 
         this.offScreenContext = offScreenCanvas.getContext('2d');
         this.screenContext = screenCanvas.getContext('2d');
         this.level = level;
-        this.camera = new Camera(viewSize, this.level.size, config.debug.fullLevelView);
-        this.background = new Background(level);
-
-        if (this.camera.fullLevelView) {
-            this.screenContext.canvas.width = level.size.width;
-            this.screenContext.canvas.height = level.size.height;
-        }
     }
 
     render(world) {
-        this.background.render(this.offScreenContext, this.camera);
-        world.render(this.offScreenContext, this.camera);
+        if (world.camera.fullLevelView) {
+            this.screenContext.canvas.width = level.size.width;
+            this.screenContext.canvas.height = level.size.height;
+        }
 
-        this.camera.follow(world.players.find(player => player.isLocal));
-        this.camera.update();
+        let cameraLocation = world.camera.location;
+        this.offScreenContext.clearRect(cameraLocation.x, cameraLocation.y, cameraLocation.width, cameraLocation.height);
+        world.render(this.offScreenContext);
 
         debug.renderDebugPoints(this.offScreenContext);
-        let cameraLocation = this.camera.location;
         let offScreenImage = this.offScreenContext.getImageData(cameraLocation.x, cameraLocation.y, cameraLocation.width, cameraLocation.height);
         this.screenContext.putImageData(offScreenImage, 0, 0);
         debug.renderDebugTexts(this.screenContext);
