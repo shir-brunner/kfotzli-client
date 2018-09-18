@@ -94,5 +94,6 @@ module.exports = class Player extends Drawable {
         this.x = spawnPoint.x;
         this.y = spawnPoint.y;
         this.isDead = false;
+        this.opacity = 0;
     }
 };

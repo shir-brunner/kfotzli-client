@@ -16,6 +16,7 @@ module.exports = class Drawable {
         this.currentFrameIndex = 0;
         this.lastFrameChangeTime = 0;
         this.crop = params.crop;
+        this.opacity = 1;
     }
 
     render(context, camera) {
@@ -25,11 +26,15 @@ module.exports = class Drawable {
 
         let image = assets.getImage(this.currentFrame);
 
+        context.globalAlpha = this.opacity;
+
         if (this.crop)
             context.drawImage(image, this.crop.x, this.crop.y, this.crop.width, this.crop.height,
                 Math.round(this.x), Math.round(this.y), this.width, this.height);
         else
             context.drawImage(image, Math.round(this.x), Math.round(this.y), this.width, this.height);
+
+        context.globalAlpha = 1;
     }
 
     update() {
@@ -48,5 +53,8 @@ module.exports = class Drawable {
         } else {
             this.currentFrame = this.image;
         }
+
+        if (this.opacity < 1)
+            this.opacity += 0.02;
     }
 };
