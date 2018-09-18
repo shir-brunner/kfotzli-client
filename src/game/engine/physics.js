@@ -54,17 +54,17 @@ module.exports = class Physics {
             player.verticalSpeed += config.gravity * delta;
             player.y += player.verticalSpeed;
             player.setAnimation('jump');
+
+            this.stuckables.forEach(gameObject => {
+                let collidablePosition = gameObject.getCollidablePosition();
+
+                if (this._canLand(player, collidablePosition))
+                    this._land(player, collidablePosition);
+
+                if (this._canButt(player, collidablePosition))
+                    this._butt(player, collidablePosition);
+            });
         }
-
-        this.stuckables.forEach(gameObject => {
-            let collidablePosition = gameObject.getCollidablePosition();
-
-            if (this._canLand(player, collidablePosition))
-                this._land(player, collidablePosition);
-
-            if (this._canButt(player, collidablePosition))
-                this._butt(player, collidablePosition);
-        });
 
         if (player.controller.isLeftPressed && canMoveLeft)
             player.move('left', speed);

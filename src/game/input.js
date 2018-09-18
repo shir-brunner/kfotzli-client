@@ -5,7 +5,6 @@ const RIGHT_KEY = 39;
 const UP_KEY = 38;
 const DOWN_KEY = 40;
 const ACTION_KEYS = [LEFT_KEY, RIGHT_KEY, UP_KEY, DOWN_KEY];
-const debug = require('./utils/debug');
 
 let $document = $(document);
 

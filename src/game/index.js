@@ -40,16 +40,8 @@ module.exports = class Game {
 
         if (deltaTime) {
             let deltaFrames = deltaTime / FRAME_RATE;
-
-            while (deltaFrames > 0) {
-                if (deltaFrames >= 1) {
-                    this.physics.update(1);
-                } else {
-                    this.physics.update(deltaFrames);
-                }
-
-                deltaFrames--;
-            }
+            for (let frame = deltaFrames; frame > 0; frame--)
+                this.physics.update(1);
 
             this.sharedState && this._onServerUpdate(timestamp, this.sharedState);
             this.renderer.render(this.gameState);
