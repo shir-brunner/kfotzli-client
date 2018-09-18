@@ -40,7 +40,7 @@ module.exports = class Game {
 
         if (deltaTime) {
             let deltaFrames = deltaTime / FRAME_RATE;
-            for (let frame = deltaFrames; frame > 0; frame--)
+            for (let frame = 1; frame <= deltaFrames; frame++)
                 this.physics.update(1);
 
             this.sharedState && this._onServerUpdate(timestamp, this.sharedState);
@@ -60,7 +60,7 @@ module.exports = class Game {
         let deltaTime = this.latency * 2;
 
         this.physicsSimulator.applySharedState(sharedState);
-        this.physicsSimulator.fastForward(now, deltaTime, this.input);
+        this.physicsSimulator.fastForwardLocalPlayer(now, deltaTime, this.input);
 
         let shouldCorrectPositions = false;
         this.physicsSimulator.gameState.players.forEach(simulatedPlayer => {
@@ -84,7 +84,7 @@ module.exports = class Game {
 
         if (shouldCorrectPositions) {
             this.physics.applySharedState(sharedState);
-            this.physics.fastForward(now, deltaTime, this.input);
+            this.physics.fastForwardLocalPlayer(now, deltaTime, this.input);
         }
 
         this.sharedState = null;

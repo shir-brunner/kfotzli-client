@@ -121,22 +121,14 @@ module.exports = class Physics {
         });
     }
 
-    fastForward(now, deltaTime, input) {
+    fastForwardLocalPlayer(now, deltaTime, input) {
         let deltaFrames = deltaTime / FRAME_RATE;
-        while (deltaFrames > 0) {
+        for (let frame = 1; frame <= deltaFrames; frame++) {
             let inputEntry = input.history.at(now - deltaTime);
             if (inputEntry)
                 input.applyInput(this.localPlayer, inputEntry.keyCode, inputEntry.isPressed);
-
-            if (deltaFrames >= 1) {
-                now += FRAME_RATE;
-                this._updatePlayerPhysics(this.localPlayer, 1);
-            } else {
-                now += (deltaFrames * FRAME_RATE);
-                this._updatePlayerPhysics(this.localPlayer, deltaFrames);
-            }
-
-            deltaFrames--;
+            deltaTime -= FRAME_RATE;
+            this._updatePlayerPhysics(this.localPlayer, 1);
         }
     }
 };
