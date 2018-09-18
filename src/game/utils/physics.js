@@ -10,5 +10,12 @@ module.exports = {
         let a = obj1.x - obj2.x;
         let b = obj1.y - obj2.y;
         return Math.sqrt((a * a) + (b * b));
+    },
+
+    isPointInRect(point, rect) {
+        return point.x > rect.x &&
+            point.x < rect.x + rect.width &&
+            point.y > rect.y &&
+            point.y < rect.y + rect.height;
     }
 };

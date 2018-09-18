@@ -29,6 +29,9 @@ module.exports = class InputHandler {
         if (this.statesByKey[keyCode] === isPressed)
             return;
 
+        if (this.localPlayer.isDead)
+            return;
+
         this.statesByKey[keyCode] = isPressed;
 
         let input = { frame: this.game.lastFrame, keyCode: keyCode, isPressed: isPressed };

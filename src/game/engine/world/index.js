@@ -1,8 +1,9 @@
 const _ = require('lodash');
-const Player = require('./objects/player');
-const GameObject = require('./objects/game_object');
-const config = require('../common_config');
-const Physics = require('./physics');
+const Player = require('../objects/player');
+const GameObject = require('../objects/game_object');
+const config = require('../../common_config');
+const Physics = require('../physics');
+const WorldEvents = require('../events/world_events');
 
 module.exports = class World {
     constructor({ players, level }) {
@@ -11,16 +12,18 @@ module.exports = class World {
         this.gameObjects = level.gameObjects.map(gameObject => new GameObject(gameObject));
         this.physics = new Physics(this);
         this.localPlayer = this.players.find(player => player.isLocal);
+        this.worldEvents = new WorldEvents(this);
     }
 
     update(delta) {
         this.physics.update(delta);
         this.players.forEach(player => player.update(delta));
         this.gameObjects.forEach(gameObject => gameObject.update(delta));
+        this.worldEvents.updateEvents();
     }
 
-    applySharedState(sharedState) {
-        sharedState.players.forEach(playerState => {
+    setPlayersPositions(players) {
+        players.forEach(playerState => {
             let player = this.players.find(player => player.id === playerState.id);
             _.assign(player, playerState);
         });

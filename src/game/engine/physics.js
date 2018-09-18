@@ -9,9 +9,11 @@ module.exports = class Physics {
         this.climbables = world.gameObjects.filter(gameObject => gameObject.climbable);
         this.levelSize = this.world.level.size;
         this.players = this.world.players;
+        this.events = [];
     }
 
     update(delta) {
+        this.events = [];
         this.world.players.forEach(player => this._updatePlayerPhysics(player, delta));
     }
 
@@ -41,7 +43,7 @@ module.exports = class Physics {
         });
 
         this.players.forEach(otherPlayer => {
-            if(otherPlayer.id === player.id)
+            if (otherPlayer.id === player.id)
                 return;
 
             if (player.y + player.height > otherPlayer.y &&
@@ -56,6 +58,12 @@ module.exports = class Physics {
                     player.x + player.width - speed >= otherPlayer.x) {
                     canMoveLeft = false;
                 }
+            }
+
+            if (physicsUtil.intersects(player, otherPlayer) &&
+                otherPlayer.y > player.y) {
+                player.bump(player.jumpHeight);
+                this._addEvent('HEAD_BUMP', { by: player, on: otherPlayer });
             }
         });
 
@@ -83,24 +91,7 @@ module.exports = class Physics {
             });
         }
 
-        if (player.controller.isLeftPressed && canMoveLeft)
-            player.move('left', speed);
-        else if (player.controller.isRightPressed && canMoveRight) {
-            player.move('right', speed);
-        }
-
-        if (player.x < 0)
-            player.x = 0;
-
-        if (player.x + player.width > this.levelSize.width)
-            player.x = this.levelSize.width - player.width;
-
-        if (player.controller.isUpPressed && climbing)
-            player.climb('up', player.climbSpeed * delta);
-        else if (player.controller.isDownPressed && climbing)
-            player.climb('down', player.climbSpeed * delta);
-        else if (player.controller.isUpPressed && player.isStanding)
-            player.bump(player.jumpHeight);
+        this._applyPlayerMovement(player, canMoveLeft, canMoveRight, speed, climbing, delta);
     }
 
     _canLand(player, collidablePosition) {
@@ -139,5 +130,30 @@ module.exports = class Physics {
 
             this._updatePlayerPhysics(this.world.localPlayer, 1);
         }
+    }
+
+    _addEvent(eventType, data) {
+        this.events.push({ type: eventType, data: data });
+    }
+
+    _applyPlayerMovement(player, canMoveLeft, canMoveRight, speed, climbing, delta) {
+        if (player.controller.isLeftPressed && canMoveLeft)
+            player.move('left', speed);
+        else if (player.controller.isRightPressed && canMoveRight) {
+            player.move('right', speed);
+        }
+
+        if (player.x < 0)
+            player.x = 0;
+
+        if (player.x + player.width > this.levelSize.width)
+            player.x = this.levelSize.width - player.width;
+
+        if (player.controller.isUpPressed && climbing)
+            player.climb('up', player.climbSpeed * delta);
+        else if (player.controller.isDownPressed && climbing)
+            player.climb('down', player.climbSpeed * delta);
+        else if (player.controller.isUpPressed && player.isStanding)
+            player.bump(player.jumpHeight);
     }
 };

@@ -1,13 +1,13 @@
 const Renderer = require('./graphics/renderer');
 const _ = require('lodash');
-const World = require('./engine/world');
+const World = require('./engine/world/index');
 const config = require('../config');
 const commonConfig = require('./common_config');
-const Physics = require('./engine/physics');
 const InputHandler = require('./input/input_handler');
 const FRAME_RATE = Math.round(1000 / commonConfig.fps);
 const physicsUtil = require('./utils/physics');
 const debug = require('./utils/debug');
+const EventsProcessor = require('./engine/events/events_processor');
 
 module.exports = class Game {
     constructor(room, connection, gameCanvas, latency) {
@@ -18,13 +18,14 @@ module.exports = class Game {
         this.latency = latency;
         this.localPlayer = this.world.localPlayer;
         this.inputHandler = new InputHandler(this.localPlayer, connection, this);
-
-        this.stopEngine = false;
+        this.eventsProcessor = new EventsProcessor(this.world);
+        this.pendingEvents = [];
         this.lastFrame = 0;
     }
 
     start() {
         this.connection.on('message.SHARED_STATE', sharedState => this.sharedState = sharedState);
+        this.connection.on('message.EVENTS', events => this.pendingEvents.push(...events));
         window.requestAnimationFrame(timestamp => this._mainLoop(timestamp));
     }
 
@@ -40,9 +41,10 @@ module.exports = class Game {
                 this.world.update(1);
 
             this.sharedState && this._onServerUpdate(this.sharedState, currentFrame);
+            this.eventsProcessor.process(this.pendingEvents);
+            this.pendingEvents = [];
+
             this.renderer.render(this.world);
-            if (this.stopEngine)
-                throw new Error('Engine has been stopped');
 
             debug.setDebugInfo(deltaTime, this);
         }
@@ -54,11 +56,11 @@ module.exports = class Game {
     _onServerUpdate(sharedState, currentFrame) {
         let framesForward = Math.round((this.latency * 2) / FRAME_RATE);
 
-        this.worldPlayground.applySharedState(sharedState);
+        this.worldPlayground.setPlayersPositions(sharedState.players);
         this.worldPlayground.physics.fastForwardLocalPlayer(framesForward, this.inputHandler, currentFrame);
 
         if (this._shouldCorrectPositions()) {
-            this.world.applySharedState(sharedState);
+            this.world.setPlayersPositions(sharedState.players);
             this.world.physics.fastForwardLocalPlayer(framesForward, this.inputHandler, currentFrame);
         }
 
@@ -82,7 +84,7 @@ module.exports = class Game {
 
             if(config.debug.showNetworkCorrections) {
                 debug.point(simulatedPlayer.x, simulatedPlayer.y, 'blue', 'corrected position ' + simulatedPlayer.verticalSpeed);
-                debug.point(predictedPlayer.x, predictedPlayer.y, 'red', 'previous position ' + predictedPlayer.verticalSpeed);
+                debug.point(predictedPlayer.x, predictedPlayer.y, 'red', 'predicted position ' + predictedPlayer.verticalSpeed);
             }
 
             let distance = physicsUtil.getDistance(simulatedPlayer, predictedPlayer);

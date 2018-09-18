@@ -13,12 +13,20 @@ module.exports = class Player extends Drawable {
         this.climbSpeed = params.climbSpeed;
         this.verticalSpeed = 0;
         this.direction = 'front';
+        this.isDead = false;
         this.controller = {
             isLeftPressed: false,
             isRightPressed: false,
             isUpPressed: false,
             isDownPressed: false
         };
+    }
+
+    render(context, camera) {
+        super.render(context, camera);
+        context.font = "20px Arial";
+        context.textAlign = "center";
+        context.fillText(this.name, this.x + (this.width / 2), this.y - 20);
     }
 
     getSharedState() {
@@ -68,5 +76,9 @@ module.exports = class Player extends Drawable {
             this.y += speed;
 
         this.setAnimation('climb');
+    }
+
+    die() {
+        console.log(this.name + ' has died!!!!');
     }
 };
