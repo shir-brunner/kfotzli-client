@@ -84,8 +84,8 @@ module.exports = class Game {
             let predictedPlayer = this.world.players.find(player => player.id === simulatedPlayer.id);
 
             if (config.debug.showNetworkCorrections) {
-                debug.point(simulatedPlayer.x, simulatedPlayer.y, 'blue', 'corrected position ' + simulatedPlayer.verticalSpeed);
-                debug.point(predictedPlayer.x, predictedPlayer.y, 'red', 'predicted position ' + predictedPlayer.verticalSpeed);
+                debug.point(simulatedPlayer.x, simulatedPlayer.y, 'blue');
+                debug.point(predictedPlayer.x, predictedPlayer.y, 'red');
             }
 
             let distance = physicsUtil.getDistance(simulatedPlayer, predictedPlayer);

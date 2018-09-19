@@ -1,6 +1,6 @@
 module.exports = {
     debug: {
-        showGameInfo: true,
+        showGameInfo: false,
         quickStart: true,
         fullLevelView: false,
         preventNetworkCorrections: false,
@@ -14,7 +14,7 @@ module.exports = {
     language: 'hebrew',
     assetsBaseUrl: 'diststatic',
     pingsCount: 1,
-    mispredictionDistance: 20,
+    mispredictionDistance: 30,
     inputBufferSize: 10,
     menu: {
         background: {

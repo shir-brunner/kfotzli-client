@@ -7,6 +7,7 @@ module.exports = class Camera {
         this.levelSize = levelSize;
         this.location = { x: 0, y: 0, width: this.viewSize.width, height: this.viewSize.height };
         this.fullLevelView = fullLevelView;
+        this.animating = false;
     }
 
     follow(followed) {
@@ -23,18 +24,53 @@ module.exports = class Camera {
         }
 
         let targetPoint = this._getTargetPoint();
-        if(physicsUtil.getDistance(targetPoint, this.location) > 50) {
-            if (targetPoint.x > this.location.x)
-                this.location.x += config.camera.speed;
-            else if (targetPoint.x < this.location.x)
-                this.location.x -= config.camera.speed;
-            if (targetPoint.y > this.location.y)
-                this.location.y += config.camera.speed;
-            else if (targetPoint.y < this.location.y)
-                this.location.y -= config.camera.speed;
+
+        if(Math.abs(targetPoint.x - this.location.x) > 100 ||
+            Math.abs(targetPoint.y - this.location.y) > 100) {
+            this.animating = true;
+        }
+
+        if(this.animating) {
+            this._animate(targetPoint);
         } else {
             this.location.x = targetPoint.x;
             this.location.y = targetPoint.y;
+        }
+    }
+
+    _animate(targetPoint) {
+        let speed = config.camera.speed;
+        let smoothingSpeed = 1;
+
+        if (targetPoint.x > this.location.x) {
+            if ((this.location.x + speed) < targetPoint.x)
+                this.location.x += speed;
+            else
+                this.location.x += smoothingSpeed;
+        }
+        else if (targetPoint.x < this.location.x) {
+            if ((this.location.x - speed) > targetPoint.x)
+                this.location.x -= speed;
+            else
+                this.location.x -= smoothingSpeed;
+        }
+
+        if (targetPoint.y > this.location.y) {
+            if ((this.location.y + speed) < targetPoint.y)
+                this.location.y += speed;
+            else
+                this.location.y += smoothingSpeed;
+        }
+        else if (targetPoint.y < this.location.y) {
+            if ((this.location.y - speed) > targetPoint.y)
+                this.location.y -= speed;
+            else
+                this.location.y -= smoothingSpeed;
+        }
+
+        if(this.location.x === targetPoint.x &&
+            this.location.y === targetPoint.y) {
+            this.animating = false;
         }
     }
 
