@@ -44,6 +44,7 @@ module.exports = class Game {
             for (let frame = 1; frame <= deltaFrames; frame++)
                 this.world.update(1, currentFrame);
 
+            this.inputHandler.update(currentFrame);
             this.sharedState && this._onServerUpdate(this.sharedState);
             this.smoothCorrection.apply();
             this.eventsProcessor.process(this.pendingEvents);
@@ -61,10 +62,10 @@ module.exports = class Game {
     }
 
     _onServerUpdate(sharedState) {
-        let framesForward = Math.ceil((this.latency * 2) / FRAME_RATE);
-
         this.worldPlayground.setPlayersPositions(sharedState.players);
+        let framesForward = Math.round((this.latency * 2) / FRAME_RATE);
         let lastProcessedFrame = this.worldPlayground.localPlayer.lastProcessedFrame;
+
         this.worldPlayground.physics.fastForwardLocalPlayer(lastProcessedFrame, lastProcessedFrame + framesForward, this.localPlayer.controllerHistory);
         this.localPlayer.targetPosition = _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']);
 

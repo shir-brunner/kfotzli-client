@@ -124,15 +124,10 @@ module.exports = class Physics {
     }
 
     fastForwardLocalPlayer(fromFrame, toFrame, controllerHistory) {
-        console.log('fromFrame', fromFrame);
-        console.log('toFrame', toFrame);
-
         for (let frame = fromFrame; frame <= toFrame; frame++) {
-            console.log('fetching controller for frame ' + frame);
             let controller = controllerHistory.at(frame);
             if (controller) {
                 _.assign(this.world.localPlayer.controller, controller);
-                console.log('isRightPressed? ', controller.isRightPressed);
             }
 
             this._updatePlayerPhysics(this.world.localPlayer, 1);

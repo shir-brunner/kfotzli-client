@@ -8,15 +8,27 @@ const ACTION_KEYS = [LEFT_KEY, RIGHT_KEY, UP_KEY, DOWN_KEY];
 let $document = $(document);
 
 module.exports = class InputHandler {
-    constructor(localPlayer, connection, game) {
+    constructor(localPlayer, connection) {
         this.localPlayer = localPlayer;
         this.connection = connection;
         this.statesByKey = {};
-        this.game = game;
 
         $document.off('keydown keyup');
         $document.on('keydown', event => this._handleInput(event.keyCode, true));
         $document.on('keyup', event => this._handleInput(event.keyCode, false));
+
+        this.inputsToSend = [];
+    }
+
+    update(currentFrame) {
+        if(this.inputsToSend.length) {
+            this.inputsToSend.forEach(input => {
+                input.frame = currentFrame;
+                this.connection.send('INPUT', input);
+            });
+
+            this.inputsToSend = [];
+        }
     }
 
     _handleInput(keyCode, isPressed) {
@@ -31,10 +43,9 @@ module.exports = class InputHandler {
 
         this.statesByKey[keyCode] = isPressed;
 
-        let input = { frame: this.game.lastFrame, keyCode: keyCode, isPressed: isPressed };
+        let input = { keyCode: keyCode, isPressed: isPressed };
         if (this._shouldSendInput(input))
-            this.connection.send('INPUT', input);
-
+            this.inputsToSend.push(input);
         this.applyInput(this.localPlayer, input);
     }
 
