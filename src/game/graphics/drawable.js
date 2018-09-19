@@ -25,7 +25,6 @@ module.exports = class Drawable {
         }
 
         let image = assets.getImage(this.currentFrame);
-
         context.globalAlpha = this.opacity;
 
         if (this.crop)

@@ -163,7 +163,7 @@ module.exports = class Physics {
             this.stuckables.forEach(gameObject => {
                 let collidablePosition = gameObject.getCollidablePosition();
                 if(physicsUtil.intersects(bodyPart, collidablePosition)) {
-                    bodyPart.verticalSpeed *= -1;
+                    bodyPart.verticalSpeed *= -0.9;
                     bodyPart.y = collidablePosition.y - bodyPart.height;
                 }
             });

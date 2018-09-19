@@ -15,7 +15,7 @@ module.exports = class World {
         this.worldEvents = new WorldEvents(this);
         this.bodyParts = [];
         this.camera = camera;
-        this.camera.follow(this.localPlayer);
+        this.camera && this.camera.follow(this.localPlayer);
     }
 
     update(delta) {

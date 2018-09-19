@@ -24,12 +24,6 @@ module.exports = class Camera {
         }
 
         let targetPoint = this._getTargetPoint();
-
-        if(Math.abs(targetPoint.x - this.location.x) > 100 ||
-            Math.abs(targetPoint.y - this.location.y) > 100) {
-            this.animating = true;
-        }
-
         if(this.animating) {
             this._animate(targetPoint);
         } else {
@@ -68,10 +62,8 @@ module.exports = class Camera {
                 this.location.y -= smoothingSpeed;
         }
 
-        if(this.location.x === targetPoint.x &&
-            this.location.y === targetPoint.y) {
+        if(physicsUtil.getDistance(targetPoint, this.location) < speed)
             this.animating = false;
-        }
     }
 
     _getTargetPoint() {

@@ -47,6 +47,9 @@ module.exports = class Game {
             this.pendingEvents = [];
             this.renderer.render(this.world);
 
+            if(this.stopEngine)
+                throw new Error('hello world');
+
             debug.setDebugInfo(deltaTime, this);
         }
 
@@ -55,12 +58,12 @@ module.exports = class Game {
     }
 
     _onServerUpdate(sharedState, currentFrame) {
-        let framesForward = Math.round((this.latency * 2) / FRAME_RATE);
+        let framesForward = Math.ceil((this.latency * 2) / FRAME_RATE);
 
         this.worldPlayground.setPlayersPositions(sharedState.players);
         this.worldPlayground.physics.fastForwardLocalPlayer(framesForward, this.inputHandler, currentFrame);
 
-        if (this._shouldCorrectPositions()) {
+        if (this._misprediction()) {
             this.world.setPlayersPositions(sharedState.players);
             this.world.physics.fastForwardLocalPlayer(framesForward, this.inputHandler, currentFrame);
         }
@@ -69,15 +72,16 @@ module.exports = class Game {
         this.sharedState = null;
     }
 
-    _shouldCorrectPositions() {
-        let shouldCorrectPositions = false;
+    _misprediction() {
+        let misprediction = false;
+
         this.worldPlayground.players.forEach(simulatedPlayer => {
             if (!simulatedPlayer.positionChanged)
                 return;
 
             let isRemotePlayer = !simulatedPlayer.isLocal;
             if (isRemotePlayer) {
-                shouldCorrectPositions = true;
+                misprediction = true;
                 return;
             }
 
@@ -89,10 +93,10 @@ module.exports = class Game {
             }
 
             let distance = physicsUtil.getDistance(simulatedPlayer, predictedPlayer);
-            if (distance > config.mispredictionDistance && !config.debug.preventNetworkCorrections)
-                shouldCorrectPositions = true;
+            if (distance > 0)
+                misprediction = true;
         });
 
-        return shouldCorrectPositions;
+        return misprediction;
     }
 };

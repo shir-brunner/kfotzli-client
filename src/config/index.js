@@ -4,17 +4,16 @@ module.exports = {
         quickStart: true,
         fullLevelView: false,
         preventNetworkCorrections: false,
-        showNetworkCorrections: false
+        showNetworkCorrections: true
     },
     camera: {
         speed: 40,
         viewSize: { width: 1920, height: 1280 }
     },
-    serverUrl: 'ws://localhost:4001',
+    serverUrl: 'ws://192.168.14.56:4001',
     language: 'hebrew',
     assetsBaseUrl: 'diststatic',
-    pingsCount: 1,
-    mispredictionDistance: 30,
+    pingsCount: 5,
     inputBufferSize: 10,
     menu: {
         background: {

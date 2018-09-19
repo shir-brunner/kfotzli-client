@@ -4,8 +4,8 @@ const _ = require('lodash');
 
 module.exports = class BodyPart extends Drawable {
     constructor(player) {
-        let width = _.random(20, 50);
-        let height = _.random(20, 50);
+        let width = _.random(25, 45);
+        let height = width / (player.width / player.height);
         let x = _.random(0, player.width - width);
         let y = _.random(0, player.height - height);
 
@@ -14,17 +14,11 @@ module.exports = class BodyPart extends Drawable {
             y: player.y + y,
             width: width,
             height: height,
-            image: player.image,
-            crop: {
-                x: x,
-                y: y,
-                width: width,
-                height: height
-            },
+            image: player.image
         });
 
-        this.horizontalSpeed = _.random(-30, 30);
-        this.verticalSpeed = _.random(-30, 30);
+        this.horizontalSpeed = _.random(-15, 15);
+        this.verticalSpeed = _.random(-75, 75);
         this.expiration = Date.now() + config.bodyParts.expiration;
         this.ignorePhysics = false;
     }
