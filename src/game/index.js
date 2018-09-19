@@ -10,6 +10,7 @@ const debug = require('./utils/debug');
 const EventsProcessor = require('./engine/events/events_processor');
 const Camera = require('./graphics/camera');
 const SmoothCorrection = require('./graphics/smooth_correction');
+const controllerUtil = require('./utils/controller');
 
 module.exports = class Game {
     constructor(room, connection, gameCanvas, latency) {
@@ -67,10 +68,14 @@ module.exports = class Game {
         let lastProcessedFrame = this.worldPlayground.localPlayer.lastProcessedFrame;
 
         this.worldPlayground.physics.fastForwardLocalPlayer(lastProcessedFrame, lastProcessedFrame + framesForward, this.localPlayer.controllerHistory);
-        this.localPlayer.targetPosition = _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']);
+        if(config.debug.disableSmoothCorrection) {
+            _.assign(this.localPlayer, _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']));
+        } else if(!controllerUtil.isControllerPressed(this.localPlayer.controller)) {
+            this.localPlayer.targetPosition = _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']);
+        }
 
         if (config.debug.showNetworkCorrections) {
-            debug.point(this.localPlayer.targetPosition.x, this.localPlayer.targetPosition.y, 'blue');
+            debug.point(this.worldPlayground.localPlayer.x, this.worldPlayground.localPlayer.y, 'blue');
             debug.point(this.localPlayer.x, this.localPlayer.y, 'red');
         }
 

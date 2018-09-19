@@ -1,6 +1,4 @@
-const controllerUtil = require('../utils/controller');
 const config = require('../../config');
-const _ = require('lodash');
 
 module.exports = class SmoothCorrection {
     constructor(world) {
@@ -10,7 +8,7 @@ module.exports = class SmoothCorrection {
     apply() {
         let localPlayer = this.world.localPlayer;
         let targetPosition = localPlayer.targetPosition;
-        if (!targetPosition || controllerUtil.isControllerPressed(localPlayer.controller))
+        if (!targetPosition)
             return;
 
         if(config.debug.disableSmoothCorrection) {
@@ -19,7 +17,7 @@ module.exports = class SmoothCorrection {
             return;
         }
 
-        let speed = 5;
+        let speed = config.smoothCorrection.speed;
         if (localPlayer.x < targetPosition.x) {
             localPlayer.x += speed;
         }

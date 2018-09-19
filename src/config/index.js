@@ -28,4 +28,7 @@ module.exports = {
             horizontalMovementInterval: 20
         }
     },
+    smoothCorrection: {
+        speed: 3
+    }
 };
