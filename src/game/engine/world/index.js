@@ -25,6 +25,12 @@ module.exports = class World {
         this.worldEvents.updateEvents();
         this.removeExpiredBodyParts();
         this.camera && this.camera.update(delta);
+
+        if(this.players[0].controller.isRightPressed)
+            this.startForDebug = true;
+
+        if(this.startForDebug)
+            console.log('at frame ' + currentFrame + ' the player X was ' + this.players[0].x + ' and controller state is ' + this.players[0].controller.isRightPressed);
     }
 
     render(context) {

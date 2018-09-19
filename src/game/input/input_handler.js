@@ -21,10 +21,14 @@ module.exports = class InputHandler {
     }
 
     update(currentFrame) {
-        if(this.inputsToSend.length) {
+        if (this.inputsToSend.length) {
             this.inputsToSend.forEach(input => {
                 input.frame = currentFrame;
                 this.connection.send('INPUT', input);
+
+                this.sentForDebug = this.sentForDebug || [];
+                this.sentForDebug.push({ frame: currentFrame, timestamp: Date.now() });
+                console.log('input sent to server at frame ' + currentFrame);
             });
 
             this.inputsToSend = [];

@@ -52,7 +52,7 @@ module.exports = class Game {
             this.pendingEvents = [];
             this.renderer.render(this.world);
 
-            if(debug.stopEngine)
+            if (debug.stopEngine)
                 throw new Error('hello world');
 
             debug.setDebugInfo(deltaTime, this);
@@ -64,7 +64,7 @@ module.exports = class Game {
 
     _onServerUpdate(sharedState) {
         this.worldPlayground.setPlayersPositions(sharedState.players);
-        let framesForward = Math.ceil((this.latency * 2) / FRAME_RATE);
+        let framesForward = Math.floor((this.latency * 2) / FRAME_RATE);
         let lastProcessedFrame = this.worldPlayground.localPlayer.lastProcessedFrame;
 
         this.worldPlayground.physics.fastForwardLocalPlayer(lastProcessedFrame, lastProcessedFrame + framesForward, this.localPlayer.controllerHistory);
@@ -74,7 +74,7 @@ module.exports = class Game {
             debug.point(this.localPlayer.x, this.localPlayer.y, 'red');
         }
 
-        if(config.debug.disableSmoothCorrection) {
+        if (config.debug.disableSmoothCorrection) {
             _.assign(this.localPlayer, _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']));
         } else {
             this.localPlayer.targetPosition = _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']);
@@ -84,5 +84,11 @@ module.exports = class Game {
         this.world.setPlayersPositions(changedPlayers);
 
         this.sharedState = null;
+
+        let sentForDebug = this.inputHandler.sentForDebug.find(x => x.frame === lastProcessedFrame);
+        let roundtrip = Date.now() - sentForDebug.timestamp;
+        console.log('input took ' + roundtrip + ' roundtrip');
+        console.log('which is ' + (roundtrip / FRAME_RATE) + ' frames');
+        console.log('framesForward is ' + framesForward);
     }
 };

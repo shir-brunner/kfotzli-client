@@ -11,7 +11,6 @@ module.exports = {
     language: 'hebrew',
     assetsBaseUrl: 'diststatic',
     pingsCount: 1,
-    inputBufferSize: 10,
     camera: {
         speed: 40,
         viewSize: { width: 1920, height: 1280 }
