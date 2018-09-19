@@ -1,20 +1,21 @@
 module.exports = {
     debug: {
-        showGameInfo: false,
+        showGameInfo: true,
         quickStart: true,
         fullLevelView: false,
         preventNetworkCorrections: false,
-        showNetworkCorrections: true
-    },
-    camera: {
-        speed: 40,
-        viewSize: { width: 1920, height: 1280 }
+        showNetworkCorrections: true,
+        disableSmoothCorrection: false
     },
     serverUrl: 'ws://192.168.14.56:4001',
     language: 'hebrew',
     assetsBaseUrl: 'diststatic',
-    pingsCount: 5,
+    pingsCount: 1,
     inputBufferSize: 10,
+    camera: {
+        speed: 40,
+        viewSize: { width: 1920, height: 1280 }
+    },
     menu: {
         background: {
             defaultBackground: 'img/backgrounds/colored_land.png',

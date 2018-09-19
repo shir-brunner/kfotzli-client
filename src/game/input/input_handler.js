@@ -1,11 +1,9 @@
-const InputBuffer = require('./input_buffer');
 const $ = require('jquery');
 const LEFT_KEY = 37;
 const RIGHT_KEY = 39;
 const UP_KEY = 38;
 const DOWN_KEY = 40;
 const ACTION_KEYS = [LEFT_KEY, RIGHT_KEY, UP_KEY, DOWN_KEY];
-const config = require('../../config');
 
 let $document = $(document);
 
@@ -14,7 +12,6 @@ module.exports = class InputHandler {
         this.localPlayer = localPlayer;
         this.connection = connection;
         this.statesByKey = {};
-        this.inputBuffer = new InputBuffer(config.inputBufferSize);
         this.game = game;
 
         $document.off('keydown keyup');
@@ -38,7 +35,6 @@ module.exports = class InputHandler {
         if (this._shouldSendInput(input))
             this.connection.send('INPUT', input);
 
-        this.inputBuffer.addInput(input);
         this.applyInput(this.localPlayer, input);
     }
 

@@ -9,6 +9,7 @@ const physicsUtil = require('./utils/physics');
 const debug = require('./utils/debug');
 const EventsProcessor = require('./engine/events/events_processor');
 const Camera = require('./graphics/camera');
+const SmoothCorrection = require('./graphics/smooth_correction');
 
 module.exports = class Game {
     constructor(room, connection, gameCanvas, latency) {
@@ -23,6 +24,7 @@ module.exports = class Game {
         this.eventsProcessor = new EventsProcessor(this.world);
         this.pendingEvents = [];
         this.lastFrame = 0;
+        this.smoothCorrection = new SmoothCorrection(this.world);
     }
 
     start() {
@@ -32,22 +34,23 @@ module.exports = class Game {
     }
 
     _mainLoop(timestamp) {
-        this.lastTimestamp = this.lastTimestamp || timestamp;
+        this.startTime = this.startTime || timestamp;
 
-        let currentFrame = Math.round((timestamp - this.lastTimestamp) / FRAME_RATE);
+        let currentFrame = Math.ceil((timestamp - this.startTime) / FRAME_RATE);
         let deltaTime = (currentFrame - this.lastFrame) * FRAME_RATE;
 
         if (deltaTime) {
             let deltaFrames = deltaTime / FRAME_RATE;
             for (let frame = 1; frame <= deltaFrames; frame++)
-                this.world.update(1);
+                this.world.update(1, currentFrame);
 
-            this.sharedState && this._onServerUpdate(this.sharedState, currentFrame);
+            this.sharedState && this._onServerUpdate(this.sharedState);
+            this.smoothCorrection.apply();
             this.eventsProcessor.process(this.pendingEvents);
             this.pendingEvents = [];
             this.renderer.render(this.world);
 
-            if(this.stopEngine)
+            if(debug.stopEngine)
                 throw new Error('hello world');
 
             debug.setDebugInfo(deltaTime, this);
@@ -57,46 +60,28 @@ module.exports = class Game {
         window.requestAnimationFrame(timestamp => this._mainLoop(timestamp));
     }
 
-    _onServerUpdate(sharedState, currentFrame) {
+    _onServerUpdate(sharedState) {
         let framesForward = Math.ceil((this.latency * 2) / FRAME_RATE);
 
         this.worldPlayground.setPlayersPositions(sharedState.players);
-        this.worldPlayground.physics.fastForwardLocalPlayer(framesForward, this.inputHandler, currentFrame);
+        let lastProcessedFrame = this.worldPlayground.localPlayer.lastProcessedFrame;
+        this.worldPlayground.physics.fastForwardLocalPlayer(lastProcessedFrame, lastProcessedFrame + framesForward, this.localPlayer.controllerHistory);
+        this.localPlayer.targetPosition = _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']);
 
-        if (this._misprediction()) {
-            this.world.setPlayersPositions(sharedState.players);
-            this.world.physics.fastForwardLocalPlayer(framesForward, this.inputHandler, currentFrame);
+        if (config.debug.showNetworkCorrections) {
+            debug.point(this.localPlayer.targetPosition.x, this.localPlayer.targetPosition.y, 'blue');
+            debug.point(this.localPlayer.x, this.localPlayer.y, 'red');
         }
 
-        this.inputHandler.inputBuffer.removeOldInputs(this.localPlayer.lastProcessedFrame);
+        //TODO: probably need to apply entity interpolation
+        let changedPlayers = this.worldPlayground.players.filter(player => player.positionChanged && !player.isLocal);
+        this.world.setPlayersPositions(changedPlayers);
+
         this.sharedState = null;
     }
 
     _misprediction() {
-        let misprediction = false;
-
-        this.worldPlayground.players.forEach(simulatedPlayer => {
-            if (!simulatedPlayer.positionChanged)
-                return;
-
-            let isRemotePlayer = !simulatedPlayer.isLocal;
-            if (isRemotePlayer) {
-                misprediction = true;
-                return;
-            }
-
-            let predictedPlayer = this.world.players.find(player => player.id === simulatedPlayer.id);
-
-            if (config.debug.showNetworkCorrections) {
-                debug.point(simulatedPlayer.x, simulatedPlayer.y, 'blue');
-                debug.point(predictedPlayer.x, predictedPlayer.y, 'red');
-            }
-
-            let distance = physicsUtil.getDistance(simulatedPlayer, predictedPlayer);
-            if (distance > 0)
-                misprediction = true;
-        });
-
-        return misprediction;
+        let distance = physicsUtil.getDistance(this.worldPlayground.localPlayer, this.localPlayer.targetPosition || this.localPlayer);
+        return distance > 0
     }
 };

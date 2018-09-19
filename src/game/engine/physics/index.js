@@ -15,7 +15,7 @@ module.exports = class Physics {
     update(delta) {
         this.events = [];
         this.world.players.forEach(player => this._updatePlayerPhysics(player, delta));
-        this.world.bodyParts.forEach(bodyPart => this._updateBodyPartPhysics(bodyPart, delta))
+        this.world.bodyParts.forEach(bodyPart => this._updateBodyPartPhysics(bodyPart, delta));
     }
 
     _updatePlayerPhysics(player, delta) {
@@ -123,18 +123,20 @@ module.exports = class Physics {
         player.y = collidablePosition.y + collidablePosition.height;
     }
 
-    fastForwardLocalPlayer(framesForward, inputHandler, currentFrame) {
-        for (let frame = framesForward; frame > 0; frame--) {
-            let input = inputHandler.inputBuffer.at(currentFrame - frame);
-            if (input)
-                inputHandler.applyInput(this.world.localPlayer, input);
+    fastForwardLocalPlayer(fromFrame, toFrame, controllerHistory) {
+        console.log('fromFrame', fromFrame);
+        console.log('toFrame', toFrame);
+
+        for (let frame = fromFrame; frame <= toFrame; frame++) {
+            console.log('fetching controller for frame ' + frame);
+            let controller = controllerHistory.at(frame);
+            if (controller) {
+                _.assign(this.world.localPlayer.controller, controller);
+                console.log('isRightPressed? ', controller.isRightPressed);
+            }
 
             this._updatePlayerPhysics(this.world.localPlayer, 1);
         }
-    }
-
-    _addEvent(eventType, data) {
-        this.events.push({ type: eventType, data: data });
     }
 
     _applyPlayerMovement(player, canMoveLeft, canMoveRight, speed, climbing, delta) {
@@ -172,5 +174,9 @@ module.exports = class Physics {
         bodyPart.x += bodyPart.horizontalSpeed * delta;
         bodyPart.verticalSpeed += config.gravity * delta;
         bodyPart.y += bodyPart.verticalSpeed;
+    }
+
+    _addEvent(eventType, data) {
+        this.events.push({ type: eventType, data: data });
     }
 };

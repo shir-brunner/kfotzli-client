@@ -27,7 +27,10 @@ class Debug {
     }
 
     renderDebugPoints(context) {
+        let odd = false;
         this.debugPoints.forEach(point => {
+            odd = !odd;
+
             let radius = 10;
             context.beginPath();
             context.arc(point.x, point.y, radius, 0, 2 * Math.PI, false);
@@ -37,9 +40,12 @@ class Debug {
             if(point.text) {
                 context.font = "30px Arial";
                 context.fillText(point.text, point.x + 20, point.y + radius);
-                context.font = "12px Arial";
-                context.fillText('(' + Math.round(point.x) + ', ' + Math.round(point.y) + ')', point.x, point.y - radius - 15);
             }
+            context.font = "12px Arial";
+            let pointY = point.y - radius - 15;
+            if(odd)
+                pointY -= 20;
+            context.fillText('(' + Math.round(point.x) + ', ' + Math.round(point.y) + ')', point.x, pointY);
         });
     }
 

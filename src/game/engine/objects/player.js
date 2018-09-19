@@ -1,6 +1,8 @@
 const Drawable = require('../../graphics/drawable');
 const _ = require('lodash');
 const SHARED_ATTRIBUTES = ['id', 'x', 'y', 'verticalSpeed', 'controller', 'positionChanged', 'lastProcessedFrame'];
+const Timeline = require('../../utils/timeline');
+const controllerUtil = require('../../utils/controller');
 
 module.exports = class Player extends Drawable {
     constructor(params) {
@@ -14,12 +16,15 @@ module.exports = class Player extends Drawable {
         this.verticalSpeed = 0;
         this.direction = 'front';
         this.isDead = false;
-        this.controller = {
-            isLeftPressed: false,
-            isRightPressed: false,
-            isUpPressed: false,
-            isDownPressed: false
-        };
+        this.controller = controllerUtil.emptyController();
+        this.controllerHistory = new Timeline(50);
+    }
+
+    update(delta, currentFrame) {
+        if(this.isLocal)
+            this.controllerHistory.set(currentFrame, this.controller);
+
+        super.update(delta, currentFrame);
     }
 
     render(context, camera) {
@@ -27,8 +32,9 @@ module.exports = class Player extends Drawable {
             return;
 
         super.render(context, camera);
-        context.font = "20px makabi";
-        context.textAlign = "center";
+        context.font = '20px makabi';
+        context.textAlign = 'center';
+        context.fillStyle = 'black';
         context.fillText(this.name, this.x + (this.width / 2), this.y - 20);
     }
 

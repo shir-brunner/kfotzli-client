@@ -18,10 +18,10 @@ module.exports = class World {
         this.camera && this.camera.follow(this.localPlayer);
     }
 
-    update(delta) {
-        this.physics.update(delta);
-        this.players.forEach(player => player.update(delta));
-        this.gameObjects.forEach(gameObject => gameObject.update(delta));
+    update(delta, currentFrame) {
+        this.physics.update(delta, currentFrame);
+        this.players.forEach(player => player.update(delta, currentFrame));
+        this.gameObjects.forEach(gameObject => gameObject.update(delta, currentFrame));
         this.worldEvents.updateEvents();
         this.removeExpiredBodyParts();
         this.camera && this.camera.update(delta);
