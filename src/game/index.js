@@ -64,7 +64,7 @@ module.exports = class Game {
 
     _onServerUpdate(sharedState) {
         this.worldPlayground.setPlayersPositions(sharedState.players);
-        let framesForward = Math.round((this.latency * 2) / FRAME_RATE);
+        let framesForward = Math.ceil((this.latency * 2) / FRAME_RATE);
         let lastProcessedFrame = this.worldPlayground.localPlayer.lastProcessedFrame;
 
         this.worldPlayground.physics.fastForwardLocalPlayer(lastProcessedFrame, lastProcessedFrame + framesForward, this.localPlayer.controllerHistory);

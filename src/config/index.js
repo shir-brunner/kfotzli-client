@@ -1,10 +1,10 @@
 module.exports = {
     debug: {
-        showGameInfo: true,
-        quickStart: true,
+        showGameInfo: false,
+        quickStart: false,
         fullLevelView: false,
         preventNetworkCorrections: false,
-        showNetworkCorrections: true,
+        showNetworkCorrections: false,
         disableSmoothCorrection: true //TODO: improve this and re enable
     },
     serverUrl: 'ws://192.168.14.56:4001',

@@ -126,9 +126,8 @@ module.exports = class Physics {
     fastForwardLocalPlayer(fromFrame, toFrame, controllerHistory) {
         for (let frame = fromFrame; frame <= toFrame; frame++) {
             let controller = controllerHistory.at(frame);
-            if (controller) {
+            if (controller)
                 _.assign(this.world.localPlayer.controller, controller);
-            }
 
             this._updatePlayerPhysics(this.world.localPlayer, 1);
         }

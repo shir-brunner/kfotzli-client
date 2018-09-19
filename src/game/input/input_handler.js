@@ -46,6 +46,7 @@ module.exports = class InputHandler {
         let input = { keyCode: keyCode, isPressed: isPressed };
         if (this._shouldSendInput(input))
             this.inputsToSend.push(input);
+
         this.applyInput(this.localPlayer, input);
     }
 
