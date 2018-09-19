@@ -5,7 +5,7 @@ module.exports = {
         fullLevelView: false,
         preventNetworkCorrections: false,
         showNetworkCorrections: true,
-        disableSmoothCorrection: false
+        disableSmoothCorrection: true //TODO: improve this and re enable
     },
     serverUrl: 'ws://192.168.14.56:4001',
     language: 'hebrew',

@@ -68,26 +68,21 @@ module.exports = class Game {
         let lastProcessedFrame = this.worldPlayground.localPlayer.lastProcessedFrame;
 
         this.worldPlayground.physics.fastForwardLocalPlayer(lastProcessedFrame, lastProcessedFrame + framesForward, this.localPlayer.controllerHistory);
-        if(config.debug.disableSmoothCorrection) {
-            _.assign(this.localPlayer, _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']));
-        } else if(!controllerUtil.isControllerPressed(this.localPlayer.controller)) {
-            this.localPlayer.targetPosition = _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']);
-        }
 
         if (config.debug.showNetworkCorrections) {
             debug.point(this.worldPlayground.localPlayer.x, this.worldPlayground.localPlayer.y, 'blue');
             debug.point(this.localPlayer.x, this.localPlayer.y, 'red');
         }
 
-        //TODO: probably need to apply entity interpolation
+        if(config.debug.disableSmoothCorrection) {
+            _.assign(this.localPlayer, _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']));
+        } else {
+            this.localPlayer.targetPosition = _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']);
+        }
+
         let changedPlayers = this.worldPlayground.players.filter(player => player.positionChanged && !player.isLocal);
         this.world.setPlayersPositions(changedPlayers);
 
         this.sharedState = null;
-    }
-
-    _misprediction() {
-        let distance = physicsUtil.getDistance(this.worldPlayground.localPlayer, this.localPlayer.targetPosition || this.localPlayer);
-        return distance > 0
     }
 };
