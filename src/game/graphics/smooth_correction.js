@@ -19,7 +19,7 @@ module.exports = class SmoothCorrection {
             return;
         }
 
-        let speed = 3;
+        let speed = 5;
         if (localPlayer.x < targetPosition.x) {
             localPlayer.x += speed;
         }
