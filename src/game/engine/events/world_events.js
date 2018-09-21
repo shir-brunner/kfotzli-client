@@ -28,10 +28,10 @@ module.exports = class WorldEvents {
     }
 
     _addDeathByHeadBumpEvent(eventData) {
-        if(eventData.player.isDead)
+        if(eventData.bumpedPlayer.isDead || eventData.bumpedPlayer.respawning)
             return;
 
-        this.addEvent('DEATH', { deadPlayerId: eventData.on.id, killerPlayerId: eventData.by.id });
+        this.addEvent('DEATH', { deadPlayerId: eventData.bumpedPlayer.id, killerPlayerId: eventData.bumpingPlayer.id });
     }
 
     _addDeathByObstacleEvent(eventData) {

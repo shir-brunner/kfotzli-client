@@ -66,7 +66,7 @@ module.exports = class Physics {
             if (physicsUtil.intersects(player, otherPlayer) &&
                 otherPlayer.y > player.y) {
                 player.bump(player.jumpHeight);
-                this._addEvent('HEAD_BUMP', { by: player, on: otherPlayer });
+                this._addEvent('HEAD_BUMP', { bumpingPlayer: player, bumpedPlayer: otherPlayer });
             }
         });
 

@@ -60,9 +60,6 @@ module.exports = class Drawable {
         } else {
             this.currentFrame = this.image;
         }
-
-        if (this.opacity < 1)
-            this.opacity += 0.02;
     }
 
     setAnimation(animationType) {

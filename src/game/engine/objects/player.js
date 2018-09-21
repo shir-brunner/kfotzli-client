@@ -18,17 +18,24 @@ module.exports = class Player extends Drawable {
         this.isDead = false;
         this.controller = controllerUtil.emptyController();
         this.controllerHistory = new Timeline(50);
+        this.respawning = true;
     }
 
     update(delta, currentFrame) {
-        if(this.isLocal)
+        if (this.isLocal)
             this.controllerHistory.set(currentFrame, this.controller);
+
+        if (this.respawning && this.opacity < 1)
+            this.opacity += 0.02;
+        else
+            this.respawning = false;
+
 
         super.update(delta, currentFrame);
     }
 
     render(context, camera) {
-        if(this.isDead)
+        if (this.isDead)
             return;
 
         super.render(context, camera);
@@ -43,10 +50,10 @@ module.exports = class Player extends Drawable {
     }
 
     setAnimation(animationType) {
-        if(animationType === 'walk')
+        if (animationType === 'walk')
             animationType = this.direction === 'left' ? 'walkLeft' : 'walkRight';
 
-        if(animationType === 'jump')
+        if (animationType === 'jump')
             animationType = this.direction === 'left' ? 'jumpLeft' : 'jumpRight';
 
         super.setAnimation(animationType);
@@ -65,21 +72,21 @@ module.exports = class Player extends Drawable {
     }
 
     move(direction, speed) {
-        if(direction === 'left')
+        if (direction === 'left')
             this.x -= speed;
         else
             this.x += speed;
 
         this.direction = direction;
 
-        if(this.verticalSpeed !== 0)
+        if (this.verticalSpeed !== 0)
             this.setAnimation('jump');
         else
             this.setAnimation('walk');
     }
 
     climb(direction, speed) {
-        if(direction === 'up')
+        if (direction === 'up')
             this.y -= speed;
         else
             this.y += speed;
@@ -99,7 +106,8 @@ module.exports = class Player extends Drawable {
     respawn(spawnPoint) {
         this.x = spawnPoint.x;
         this.y = spawnPoint.y;
-        this.isDead = false;
         this.opacity = 0;
+        this.isDead = false;
+        this.respawning = true;
     }
 };
