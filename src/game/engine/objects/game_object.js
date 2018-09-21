@@ -7,8 +7,9 @@ module.exports = class GameObject extends Drawable {
         this.id = params._id;
         this.stuckable = params.stuckable;
         this.climbable = params.climbable;
-        this.causesDeath = params.causesDeath;
+        this.obstacle = params.obstacle;
         this.bumpable = params.bumpable;
+        this.bumpHeight = params.bumpHeight;
         this.padding = params.padding || {
             left: 0,
             top: 0,

@@ -2,7 +2,9 @@ const ms = require('ms');
 
 module.exports = {
     gravity: 2,
-    animationChangeRate: 80,
+    animation: {
+        changeRate: 80
+    },
     squareSize: 100,
     fps: 30,
     bodyParts: {

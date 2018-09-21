@@ -38,15 +38,23 @@ module.exports = class Drawable {
 
     update() {
         let currentAnimation = this.currentAnimation;
-        let frames = _.get(this, `animations.${currentAnimation}.frames`, []);
+        let animation = _.get(this, `animations.${currentAnimation}`, {});
+        let frames = animation.frames || [];
         if (frames.length) {
             let now = Date.now();
-            if (now > this.lastFrameChangeTime + config.animationChangeRate) {
+            if (now > this.lastFrameChangeTime + config.animation.changeRate) {
                 this.currentFrameIndex++;
                 if (this.currentFrameIndex > (frames.length - 1)) {
-                    this.currentFrameIndex = 0;
+                    if(animation.repeatable)
+                        this.currentFrameIndex = 0;
+                    else
+                        this.currentAnimation = 'idle';
                 }
                 this.currentFrame = frames[this.currentFrameIndex];
+                if(!this.currentFrame) {
+                    this.currentFrameIndex = 0;
+                    this.currentFrame = frames[0];
+                }
                 this.lastFrameChangeTime = now;
             }
         } else {
@@ -55,5 +63,9 @@ module.exports = class Drawable {
 
         if (this.opacity < 1)
             this.opacity += 0.02;
+    }
+
+    setAnimation(animationType) {
+        this.currentAnimation = animationType;
     }
 };

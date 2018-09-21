@@ -26,11 +26,11 @@ module.exports = class World {
         this.removeExpiredBodyParts();
         this.camera && this.camera.update(delta);
 
-        if(this.players[0].controller.isRightPressed)
+/*        if(this.players[0].controller.isRightPressed)
             this.startForDebug = true;
 
         if(this.startForDebug)
-            console.log('CURRENT FRAME = ' + currentFrame + ', X = ' + this.players[0].x + ', CONTROLLER STATE = ' + this.players[0].controller.isRightPressed);
+            console.log('CURRENT FRAME = ' + currentFrame + ', X = ' + this.players[0].x + ', CONTROLLER STATE = ' + this.players[0].controller.isRightPressed);*/
     }
 
     render(context) {

@@ -46,8 +46,7 @@ module.exports = class InputHandler {
         this.statesByKey[keyCode] = isPressed;
 
         let input = { keyCode: keyCode, isPressed: isPressed };
-        if (this._shouldSendInput(input))
-            this.inputsToSend.push(input);
+        this.inputsToSend.push(input);
     }
 
     applyInput(player, input) {
@@ -65,14 +64,5 @@ module.exports = class InputHandler {
                 player.controller.isDownPressed = input.isPressed;
                 break;
         }
-    }
-
-    _shouldSendInput(input) {
-        if (this.localPlayer.isJumping()) {
-            if (input.keyCode === UP_KEY && input.isPressed)
-                return false;
-        }
-
-        return true;
     }
 };

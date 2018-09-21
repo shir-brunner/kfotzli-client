@@ -6,7 +6,9 @@ module.exports = class Physics {
     constructor(world) {
         this.world = world;
         this.stuckables = world.gameObjects.filter(gameObject => gameObject.stuckable);
+        this.bumpables = world.gameObjects.filter(gameObject => gameObject.bumpable);
         this.climbables = world.gameObjects.filter(gameObject => gameObject.climbable);
+        this.obstacles = world.gameObjects.filter(gameObject => gameObject.obstacle);
         this.levelSize = this.world.level.size;
         this.players = this.world.players;
         this.events = [];
@@ -68,6 +70,12 @@ module.exports = class Physics {
             }
         });
 
+        this.obstacles.forEach(gameObject => {
+            let collidablePosition = gameObject.getCollidablePosition();
+            if (physicsUtil.intersects(player, collidablePosition))
+                this._addEvent('TOUCHED_OBSTACLE', { player: player, obstacle: gameObject });
+        });
+
         this.climbables.forEach(gameObject => {
             let collidablePosition = gameObject.getCollidablePosition();
             if (physicsUtil.intersects(player, collidablePosition) &&
@@ -89,6 +97,14 @@ module.exports = class Physics {
 
                 if (this._canButt(player, collidablePosition))
                     this._butt(player, collidablePosition);
+            });
+
+            this.bumpables.forEach(gameObject => {
+                let collidablePosition = gameObject.getCollidablePosition();
+                if(this._canLand(player, collidablePosition)) {
+                    gameObject.setAnimation('bump');
+                    player.bump(gameObject.bumpHeight);
+                }
             });
         }
 

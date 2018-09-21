@@ -49,7 +49,7 @@ module.exports = class Player extends Drawable {
         if(animationType === 'jump')
             animationType = this.direction === 'left' ? 'jumpLeft' : 'jumpRight';
 
-        this.currentAnimation = animationType;
+        super.setAnimation(animationType);
     }
 
     isFalling() {
