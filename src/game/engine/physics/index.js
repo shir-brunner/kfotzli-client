@@ -128,18 +128,14 @@ module.exports = class Physics {
         console.log('toFrame', toFrame);
 
         for (let frame = fromFrame; frame <= toFrame; frame++) {
-            console.log('getting controller for frame ' + frame);
+            console.log('simulated player at frame ' + frame + ' is X = ' + this.world.localPlayer.x);
             let controller = controllerHistory.at(frame);
             if (controller) {
                 _.assign(this.world.localPlayer.controller, controller);
-                console.log('controller state is ' + controller.isRightPressed);
+                console.log('GETTING CONTROLLER, FRAME = ' + frame + ', STATE = ' + controller.isRightPressed);
             }
-
             this._updatePlayerPhysics(this.world.localPlayer, 1);
-            console.log('simulated player at frame ' + frame + ' is X = ' + this.world.localPlayer.x);
         }
-
-        console.log('-------------------------------------------');
     }
 
     _applyPlayerMovement(player, canMoveLeft, canMoveRight, speed, climbing, delta) {

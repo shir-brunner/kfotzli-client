@@ -11,9 +11,8 @@ module.exports = class SmoothCorrection {
         if (!targetPosition)
             return;
 
-        if(config.debug.disableSmoothCorrection) {
-            localPlayer.x = targetPosition.x;
-            localPlayer.targetPosition = null;
+        if (config.debug.disableSmoothCorrection) {
+            this._snap(localPlayer, targetPosition);
             return;
         }
 
@@ -25,9 +24,12 @@ module.exports = class SmoothCorrection {
             localPlayer.x -= speed;
         }
 
-        if (Math.abs(localPlayer.x - targetPosition.x) <= speed) {
-            localPlayer.x = targetPosition.x;
-            localPlayer.targetPosition = null;
-        }
+        if (Math.abs(localPlayer.x - targetPosition.x) <= speed)
+            this._snap(localPlayer, targetPosition);
+    }
+
+    _snap(localPlayer, targetPosition) {
+        localPlayer.x = targetPosition.x;
+        localPlayer.targetPosition = null;
     }
 };

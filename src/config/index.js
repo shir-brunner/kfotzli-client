@@ -1,6 +1,6 @@
 module.exports = {
     debug: {
-        showGameInfo: false,
+        showGameInfo: true,
         quickStart: false,
         fullLevelView: false,
         preventNetworkCorrections: false,

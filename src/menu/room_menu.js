@@ -88,43 +88,15 @@ function loadAssets(connection, room) {
     $room.fadeOut('slow', () => {
         $loadingGame.fadeIn();
         assets.loadRoom(room, { $progress: $loadingProgress }).then(() => {
-            $loadingText.html(localization.translate('syncingWithServer'));
-            $loadingProgress.html('0%');
-            synchronizeClocks(connection).then(latency => {
-                connection.send('READY').on('message.GAME_STARTED', room => {
-                    let game = new Game(room, connection, gameCanvas, latency);
-                    game.start();
-                    background.stop();
-                    $loadingGame.fadeOut('slow', () => {
-                        $gameBackground.fadeIn('slow');
-                        $game.fadeIn('slow');
-                    });
+            connection.send('READY').on('message.GAME_STARTED', room => {
+                let game = new Game(room, connection, gameCanvas);
+                game.start();
+                background.stop();
+                $loadingGame.fadeOut('slow', () => {
+                    $gameBackground.fadeIn('slow');
+                    $game.fadeIn('slow');
                 });
             });
-        });
-    });
-}
-
-function synchronizeClocks(connection) {
-    return new Promise(resolve => {
-        let roundTripTimes = [];
-        Promise.each(Array(config.pingsCount), () => ping(connection, roundTripTimes)).then(() => {
-            let averageRoundTrip = mathUtil.median(roundTripTimes);
-            let averageToServer = averageRoundTrip / 2;
-            resolve(Math.round(averageToServer));
-        });
-    });
-}
-
-function ping(connection, roundTripTimes) {
-    return new Promise(resolve => {
-        let sentTime = Date.now();
-        connection.send('PING');
-        connection.on('message.PONG', () => {
-            connection.off('message.PONG');
-            roundTripTimes.push(Date.now() - sentTime);
-            $loadingProgress.html(parseInt(roundTripTimes.length / config.pingsCount * 100) + '%');
-            resolve();
         });
     });
 }

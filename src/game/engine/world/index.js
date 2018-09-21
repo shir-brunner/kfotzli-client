@@ -30,7 +30,7 @@ module.exports = class World {
             this.startForDebug = true;
 
         if(this.startForDebug)
-            console.log('at frame ' + currentFrame + ' the player X was ' + this.players[0].x + ' and controller state is ' + this.players[0].controller.isRightPressed);
+            console.log('CURRENT FRAME = ' + currentFrame + ', X = ' + this.players[0].x + ', CONTROLLER STATE = ' + this.players[0].controller.isRightPressed);
     }
 
     render(context) {

@@ -25,10 +25,8 @@ module.exports = class InputHandler {
             this.inputsToSend.forEach(input => {
                 input.frame = currentFrame;
                 this.connection.send('INPUT', input);
-
-                this.sentForDebug = this.sentForDebug || [];
-                this.sentForDebug.push({ frame: currentFrame, timestamp: Date.now() });
-                console.log('input sent to server at frame ' + currentFrame);
+                console.log('INPUT SENT AT CLIENT FRAME = ' + currentFrame + ', ' + (input.isPressed ? 'KEY DOWN' : 'KEY UP'));
+                this.applyInput(this.localPlayer, input);
             });
 
             this.inputsToSend = [];
@@ -50,8 +48,6 @@ module.exports = class InputHandler {
         let input = { keyCode: keyCode, isPressed: isPressed };
         if (this._shouldSendInput(input))
             this.inputsToSend.push(input);
-
-        this.applyInput(this.localPlayer, input);
     }
 
     applyInput(player, input) {
