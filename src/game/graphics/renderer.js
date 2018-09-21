@@ -18,8 +18,8 @@ module.exports = class Renderer {
 
     render(world) {
         if (world.camera.fullLevelView) {
-            this.screenContext.canvas.width = level.size.width;
-            this.screenContext.canvas.height = level.size.height;
+            this.screenContext.canvas.width = world.level.size.width;
+            this.screenContext.canvas.height = world.level.size.height;
         }
 
         let cameraLocation = world.camera.location;
