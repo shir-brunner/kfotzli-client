@@ -1,8 +1,9 @@
 const Drawable = require('../../graphics/drawable');
-const _ = require('lodash');
 const SHARED_ATTRIBUTES = ['id', 'x', 'y', 'verticalSpeed', 'controller', 'positionChanged', 'lastProcessedFrame'];
 const Timeline = require('../../utils/timeline');
 const controllerUtil = require('../../utils/controller');
+const commonConfig = require('../../common_config');
+const _ = require('lodash');
 
 module.exports = class Player extends Drawable {
     constructor(params) {
@@ -19,6 +20,7 @@ module.exports = class Player extends Drawable {
         this.controller = controllerUtil.emptyController();
         this.controllerHistory = new Timeline(50);
         this.respawning = true;
+        this.team = params.team;
     }
 
     update(delta, currentFrame) {
@@ -105,7 +107,7 @@ module.exports = class Player extends Drawable {
 
     respawn(spawnPoint) {
         this.x = spawnPoint.x;
-        this.y = spawnPoint.y;
+        this.y = spawnPoint.y - this.height + commonConfig.squareSize;
         this.opacity = 0;
         this.isDead = false;
         this.respawning = true;

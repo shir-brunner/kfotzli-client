@@ -8,6 +8,7 @@ const debug = require('./utils/debug');
 const EventsProcessor = require('./engine/events/events_processor');
 const Camera = require('./graphics/camera');
 const SmoothCorrection = require('./graphics/smooth_correction');
+const GameplayFactory = require('./gameplay/gameplay_factory');
 const _ = require('lodash');
 
 module.exports = class Game {
@@ -20,6 +21,7 @@ module.exports = class Game {
         this.localPlayer = this.world.localPlayer;
         this.inputHandler = new InputHandler(this.localPlayer, connection, this);
         this.eventsProcessor = new EventsProcessor(this.world);
+        this.gameplay = (new GameplayFactory()).getGameplay(this.world);
         this.pendingEvents = [];
         this.lastFrame = 0;
         this.smoothCorrection = new SmoothCorrection(this.world);
@@ -47,6 +49,7 @@ module.exports = class Game {
 
             this.smoothCorrection.apply();
             this.eventsProcessor.process(this.pendingEvents);
+            this.gameplay.update(this.pendingEvents);
             this.pendingEvents = [];
             this.renderer.render(this.world);
 

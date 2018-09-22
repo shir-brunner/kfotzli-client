@@ -21,7 +21,8 @@ module.exports = class WorldEvents {
                     this._addDeathByHeadBumpEvent(event.data);
                     break;
                 case 'TOUCHED_OBSTACLE':
-                    this._addDeathByObstacleEvent(event.data);
+                case 'OUTSIDE_WORLD_BOUNDS':
+                    this._addDeathEvent(event.data);
                     break;
             }
         });
@@ -34,7 +35,7 @@ module.exports = class WorldEvents {
         this.addEvent('DEATH', { deadPlayerId: eventData.bumpedPlayer.id, killerPlayerId: eventData.bumpingPlayer.id });
     }
 
-    _addDeathByObstacleEvent(eventData) {
+    _addDeathEvent(eventData) {
         if(eventData.player.isDead)
             return;
 

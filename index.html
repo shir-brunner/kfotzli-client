@@ -7,29 +7,34 @@
 </head>
 <body>
 <div id="menu" class="no-select">
-    <img class="background" />
+    <img class="background"/>
     <div class="menu-buttons-left hide"></div>
     <div class="menu-buttons-right hide"></div>
     <div class="menu-page" id="main-menu">
         <div class="big-title rtl hide"></div>
-        <input type="text" class="hide rtl" maxlength="9" id="client-name" />
+        <input type="text" class="hide rtl" maxlength="9" id="client-name"/>
         <div id="connect-button-container"></div>
     </div>
     <div class="menu-page" id="room">
-        <div class="slot horizontal">
+        <div class="slot horizontal m-r-15">
+            <div class="slot-head level-name"></div>
+            <div id="room-status">
+                <div class="text"></div>
+                <div class="clock"></div>
+            </div>
             <div class="mini-map"></div>
-            <div class="clock menu-button blue"></div>
+        </div>
+        <div class="slot horizontal m-l-15" id="room-rules">
+            <div class="slot-head"></div>
+            <div class="content"></div>
         </div>
         <div class="m-t-30">
             <div class="slots"></div>
         </div>
     </div>
-    <div class="menu-page rtl" id="loading-game">
-        <h1><span class="text"></span> <span class="progress"></span></h1>
-    </div>
 </div>
 <div id="game">
-    <img id="game-background" />
+    <img id="game-background"/>
     <canvas id="game-canvas"></canvas>
 </div>
 <script src="dist/bundle.js"></script>

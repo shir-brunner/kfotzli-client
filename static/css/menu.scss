@@ -116,6 +116,41 @@
     z-index: 1;
     line-height: 65px;
   }
+
+  .content {
+    font-size: 25px;
+    margin-top: 50px;
+    margin-right: 55px;
+    text-align: right;
+  }
+}
+
+#room-status {
+  background-image: url('../img/menu/bar.png');
+  background-size: cover;
+  width: 300px;
+  height: 68px;
+  left: 70px;
+  top: 180px;
+  position: absolute;
+  z-index: 1;
+  font-weight: bold;
+  display: none;
+
+  .text {
+    margin-top: 10px;
+    float: right;
+    width: 230px;
+    margin-right: 23px;
+    direction: rtl;
+    font-size: 20px;
+  }
+
+  .clock {
+    float: left;
+    margin-left: 18px;
+    font-size: 30px;
+  }
 }
 
 .room-slot {
@@ -141,13 +176,6 @@
     position: absolute;
     bottom: -15px;
     left: 56px;
-  }
-
-  .clock {
-    position: absolute;
-    bottom: 0px;
-    left: 205px;
-    cursor: context-menu;
   }
 }
 

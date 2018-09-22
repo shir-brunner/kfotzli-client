@@ -6,8 +6,7 @@ const levelPreview = require('../utils/level_preview');
 const assets = require('../services/assets');
 const Game = require('../game');
 const background = require('./background');
-const mathUtil = require('../utils/math');
-const Promise = require('bluebird');
+const rulesFormatter = require('./rules_formatter');
 
 let $game = $('#game');
 let $gameBackground = $('#game-background');
@@ -17,17 +16,21 @@ let $mainMenu = $('#main-menu');
 let $room = $('#room');
 let $slots = $room.find('.slots');
 let $miniMap = $room.find('.mini-map');
-let $clock = $room.find('.clock');
-let $loadingGame = $('#loading-game');
-let $loadingText = $loadingGame.find('.text').html(localization.translate('loadingGame'));
-let $loadingProgress = $loadingGame.find('.progress');
+let $roomStatus = $('#room-status');
+let $statusText = $roomStatus.find('.text').html(localization.translate('pleasePrepare'));
+let $clock = $roomStatus.find('.clock');
+let $levelName = $room.find('.level-name');
+let $roomRules = $('#room-rules');
+let $rulesContent = $roomRules.find('.content');
+$roomRules.find('.slot-head').html(localization.translate('rules'));
 
 module.exports = {
     enter(room, connection) {
-        $clock.hide();
         renderRoom(room, connection);
         levelPreview.appendTo($miniMap, room.level, { width: 396, height: 216 });
         $mainMenu.fadeOut('slow', () => $room.fadeIn());
+        $levelName.html(textUtil.htmlEncode(room.level.name));
+        $rulesContent.html(rulesFormatter.format(room.level));
 
         connection.on('message.ROOM', room => renderRoom(room, connection));
         connection.on('message.PREPARE', room => loadAssets(connection, room));
@@ -40,7 +43,7 @@ let previousRoom = null;
 function renderRoom(room, connection) {
     $slots.empty();
 
-    for (let slot = 1; slot <= room.maxPlayers; slot++) {
+    for (let slot = 1; slot <= room.level.spawnPoints.length; slot++) {
         let $slot = $('<div class="slot vertical room-slot"></div>');
 
         let client = room.clients.find(client => client.slot === slot);
@@ -64,11 +67,12 @@ function renderRoom(room, connection) {
     if (shouldRestartClock(room, previousRoom)) {
         let remainingSeconds = Math.round(room.roomTimeout / 1000) - 1;
 
-        $clock.html(remainingSeconds).fadeIn();
+        $roomStatus.fadeIn();
+        $clock.html(remainingSeconds);
         clockInterval = setInterval(() => $clock.html(Math.max(--remainingSeconds, 0)), 1000);
     }
     else
-        $clock.fadeOut();
+        $roomStatus.fadeOut();
 
     previousRoom = room;
 }
@@ -85,17 +89,16 @@ function shouldRestartClock(newRoom, oldRoom) {
 
 function loadAssets(connection, room) {
     $gameBackground.attr('src', config.assetsBaseUrl + '/' + room.level.background);
-    $room.fadeOut('slow', () => {
-        $loadingGame.fadeIn();
-        assets.loadRoom(room, { $progress: $loadingProgress }).then(() => {
+    $statusText.html(localization.translate('loadingGame') + ' <span class="progress"></span>');
+    $clock.fadeOut();
+    assets.loadRoom(room, { $progress: $statusText.find('.progress') }).then(() => {
+        $room.fadeOut('slow', () => {
             connection.send('READY').on('message.GAME_STARTED', room => {
                 let game = new Game(room, connection, gameCanvas);
                 game.start();
                 background.stop();
-                $loadingGame.fadeOut('slow', () => {
-                    $gameBackground.fadeIn('slow');
-                    $game.fadeIn('slow');
-                });
+                $gameBackground.fadeIn('slow');
+                $game.fadeIn('slow');
             });
         });
     });

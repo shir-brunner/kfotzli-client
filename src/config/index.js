@@ -1,7 +1,7 @@
 module.exports = {
     debug: {
-        showGameInfo: true,
-        quickStart: true,
+        showGameInfo: false,
+        quickStart: false,
         fullLevelView: false,
         showNetworkCorrections: false,
         disableSmoothCorrection: true //TODO: improve this and re enable

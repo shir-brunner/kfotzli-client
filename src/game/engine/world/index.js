@@ -1,9 +1,9 @@
-const _ = require('lodash');
 const Player = require('../objects/player');
 const GameObject = require('../objects/game_object');
 const commonConfig = require('../../common_config');
 const Physics = require('../physics/index');
 const WorldEvents = require('../events/world_events');
+const _ = require('lodash');
 
 module.exports = class World {
     constructor({ players, level, camera }) {
@@ -59,8 +59,10 @@ module.exports = class World {
     static create(level, clients, camera) {
         return new World({
             players: clients.map((client, index) => {
-                let spawnPoint = level.spawnPoints[index];
+                let teamClients = clients.filter(c => c.team === client.team);
+                let teamSpawnPoints = level.spawnPoints.filter(spawnPoint => spawnPoint.team === client.team);
                 let playerParams = client.character;
+                let spawnPoint = client.team ? teamSpawnPoints[teamClients.indexOf(client)] : level.spawnPoints[index];
                 playerParams.x = spawnPoint.x;
                 playerParams.y = spawnPoint.y - client.character.height + commonConfig.squareSize;
                 _.assign(playerParams, client);

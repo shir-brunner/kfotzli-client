@@ -2,8 +2,8 @@ const $ = require('jquery');
 const config = require('../config');
 
 module.exports = {
-    appendTo($target, level, {showSize, height, width} = {}) {
-        if(!level.background)
+    appendTo($target, level, { showSize, height, width } = {}) {
+        if (!level.background)
             return;
 
         let $levelPreview = $('<div class="level-preview"></div>');
@@ -12,7 +12,7 @@ module.exports = {
         $levelPreview.append($background);
 
         let previewWidth = width || $levelPreview.width();
-        if(height === 'auto')
+        if (height === 'auto')
             height = $levelPreview.parent().height();
 
         let previewHeight = height || (previewWidth / (level.size.width / level.size.height));
@@ -32,7 +32,7 @@ module.exports = {
         });
 
         level.spawnPoints.forEach(spawnPoint => {
-            let $spawnPoint = $('<img src="' + config.assetsBaseUrl + '/img/items/flagRed2.png" />');
+            let $spawnPoint = $('<img src="' + config.assetsBaseUrl + '/' + spawnPoint.image + '" />');
             $spawnPoint.css({
                 position: 'absolute',
                 left: spawnPoint.x / level.size.width * previewWidth,

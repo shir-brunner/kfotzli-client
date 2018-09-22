@@ -108,6 +108,9 @@ module.exports = class Physics {
             });
         }
 
+        if(player.y + player.height > this.levelSize.height)
+            this._addEvent('OUTSIDE_WORLD_BOUNDS', { player: player });
+
         this._applyPlayerMovement(player, canMoveLeft, canMoveRight, speed, climbing, delta);
     }
 
