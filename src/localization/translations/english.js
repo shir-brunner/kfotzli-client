@@ -32,4 +32,5 @@ module.exports = {
     minimumPlayers: 'Minimum Players',
     rounds: 'Rounds',
     holdTime: 'Hold Time',
+    wins: 'Wins'
 };

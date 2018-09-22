@@ -12,7 +12,7 @@ module.exports = {
         let secondsTitle = localization.translate('seconds');
         let teamsTitle = localization.translate('teams.title');
         let minimumPlayersTitle = localization.translate('minimumPlayers');
-        let roundsTitle = localization.translate('rounds');
+        let winsTitle = localization.translate('wins');
         let holdTimeTitle = localization.translate('holdTime');
 
         html += `<div>${gameplayTitle}: ${gameplayTranslated}</div>`;
@@ -21,7 +21,7 @@ module.exports = {
             html += `<div>${goalTitle}: ${level.gameplay.rules.killsToWin} ${killsTitle}</div>`;
 
         if(level.gameplay.rules.roundsToWin)
-            html += `<div>${goalTitle}: ${level.gameplay.rules.roundsToWin} ${roundsTitle}</div>`;
+            html += `<div>${goalTitle}: ${level.gameplay.rules.roundsToWin} ${winsTitle}</div>`;
 
         if(level.gameplay.rules.timeLimit)
             html += `<div>${timeLimitTitle}: ${level.gameplay.rules.timeLimit} ${minutesTitle}</div>`;

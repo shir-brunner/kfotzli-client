@@ -32,4 +32,5 @@ module.exports = {
     minimumPlayers: 'מינימום שחקנים',
     rounds: 'סיבובים',
     holdTime: 'זמן החזקה',
+    wins: 'נצחונות'
 };

@@ -43,10 +43,10 @@ let previousRoom = null;
 function renderRoom(room, connection) {
     $slots.empty();
 
-    for (let slot = 1; slot <= room.level.spawnPoints.length; slot++) {
+    room.slots.forEach(slot => {
         let $slot = $('<div class="slot vertical room-slot"></div>');
 
-        let client = room.clients.find(client => client.slot === slot);
+        let client = room.clients.find(client => client.id === slot.takenBy);
         if (client) {
             $slot.append('<img class="slot-player" src="' + config.assetsBaseUrl + '/' + client.character.image + '"/>');
             if (client.isLocal) {
@@ -61,7 +61,7 @@ function renderRoom(room, connection) {
 
         $slot.append('<div class="slot-head">' + textUtil.htmlEncode(_.get(client, 'name', '')) + '</div>');
         $slots.append($slot);
-    }
+    });
 
     clearInterval(clockInterval);
     if (shouldRestartClock(room, previousRoom)) {
