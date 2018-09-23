@@ -41,6 +41,7 @@ module.exports = {
     toMenu: 'To Menu',
     oneMore: 'One More',
     messages: {
-        gameOverDueToFewPlayers: 'Because {{playerName}} has left and ruined it for everyone else'
+        gameOverDueToFewPlayers: 'Because {{playerName}} has left and ruined it for everyone else',
+        gameOverDueToEmptyTeam: 'Because team "{{team}}" has no players left'
     }
 };

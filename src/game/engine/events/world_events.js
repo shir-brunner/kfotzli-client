@@ -32,6 +32,9 @@ module.exports = class WorldEvents {
         if(eventData.bumpedPlayer.isDead || eventData.bumpedPlayer.respawning)
             return;
 
+        if(eventData.bumpedPlayer.team === eventData.bumpingPlayer.team)
+            return;
+
         this.addEvent('DEATH', { deadPlayerId: eventData.bumpedPlayer.id, killerPlayerId: eventData.bumpingPlayer.id });
     }
 

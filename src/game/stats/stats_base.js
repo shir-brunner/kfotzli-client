@@ -2,6 +2,7 @@ const $ = require('jquery');
 const $gameInfo = $('#game-info');
 const localization = require('../../localization');
 const dialogUtil = require('../../utils/dialog');
+const textUtil = require('../../utils/text');
 
 module.exports = class StatsBase {
     constructor(gameplay) {
@@ -17,8 +18,14 @@ module.exports = class StatsBase {
     }
 
     showGameOverDialog(eventData, dialogButtons) {
-        if (eventData.reason === 'TOO_FEW_PLAYERS')
-            this._showGameOverDueToFewPlayersDialog(eventData, dialogButtons);
+        if (eventData.reason === 'TOO_FEW_PLAYERS') {
+            let message = localization.translate('messages.gameOverDueToFewPlayers', { playerName: eventData.leavingPlayerName }) + '.';
+            this._showUnexpectedGameOverDialog(message, dialogButtons);
+        }
+        else if (eventData.reason === 'EMPTY_TEAM') {
+            let message = localization.translate('messages.gameOverDueToEmptyTeam', { team: localization.translate(`teams.${eventData.team}`) }) + '.';
+            this._showUnexpectedGameOverDialog(message, dialogButtons);
+        }
         else
             this._showWinLoseDialog(eventData, dialogButtons);
     }
@@ -27,15 +34,10 @@ module.exports = class StatsBase {
         throw new Error('_showWinLoseDialog() must be implemented');
     }
 
-    _showGameOverDueToFewPlayersDialog(eventData, dialogButtons) {
-        let html = '';
-        html += '<div style="margin-top: 30px;">';
-        html += localization.translate('messages.gameOverDueToFewPlayers', { playerName: eventData.leavingPlayerName }) + '.';
-        html += '</div>';
-
+    _showUnexpectedGameOverDialog(message, dialogButtons) {
         let $dialog = dialogUtil.showDialog({
             title: localization.translate('gameOver'),
-            content: html,
+            content: '<div style="margin-top: 30px;">' + message + '</div>',
             buttons: dialogButtons
         });
 

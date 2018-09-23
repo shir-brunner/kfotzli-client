@@ -17,6 +17,12 @@ module.exports = class World {
         this.bodyParts = [];
         this.camera = camera;
         this.camera && this.camera.follow(this.localPlayer);
+
+        this.teams = [];
+        this.players.forEach(player => {
+            if(this.teams.indexOf(player.team) === -1)
+                this.teams.push(player.team);
+        });
     }
 
     update(delta, currentFrame) {
