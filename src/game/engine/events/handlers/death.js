@@ -16,7 +16,7 @@ module.exports = {
                 return;
 
             world.worldEvents.addEvent('RESPAWN', {
-                playerId: player.id,
+                playerId: playerToKill.id,
                 spawnPoint: worldUtil.findFreeSpawnPoint(playerToKill, world)
             });
         }, config.respawnTime);
