@@ -15,7 +15,8 @@ module.exports = {
         captureTheFlag: 'Capture The Flag',
         lastManStanding: 'Last Man Standing',
         kingOfTheHill: 'King Of The Hill',
-        deathmatch: 'Deathmatch'
+        deathmatch: 'Deathmatch',
+        teamDeathmatch: 'Team Deathmatch',
     },
     goal: 'Goal',
     kills: 'Kills',

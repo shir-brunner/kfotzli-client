@@ -20,6 +20,9 @@ module.exports = {
         $levelPreview.css('width', previewWidth);
 
         level.gameObjects.forEach(gameObject => {
+            if(gameObject.invisible)
+                return;
+
             let $gameObject = $('<img src="' + config.assetsBaseUrl + '/' + gameObject.image + '" />');
             $gameObject.css({
                 position: 'absolute',
@@ -31,16 +34,16 @@ module.exports = {
             $levelPreview.append($gameObject);
         });
 
-        level.spawnPoints.forEach(spawnPoint => {
-            let $spawnPoint = $('<img src="' + config.assetsBaseUrl + '/' + spawnPoint.image + '" />');
-            $spawnPoint.css({
+        (level.gameplay.rules.flags || []).forEach(flag => {
+            let $flag = $('<img src="' + config.assetsBaseUrl + '/img/items/flag_' + flag.team + '2.png" />');
+            $flag.css({
                 position: 'absolute',
-                left: spawnPoint.x / level.size.width * previewWidth,
-                top: spawnPoint.y / level.size.height * previewHeight,
+                left: flag.x / level.size.width * previewWidth,
+                top: flag.y / level.size.height * previewHeight,
                 width: 100 / level.size.width * previewWidth,
                 height: 100 / level.size.height * previewHeight,
             });
-            $levelPreview.append($spawnPoint);
+            $levelPreview.append($flag);
         });
 
         if (showSize) {

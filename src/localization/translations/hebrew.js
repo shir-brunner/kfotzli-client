@@ -15,7 +15,8 @@ module.exports = {
         captureTheFlag: 'תפוס את הדגל',
         lastManStanding: 'מי שנשאר אחרון',
         kingOfTheHill: 'מלך הגבעה',
-        deathmatch: 'קרב מוות'
+        deathmatch: 'קרב מוות',
+        teamDeathmatch: 'קרב מוות קבוצתי',
     },
     goal: 'מטרה',
     kills: 'הריגות',

@@ -15,6 +15,9 @@ module.exports = {
         let winsTitle = localization.translate('wins');
         let holdTimeTitle = localization.translate('holdTime');
 
+        if(level.gameplay.name === 'deathmatch' && level.teams.length)
+            gameplayTranslated = localization.translate('gameplay.teamDeathmatch');
+
         html += `<div>${gameplayTitle}: ${gameplayTranslated}</div>`;
 
         if(level.gameplay.rules.killsToWin)

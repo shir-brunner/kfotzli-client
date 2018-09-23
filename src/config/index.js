@@ -6,7 +6,7 @@ module.exports = {
         showNetworkCorrections: false,
         disableSmoothCorrection: true //TODO: improve this and re enable
     },
-    serverUrl: 'ws://192.168.14.56:4001',
+    serverUrl: 'ws://localhost:4001',
     language: 'hebrew',
     assetsBaseUrl: 'diststatic',
     pingsCount: 1,

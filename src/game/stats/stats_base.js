@@ -2,7 +2,6 @@ const $ = require('jquery');
 const $gameInfo = $('#game-info');
 const localization = require('../../localization');
 const dialogUtil = require('../../utils/dialog');
-const textUtil = require('../../utils/text');
 
 module.exports = class StatsBase {
     constructor(gameplay) {
