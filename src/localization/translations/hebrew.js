@@ -43,6 +43,8 @@ module.exports = {
     oneMore: 'עוד אחד',
     messages: {
         gameOverDueToFewPlayers: 'בגלל {{playerName}} שעזב/ה את המשחק והרס/ה לכל שאר השחקנים',
-        gameOverDueToEmptyTeam: 'כל השחקנים ה{{team}} עזבו את המשחק'
+        gameOverDueToEmptyTeam: 'כל השחקנים ה{{team}} עזבו את המשחק',
+        yourTeamHasWonTheMatch: 'ברכותינו, הקבוצה שלך ניצחה בקרב',
+        yourTeamHasLostTheMatch: 'אנו מתנצלים לבשר כי קבוצתך הפסידה בקרב ל{{winnerTeam}}'
     }
 };

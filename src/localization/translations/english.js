@@ -42,6 +42,8 @@ module.exports = {
     oneMore: 'One More',
     messages: {
         gameOverDueToFewPlayers: 'Because {{playerName}} has left and ruined it for everyone else',
-        gameOverDueToEmptyTeam: 'Because team "{{team}}" has no players left'
+        gameOverDueToEmptyTeam: 'Because team "{{team}}" has no players left',
+        yourTeamHasWonTheMatch: 'Congratulations, Your team has won the match',
+        yourTeamHasLostTheMatch: 'We are sorry but team "{{winnerTeam}}" has won the match'
     }
 };

@@ -35,4 +35,32 @@ module.exports = class TeamDeathmatchStats extends StatsBase {
 
         return $complexBar;
     }
+
+    _showWinLoseDialog(eventData, dialogButtons) {
+        let winnerTeam = eventData.winnerTeam;
+        let firstTeamPlayer = this.world.players.find(player => player.team === winnerTeam);
+        let localPlayer = this.world.localPlayer;
+        let winMessage = localization.translate('youWin') + ' :)';
+        let loseMessage = localization.translate('youLost') + ' :(';
+        let title = localPlayer.team === winnerTeam ? winMessage : loseMessage;
+        let html = '';
+
+        if (localPlayer.team === winnerTeam)
+            html += '<div style="margin-top: 10px;">' + localization.translate('messages.yourTeamHasWonTheMatch') + '!</div>';
+        else
+            html += '<div style="margin-top: 10px;">' + localization.translate('messages.yourTeamHasLostTheMatch', { winnerTeam: localization.translate(`teams.${winnerTeam}`) }) + '.</div>';
+
+        html += '<img class="player small" src="' + config.assetsBaseUrl + '/' + firstTeamPlayer.image + '"></div>';
+
+        let $dialog = dialogUtil.showDialog({
+            title: title,
+            content: html,
+            buttons: dialogButtons
+        });
+
+        if (localPlayer.team === winnerTeam)
+            $dialog.addClass('tada animated');
+
+        return $dialog;
+    }
 };
