@@ -27,7 +27,7 @@ module.exports = {
         red: 'אדומים',
         green: 'ירוקים',
         blue: 'כחולים',
-        Yellow: 'צהובים',
+        yellow: 'צהובים',
     },
     minimumPlayers: 'מינימום שחקנים',
     rounds: 'סיבובים',

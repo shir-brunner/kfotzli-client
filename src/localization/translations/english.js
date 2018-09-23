@@ -27,7 +27,7 @@ module.exports = {
         red: 'Red',
         green: 'Green',
         blue: 'Blue',
-        Yellow: 'Yellow',
+        yellow: 'Yellow',
     },
     minimumPlayers: 'Minimum Players',
     rounds: 'Rounds',
