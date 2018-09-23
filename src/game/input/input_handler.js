@@ -13,11 +13,15 @@ module.exports = class InputHandler {
         this.connection = connection;
         this.statesByKey = {};
 
-        $document.off('keydown keyup');
-        $document.on('keydown', event => this._handleInput(event.keyCode, true));
-        $document.on('keyup', event => this._handleInput(event.keyCode, false));
+        $document.off('keydown.inputHandler keyup.inputHandler');
+        $document.on('keydown.inputHandler', event => this._handleInput(event.keyCode, true));
+        $document.on('keyup.inputHandler', event => this._handleInput(event.keyCode, false));
 
         this.inputsToSend = [];
+    }
+
+    cleanUp() {
+        $document.off('keydown.inputHandler keyup.inputHandler');
     }
 
     update(currentFrame) {

@@ -10,6 +10,7 @@ module.exports = class World {
         this.players = players;
         this.level = level;
         this.gameObjects = level.gameObjects.map(gameObject => new GameObject(gameObject));
+        this.visibleGameObjects = this.gameObjects.filter(gameObject => !gameObject.invisible);
         this.physics = new Physics(this);
         this.localPlayer = this.players.find(player => player.isLocal);
         this.worldEvents = new WorldEvents(this);
@@ -34,7 +35,7 @@ module.exports = class World {
     }
 
     render(context) {
-        this.gameObjects.forEach(gameObject => gameObject.render(context, this.camera));
+        this.visibleGameObjects.forEach(gameObject => gameObject.render(context, this.camera));
         this.players.forEach(player => player.render(context, this.camera));
         this.bodyParts.forEach(bodyPart => bodyPart.render(context, this.camera));
     }

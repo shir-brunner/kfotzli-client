@@ -32,5 +32,13 @@ module.exports = {
     minimumPlayers: 'מינימום שחקנים',
     rounds: 'סיבובים',
     holdTime: 'זמן החזקה',
-    wins: 'נצחונות'
+    wins: 'נצחונות',
+    gameOver: 'נגמר המשחק',
+    theWinnerIs: 'המנצח הוא',
+    youLost: 'הפסדת',
+    youWin: 'ניצחת',
+    congratulations: 'ברכות',
+    backToMenu: 'חזרה לתפריט',
+    toMenu: 'לתפריט',
+    oneMore: 'עוד אחד'
 };

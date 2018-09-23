@@ -12,7 +12,7 @@ const GameplayFactory = require('./gameplay/gameplay_factory');
 const _ = require('lodash');
 
 module.exports = class Game {
-    constructor(room, connection, gameCanvas) {
+    constructor(room, connection, gameCanvas, onGameOver) {
         this.renderer = new Renderer(gameCanvas, room.level);
         this.camera = new Camera(config.camera.viewSize, room.level.size, config.debug.fullLevelView);
         this.world = World.create(room.level, room.clients, this.camera);
@@ -22,18 +22,27 @@ module.exports = class Game {
         this.inputHandler = new InputHandler(this.localPlayer, connection, this);
         this.eventsProcessor = new EventsProcessor(this.world);
         this.gameplay = (new GameplayFactory()).getGameplay(this.world);
+        this.stats = this.gameplay.getStats();
         this.pendingEvents = [];
         this.lastFrame = 0;
         this.smoothCorrection = new SmoothCorrection(this.world);
+        this.onGameOver = onGameOver;
+        this.stopped = false;
     }
 
     start() {
         this.connection.on('message.SHARED_STATE', sharedState => this.sharedState = sharedState);
-        this.connection.on('message.EVENTS', events => this.pendingEvents.push(...events));
+        this.connection.on('message.EVENTS', events => {
+            events.forEach(event => event.type === 'GAME_OVER' && this.onGameOver(event.data));
+            this.pendingEvents.push(...events);
+        });
         window.requestAnimationFrame(timestamp => this._mainLoop(timestamp));
     }
 
     _mainLoop(timestamp) {
+        if(this.stopped)
+            return;
+
         this.startTime = this.startTime || timestamp;
 
         let currentFrame = Math.ceil((timestamp - this.startTime) / FRAME_RATE);
@@ -50,6 +59,7 @@ module.exports = class Game {
             this.smoothCorrection.apply();
             this.eventsProcessor.process(this.pendingEvents);
             this.gameplay.update(this.pendingEvents);
+            this.pendingEvents.length && this.stats.refresh(this.pendingEvents);
             this.pendingEvents = [];
             this.renderer.render(this.world);
 

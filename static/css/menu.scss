@@ -106,6 +106,7 @@
   background-image: url('../img/menu/horizontal_slot.png');
   width: 462px;
   height: 320px;
+
   .slot-head {
     background-image: url('../img/menu/horizontal_slot_head.png');
     width: 422px;
@@ -115,13 +116,18 @@
     font-size: 30px;
     z-index: 1;
     line-height: 65px;
+    direction: rtl;
   }
 
   .content {
     font-size: 25px;
-    margin-top: 50px;
-    margin-right: 55px;
+    position: absolute;
+    left: 35px;
+    top: 55px;
+    width: 375px;
+    height: 211px;
     text-align: right;
+    direction: rtl;
   }
 }
 

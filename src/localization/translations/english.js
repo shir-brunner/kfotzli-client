@@ -32,5 +32,12 @@ module.exports = {
     minimumPlayers: 'Minimum Players',
     rounds: 'Rounds',
     holdTime: 'Hold Time',
-    wins: 'Wins'
+    wins: 'Wins',
+    gameOver: 'Game Over',
+    theWinnerIs: 'The Winner Is',
+    youLost: 'You Lost',
+    youWin: 'You Win',
+    congratulations: 'Congratulations',
+    toMenu: 'To Menu',
+    oneMore: 'One More'
 };
