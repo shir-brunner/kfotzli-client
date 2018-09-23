@@ -39,5 +39,8 @@ module.exports = {
     youWin: 'You Win',
     congratulations: 'Congratulations',
     toMenu: 'To Menu',
-    oneMore: 'One More'
+    oneMore: 'One More',
+    messages: {
+        gameOverDueToFewPlayers: 'Because {{playerName}} has left and ruined it for everyone else'
+    }
 };

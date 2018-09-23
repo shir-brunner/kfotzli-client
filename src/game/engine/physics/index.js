@@ -10,7 +10,6 @@ module.exports = class Physics {
         this.climbables = world.gameObjects.filter(gameObject => gameObject.climbable);
         this.obstacles = world.gameObjects.filter(gameObject => gameObject.obstacle);
         this.levelSize = this.world.level.size;
-        this.players = this.world.players;
         this.events = [];
     }
 
@@ -45,7 +44,7 @@ module.exports = class Physics {
             }
         });
 
-        this.players.forEach(otherPlayer => {
+        this.world.players.forEach(otherPlayer => {
             if (otherPlayer.id === player.id || otherPlayer.isDead)
                 return;
 

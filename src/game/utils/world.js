@@ -2,8 +2,7 @@ const physicsUtil = require('./physics');
 const _ = require('lodash');
 
 module.exports = {
-    findFreeSpawnPoint(forPlayerId, world) {
-        let forPlayer = world.players.find(player => player.id === forPlayerId);
+    findFreeSpawnPoint(forPlayer, world) {
         let availableSpawnPoints = world.level.spawnPoints;
         if(world.level.teams.length)
             availableSpawnPoints = world.level.spawnPoints.filter(spawnPoint => spawnPoint.team === forPlayer.team);
@@ -12,7 +11,7 @@ module.exports = {
         for (let i = 0; i < spawnPoints.length; i++) {
             let spawnPoint = spawnPoints[i];
             let isFree = !world.players.find(player => {
-                if (player.id === forPlayer.id)
+                if (player.id === (forPlayer && forPlayer.id))
                     return false;
 
                 let rect = {

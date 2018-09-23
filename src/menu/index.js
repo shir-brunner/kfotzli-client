@@ -1,6 +1,6 @@
 const $ = require('jquery');
 const background = require('./background');
-const images = require('../config/images');
+const config = require('../config');
 const localization = require('../localization/index');
 const roomMenu = require('./room_menu');
 const menuUtil = require('../utils/menu');
@@ -12,13 +12,14 @@ let $clientName = $('#client-name');
 document.title = localization.translate('gameTitle');
 
 background.onBackgroundReady(() => {
+    let buttonsPath = config.assetsBaseUrl + '/img/buttons';
     let $playWithFriends = menuUtil.extraLargeButton(localization.translate('playWithFriends'), 'friends.png').hide();
     let $playWithStrangers = menuUtil.extraLargeButton(localization.translate('playWithStrangers'), 'play.png').hide();
-    let $facebookButton = $('<img class="menu-button" src="' + images.buttons['facebook'] + '" />');
-    let $twitterButton = $('<img class="menu-button" src="' + images.buttons['twitter'] + '" />');
-    let $helpButton = $('<img class="menu-button" src="' + images.buttons['help'] + '" />');
-    let $settingsButton = $('<img class="menu-button" src="' + images.buttons['settings'] + '" />');
-    let $muteButton = $('<img class="menu-button" src="' + images.buttons['mute'] + '" />');
+    let $facebookButton = $('<img class="menu-button" src="' + buttonsPath + '/facebook.png" />');
+    let $twitterButton = $('<img class="menu-button" src="' + buttonsPath + '/twitter.png" />');
+    let $helpButton = $('<img class="menu-button" src="' + buttonsPath + '/help.png" />');
+    let $settingsButton = $('<img class="menu-button" src="' + buttonsPath + '/settings.png" />');
+    let $muteButton = $('<img class="menu-button" src="' + buttonsPath + '/mute.png" />');
     let $menuButtonsLeft = $('.menu-buttons-left');
     let $menuButtonsRight = $('.menu-buttons-right');
     let $connectButtonContainer = $('#connect-button-container');
@@ -57,7 +58,7 @@ background.onBackgroundReady(() => {
     $connectButton.on('click', function () {
         let clientName = $clientName.val();
         if (clientName) {
-            roomMenu.connect(clientName, error => {
+            roomMenu.connect(clientName, () => {
                 $gameTitle.html(localization.translate('cannotConnect'));
             });
         }
@@ -65,13 +66,13 @@ background.onBackgroundReady(() => {
             $clientName.focus();
     });
 
-    $(document).on('keyup', function (e) {
-        if (e.keyCode === 27) {
-            $clientName.hide();
-            $connectButton.hide();
-            $playWithStrangers.show();
-            $playWithFriends.show();
-            $gameTitle.html(localization.translate('gameTitle'));
-        }
-    });
+    $(document).on('keyup', e => e.keyCode === 27 && roomMenu.backToMainMenu());
+
+    roomMenu.backToMainMenu = () => {
+        $clientName.hide();
+        $connectButton.hide();
+        $playWithStrangers.show();
+        $playWithFriends.show();
+        $gameTitle.html(localization.translate('gameTitle'));
+    };
 });

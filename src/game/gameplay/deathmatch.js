@@ -13,12 +13,12 @@ module.exports = class Deathmatch {
 
     update(events) {
         events.forEach(event => {
-            switch(event.type) {
+            switch (event.type) {
                 case 'DEATH':
-                    if(event.data.killerPlayerId) {
+                    if (event.data.killerPlayerId) {
                         this.killsByPlayer[event.data.killerPlayerId]++;
-                        if(this.killsByPlayer[event.data.killerPlayerId] >= this.rules.killsToWin)
-                            this.world.worldEvents.addEvent('GAME_OVER', { winnerPlayerId: event.data.killerPlayerId });
+                        if (this.killsByPlayer[event.data.killerPlayerId] >= this.rules.killsToWin)
+                            this.world.worldEvents.addEvent('GAME_OVER', { reason: 'PLAYER_WON', winnerPlayerId: event.data.killerPlayerId });
                     }
                     break;
             }

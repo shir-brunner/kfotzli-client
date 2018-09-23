@@ -40,5 +40,8 @@ module.exports = {
     congratulations: 'ברכות',
     backToMenu: 'חזרה לתפריט',
     toMenu: 'לתפריט',
-    oneMore: 'עוד אחד'
+    oneMore: 'עוד אחד',
+    messages: {
+        gameOverDueToFewPlayers: 'בגלל {{playerName}} שעזב/ה את המשחק והרס/ה לכל שאר השחקנים',
+    }
 };

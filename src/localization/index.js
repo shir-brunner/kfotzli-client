@@ -12,8 +12,10 @@ class Localization {
         };
     }
 
-    translate(entry) {
-        return _.get(this, `_translations.${this._language}.${entry}`, entry);
+    translate(entry, params = {}) {
+        let translated = _.get(this, `_translations.${this._language}.${entry}`, entry);
+        Object.keys(params).forEach(key => translated = translated.replace('{{' + key + '}}', params[key]));
+        return translated;
     }
 }
 

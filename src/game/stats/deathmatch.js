@@ -5,14 +5,12 @@ const $ = require('jquery');
 const $gameInfo = $('#game-info');
 const localization = require('../../localization');
 const dialogUtil = require('../../utils/dialog');
+const StatsBase = require('./stats_base');
 
-module.exports = class DeathmatchStats {
-    constructor(gameplay) {
-        this.gameplay = gameplay;
-        this.world = this.gameplay.world;
-        this.rules = this.world.level.gameplay.rules;
-        $gameInfo.empty();
-        this.world.players.forEach(player => $gameInfo.append(this._createPlayerBar(player)));
+module.exports = class DeathmatchStats extends StatsBase {
+    refresh(events = []) {
+        super.refresh(events);
+        this.world.players.forEach(player => $gameInfo.append(this._createPlayerBar(player, events)));
     }
 
     _createPlayerBar(player, events = []) {
@@ -29,12 +27,7 @@ module.exports = class DeathmatchStats {
         return $complexBar;
     }
 
-    refresh(events) {
-        $gameInfo.empty();
-        this.world.players.forEach(player => $gameInfo.append(this._createPlayerBar(player, events)));
-    }
-
-    showGameOverDialog(eventData, dialogButtons) {
+    _showWinLoseDialog(eventData, dialogButtons) {
         let winnerPlayer = this.world.players.find(player => player.id === eventData.winnerPlayerId);
         let localPlayer = this.world.localPlayer;
         let winMessage = localization.translate('youWin') + ' :)';

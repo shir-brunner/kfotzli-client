@@ -130,13 +130,17 @@ module.exports = {
             {
                 text: localization.translate('toMenu'), onClick: () => {
                     this._closeGame(game);
+                    this.backToMainMenu && this.backToMainMenu();
                     $mainMenu.fadeIn();
                 }
             },
             {
                 text: localization.translate('oneMore'), onClick: () => {
                     this._closeGame(game);
-                    this.connect(this.clientName);
+                    this.connect(this.clientName, () => {
+                        this.backToMainMenu && this.backToMainMenu();
+                        $mainMenu.fadeIn();
+                    });
                 }
             }
         ]);
