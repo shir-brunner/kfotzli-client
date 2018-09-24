@@ -36,7 +36,7 @@ module.exports = class Game {
     }
 
     _mainLoop(timestamp) {
-        if(this.stopped)
+        if (this.stopped)
             return;
 
         this.startTime = this.startTime || timestamp;
@@ -56,6 +56,7 @@ module.exports = class Game {
             this.world.gameplay.applyEvents(this.pendingEvents);
             this.pendingEvents.length && this.stats.refresh(this.pendingEvents);
             this.pendingEvents = [];
+
             this.renderer.render(this.world);
 
             if (debug.stopEngine)
@@ -74,7 +75,7 @@ module.exports = class Game {
             _.assign(playgroundPlayer, playerState);
         });
 
-        if(this.worldPlayground.localPlayer.positionChanged) {
+        if (this.worldPlayground.localPlayer.positionChanged) {
             // +1 because "lastProcessedFrame" is already processed
             let fromFrame = this.worldPlayground.localPlayer.lastProcessedFrame + 1;
             let toFrame = currentFrame;
@@ -94,10 +95,10 @@ module.exports = class Game {
         }
 
         this.worldPlayground.players.forEach(playgroundPlayer => {
-            if(playgroundPlayer.isLocal)
+            if (playgroundPlayer.isLocal)
                 return; // already moved him above
 
-            if(playgroundPlayer.positionChanged) {
+            if (playgroundPlayer.positionChanged) {
                 let realPlayer = this.world.players.find(player => player.id === playgroundPlayer.id);
                 _.assign(realPlayer, _.pick(playgroundPlayer, ['x', 'y', 'verticalSpeed', 'controller']));
             }
