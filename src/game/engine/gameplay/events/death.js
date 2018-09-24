@@ -3,7 +3,7 @@ const BodyPart = require('../../objects/body_part');
 const worldUtil = require('../../../utils/world');
 
 module.exports = {
-    handle(data, world) {
+    apply(data, world) {
         let playerToKill = world.players.find(player => player.id === data.deadPlayerId);
         playerToKill.die();
 
@@ -15,7 +15,7 @@ module.exports = {
             if(!world.players.find(player => player.id === playerToKill.id))
                 return;
 
-            world.worldEvents.addEvent('RESPAWN', {
+            world.gameplay.addEvent('RESPAWN', {
                 playerId: playerToKill.id,
                 spawnPoint: worldUtil.findFreeSpawnPoint(playerToKill, world)
             });

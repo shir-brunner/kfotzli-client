@@ -2,7 +2,8 @@ const Player = require('../objects/player');
 const GameObject = require('../objects/game_object');
 const commonConfig = require('../../common_config');
 const Physics = require('../physics/index');
-const WorldEvents = require('../events/world_events');
+const GameplayFactory = require('../gameplay/gameplay_factory');
+
 const _ = require('lodash');
 
 module.exports = class World {
@@ -12,7 +13,6 @@ module.exports = class World {
         this.gameObjects = level.gameObjects.map(gameObject => new GameObject(gameObject));
         this.physics = new Physics(this);
         this.localPlayer = this.players.find(player => player.isLocal);
-        this.worldEvents = new WorldEvents(this);
         this.bodyParts = [];
         this.camera = camera;
         this.camera && this.camera.follow(this.localPlayer);
@@ -22,13 +22,15 @@ module.exports = class World {
             if (this.teams.indexOf(player.team) === -1)
                 this.teams.push(player.team);
         });
+
+        this.gameplay = (new GameplayFactory()).getGameplay(this);
     }
 
     update(delta, currentFrame) {
         this.physics.update(delta, currentFrame);
         this.players.forEach(player => player.update(delta, currentFrame));
         this.gameObjects.forEach(gameObject => gameObject.update(delta, currentFrame));
-        this.worldEvents.updateEvents();
+        this.gameplay.update(delta, currentFrame);
         this.removeExpiredBodyParts();
         this.camera && this.camera.update(delta);
     }

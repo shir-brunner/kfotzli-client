@@ -1,17 +1,20 @@
-module.exports = class TeamDeathmatch {
+const Gameplay = require('./gameplay');
+
+module.exports = class TeamDeathmatch extends Gameplay {
     constructor(world) {
-        this.world = world;
-        this.rules = world.level.gameplay.rules;
+        super(world);
         this.killsByTeam = {};
         world.teams.forEach(team => this.killsByTeam[team] = 0);
     }
 
     getStats() {
-        const TeamDeathmatchStats = require('../stats/team_deathmatch');
+        const TeamDeathmatchStats = require('../../stats/team_deathmatch');
         return new TeamDeathmatchStats(this);
     }
 
-    update(events) {
+    applyEvents(events) {
+        super.applyEvents(events);
+
         events.forEach(event => {
             switch (event.type) {
                 case 'DEATH':
@@ -22,7 +25,7 @@ module.exports = class TeamDeathmatch {
 
                         this.killsByTeam[killerPlayer.team]++;
                         if (this.killsByTeam[killerPlayer.team] >= this.rules.killsToWin)
-                            this.world.worldEvents.addEvent('GAME_OVER', { reason: 'TEAM_WON', winnerTeam: killerPlayer.team });
+                            this.world.gameplay.addEvent('GAME_OVER', { reason: 'TEAM_WON', winnerTeam: killerPlayer.team });
                     }
                     break;
             }

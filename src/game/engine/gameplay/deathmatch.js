@@ -1,24 +1,27 @@
-module.exports = class Deathmatch {
+const Gameplay = require('./gameplay');
+
+module.exports = class Deathmatch extends Gameplay {
     constructor(world) {
-        this.world = world;
-        this.rules = world.level.gameplay.rules;
+        super(world);
         this.killsByPlayer = {};
         world.players.forEach(player => this.killsByPlayer[player.id] = 0);
     }
 
     getStats() {
-        const DeathmatchStats = require('../stats/deathmatch');
+        const DeathmatchStats = require('../../stats/deathmatch');
         return new DeathmatchStats(this);
     }
 
-    update(events) {
+    applyEvents(events) {
+        super.applyEvents(events);
+
         events.forEach(event => {
             switch (event.type) {
                 case 'DEATH':
                     if (event.data.killerPlayerId) {
                         this.killsByPlayer[event.data.killerPlayerId]++;
                         if (this.killsByPlayer[event.data.killerPlayerId] >= this.rules.killsToWin)
-                            this.world.worldEvents.addEvent('GAME_OVER', { reason: 'PLAYER_WON', winnerPlayerId: event.data.killerPlayerId });
+                            this.world.gameplay.addEvent('GAME_OVER', { reason: 'PLAYER_WON', winnerPlayerId: event.data.killerPlayerId });
                     }
                     break;
             }
