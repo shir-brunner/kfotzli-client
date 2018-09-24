@@ -1,7 +1,8 @@
 const handlersByType = {
     DEATH: require('./handlers/death'),
     RESPAWN: require('./handlers/respawn'),
-    PLAYER_LEFT: require('./handlers/player_left')
+    PLAYER_LEFT: require('./handlers/player_left'),
+    COLLECT: require('./handlers/collect')
 };
 
 module.exports = class EventsProcessor {

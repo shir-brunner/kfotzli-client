@@ -5,18 +5,38 @@ const _ = require('lodash');
 module.exports = class Physics {
     constructor(world) {
         this.world = world;
-        this.stuckables = world.gameObjects.filter(gameObject => gameObject.stuckable);
-        this.bumpables = world.gameObjects.filter(gameObject => gameObject.bumpable);
-        this.climbables = world.gameObjects.filter(gameObject => gameObject.climbable);
-        this.obstacles = world.gameObjects.filter(gameObject => gameObject.obstacle);
-        this.levelSize = this.world.level.size;
+        this.levelSize = world.level.size;
         this.events = [];
+        this.stuckables = [];
+        this.bumpables = [];
+        this.climbables = [];
+        this.collidables = [];
+        this.fallables = [];
     }
 
     update(delta) {
+        this._indexGameObjects();
         this.events = [];
         this.world.players.forEach(player => this._updatePlayerPhysics(player, delta));
         this.world.bodyParts.forEach(bodyPart => this._updateBodyPartPhysics(bodyPart, delta));
+        this.fallables.forEach(fallable => this._updateFallablePhysics(fallable, delta));
+    }
+
+    _indexGameObjects() {
+        this.stuckables = [];
+        this.bumpables = [];
+        this.climbables = [];
+        this.collidables = [];
+        this.fallables = [];
+
+        this.world.gameObjects.forEach(gameObject => {
+            gameObject.stuckable && this.stuckables.push(gameObject);
+            gameObject.bumpable && this.bumpables.push(gameObject);
+            gameObject.climbable && this.climbables.push(gameObject);
+            gameObject.obstacle && this.collidables.push(gameObject);
+            gameObject.collectable && !gameObject.collected && this.collidables.push(gameObject);
+            gameObject.fallable && this.fallables.push(gameObject);
+        });
     }
 
     _updatePlayerPhysics(player, delta) {
@@ -69,10 +89,10 @@ module.exports = class Physics {
             }
         });
 
-        this.obstacles.forEach(gameObject => {
+        this.collidables.forEach(gameObject => {
             let collidablePosition = gameObject.getCollidablePosition();
             if (physicsUtil.intersects(player, collidablePosition))
-                this._addEvent('TOUCHED_OBSTACLE', { player: player, obstacle: gameObject });
+                this._addEvent('PLAYER_COLLIDED', { player: player, gameObject: gameObject });
         });
 
         this.climbables.forEach(gameObject => {
@@ -100,15 +120,15 @@ module.exports = class Physics {
 
             this.bumpables.forEach(gameObject => {
                 let collidablePosition = gameObject.getCollidablePosition();
-                if(this._canLand(player, collidablePosition)) {
+                if (this._canLand(player, collidablePosition)) {
                     gameObject.setAnimation('bump');
                     player.bump(gameObject.bumpHeight);
                 }
             });
         }
 
-        if(player.y + player.height > this.levelSize.height)
-            this._addEvent('OUTSIDE_WORLD_BOUNDS', { player: player });
+        if (player.y + player.height > this.levelSize.height)
+            this._addEvent('PLAYER_OUTSIDE_WORLD_BOUNDS', { player: player });
 
         this._applyPlayerMovement(player, canMoveLeft, canMoveRight, speed, climbing, delta);
     }
@@ -142,16 +162,11 @@ module.exports = class Physics {
     }
 
     fastForwardLocalPlayer(fromFrame, toFrame, controllerHistory) {
-        console.log('fromFrame', fromFrame);
-        console.log('toFrame', toFrame);
+        this._indexGameObjects();
 
         for (let frame = fromFrame; frame <= toFrame; frame++) {
-            console.log('simulated player at frame ' + frame + ' is X = ' + this.world.localPlayer.x);
             let controller = controllerHistory.at(frame);
-            if (controller) {
-                _.assign(this.world.localPlayer.controller, controller);
-                console.log('GETTING CONTROLLER, FRAME = ' + frame + ', STATE = ' + controller.isRightPressed);
-            }
+            controller && _.assign(this.world.localPlayer.controller, controller);
             this._updatePlayerPhysics(this.world.localPlayer, 1);
         }
     }
@@ -178,10 +193,10 @@ module.exports = class Physics {
     }
 
     _updateBodyPartPhysics(bodyPart, delta) {
-        if(!bodyPart.ignorePhysics) {
+        if (!bodyPart.ignoreCollisions) {
             this.stuckables.forEach(gameObject => {
                 let collidablePosition = gameObject.getCollidablePosition();
-                if(physicsUtil.intersects(bodyPart, collidablePosition)) {
+                if (physicsUtil.intersects(bodyPart, collidablePosition)) {
                     bodyPart.verticalSpeed *= -0.9;
                     bodyPart.y = collidablePosition.y - bodyPart.height;
                 }
@@ -195,5 +210,16 @@ module.exports = class Physics {
 
     _addEvent(eventType, data) {
         this.events.push({ type: eventType, data: data });
+    }
+
+    _updateFallablePhysics(fallable, delta) {
+        this.stuckables.forEach(gameObject => {
+            let collidablePosition = gameObject.getCollidablePosition();
+            if (physicsUtil.intersects(fallable, collidablePosition))
+                this._land(fallable, collidablePosition);
+        });
+
+        fallable.verticalSpeed += config.gravity * delta;
+        fallable.y += fallable.verticalSpeed;
     }
 };

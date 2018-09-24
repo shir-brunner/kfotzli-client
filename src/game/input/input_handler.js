@@ -29,7 +29,6 @@ module.exports = class InputHandler {
             this.inputsToSend.forEach(input => {
                 input.frame = currentFrame;
                 this.connection.send('INPUT', input);
-                console.log('INPUT SENT AT CLIENT FRAME = ' + currentFrame + ', ' + (input.isPressed ? 'KEY DOWN' : 'KEY UP'));
                 this.applyInput(this.localPlayer, input);
             });
 

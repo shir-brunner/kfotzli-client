@@ -4,7 +4,7 @@ module.exports = {
         quickStart: true,
         fullLevelView: false,
         showNetworkCorrections: false,
-        disableSmoothCorrection: true //TODO: improve this and re enable
+        disableSmoothCorrection: true, //TODO: improve this and re enable,
     },
     serverUrl: 'ws://localhost:4001',
     language: 'hebrew',

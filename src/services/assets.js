@@ -40,6 +40,11 @@ class Assets {
             imageUrls.push(...this._getImagesFromAnimations(gameObject.animations));
         });
 
+        (room.level.gameplay.flags || []).forEach(flag => {
+            imageUrls.push(flag.image);
+            imageUrls.push(...this._getImagesFromAnimations(flag.animations));
+        });
+
         room.clients.forEach(client => {
             imageUrls.push(client.character.image);
             imageUrls.push(...this._getImagesFromAnimations(client.character.animations));

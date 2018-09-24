@@ -20,6 +20,6 @@ module.exports = class BodyPart extends Drawable {
         this.horizontalSpeed = _.random(-15, 15);
         this.verticalSpeed = _.random(-75, 75);
         this.expiration = Date.now() + config.bodyParts.expiration;
-        this.ignorePhysics = false;
+        this.ignoreCollisions = false;
     }
 };

@@ -10,7 +10,6 @@ module.exports = class World {
         this.players = players;
         this.level = level;
         this.gameObjects = level.gameObjects.map(gameObject => new GameObject(gameObject));
-        this.visibleGameObjects = this.gameObjects.filter(gameObject => !gameObject.invisible);
         this.physics = new Physics(this);
         this.localPlayer = this.players.find(player => player.isLocal);
         this.worldEvents = new WorldEvents(this);
@@ -20,7 +19,7 @@ module.exports = class World {
 
         this.teams = [];
         this.players.forEach(player => {
-            if(this.teams.indexOf(player.team) === -1)
+            if (this.teams.indexOf(player.team) === -1)
                 this.teams.push(player.team);
         });
     }
@@ -32,32 +31,24 @@ module.exports = class World {
         this.worldEvents.updateEvents();
         this.removeExpiredBodyParts();
         this.camera && this.camera.update(delta);
-
-/*        if(this.players[0].controller.isRightPressed)
-            this.startForDebug = true;
-
-        if(this.startForDebug)
-            console.log('CURRENT FRAME = ' + currentFrame + ', X = ' + this.players[0].x + ', CONTROLLER STATE = ' + this.players[0].controller.isRightPressed);*/
     }
 
     render(context) {
-        this.visibleGameObjects.forEach(gameObject => gameObject.render(context, this.camera));
+        this.gameObjects.forEach(gameObject => {
+            if (gameObject.invisible || gameObject.collected)
+                return;
+
+            gameObject.render(context, this.camera)
+        });
         this.players.forEach(player => player.render(context, this.camera));
         this.bodyParts.forEach(bodyPart => bodyPart.render(context, this.camera));
-    }
-
-    setPlayersPositions(players) {
-        players.forEach(playerState => {
-            let player = this.players.find(player => player.id === playerState.id);
-            _.assign(player, playerState);
-        });
     }
 
     removeExpiredBodyParts() {
         let now = Date.now();
         this.bodyParts.forEach(bodyPart => {
-            if(now > bodyPart.expiration - 2500)
-                bodyPart.ignorePhysics = true;
+            if (now > bodyPart.expiration - 2500)
+                bodyPart.ignoreCollisions = true;
         });
 
         this.bodyParts = this.bodyParts.filter(bodyPart => now < bodyPart.expiration);

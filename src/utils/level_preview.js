@@ -34,8 +34,8 @@ module.exports = {
             $levelPreview.append($gameObject);
         });
 
-        (level.gameplay.rules.flags || []).forEach(flag => {
-            let $flag = $('<img src="' + config.assetsBaseUrl + '/img/items/flag_' + flag.team + '2.png" />');
+        (level.gameplay.flags || []).forEach(flag => {
+            let $flag = $('<img src="' + config.assetsBaseUrl + '/' + flag.image + '" />');
             $flag.css({
                 position: 'absolute',
                 left: flag.x / level.size.width * previewWidth,

@@ -21,6 +21,9 @@ module.exports = class Player extends Drawable {
         this.controllerHistory = new Timeline(50);
         this.respawning = true;
         this.team = params.team;
+        this.collectable = null;
+        this.positionChanged = false;
+        this.lastProcessedFrame = 0;
     }
 
     update(delta, currentFrame) {
@@ -32,6 +35,10 @@ module.exports = class Player extends Drawable {
         else
             this.respawning = false;
 
+        if(this.collectable) {
+            this.collectable.x = this.x + this.width / 2;
+            this.collectable.y = this.y - this.height / 2;
+        }
 
         super.update(delta, currentFrame);
     }
@@ -45,6 +52,8 @@ module.exports = class Player extends Drawable {
         context.textAlign = 'center';
         context.fillStyle = 'black';
         context.fillText(this.name, this.x + (this.width / 2), this.y - 20);
+
+        this.collectable && this.collectable.render(context, camera);
     }
 
     getSharedState() {
@@ -98,10 +107,7 @@ module.exports = class Player extends Drawable {
 
     die() {
         this.verticalSpeed = 0;
-        this.controller.isRightPressed = false;
-        this.controller.isLeftPressed = false;
-        this.controller.isUpPressed = false;
-        this.controller.isDownPressed = false;
+        this.controller = controllerUtil.emptyController();
         this.isDead = true;
     }
 
@@ -111,5 +117,10 @@ module.exports = class Player extends Drawable {
         this.opacity = 0;
         this.isDead = false;
         this.respawning = true;
+    }
+
+    collect(collectable) {
+        collectable.collected = true;
+        this.collectable = collectable;
     }
 };

@@ -74,17 +74,17 @@ module.exports = class Game {
     }
 
     _onServerUpdate(sharedState, currentFrame) {
-        console.log('============== RECEIVED STATE AT FRAME ' + currentFrame + ' ==================');
-        this.worldPlayground.setPlayersPositions(sharedState.players);
+        sharedState.players.forEach(playerState => {
+            let playgroundPlayer = this.worldPlayground.players.find(player => player.id === playerState.id);
+            _.assign(playgroundPlayer, playerState);
+        });
 
         if(this.worldPlayground.localPlayer.positionChanged) {
             // +1 because "lastProcessedFrame" is already processed
             let fromFrame = this.worldPlayground.localPlayer.lastProcessedFrame + 1;
-            console.log('LAST_PROCESSED_FRAME = ' + this.worldPlayground.localPlayer.lastProcessedFrame + ' AND SERVER X = ' + this.worldPlayground.localPlayer.x);
             let toFrame = currentFrame;
 
             this.worldPlayground.physics.fastForwardLocalPlayer(fromFrame, toFrame, this.localPlayer.controllerHistory);
-            console.log('PLAYGROUND X AFTER FAST FORWARD AT FRAME ' + toFrame + ' = ' + this.worldPlayground.localPlayer.x);
 
             if (config.debug.showNetworkCorrections) {
                 debug.point(this.worldPlayground.localPlayer.x, this.worldPlayground.localPlayer.y, 'blue');
@@ -98,8 +98,15 @@ module.exports = class Game {
             }
         }
 
-        let changedPlayers = this.worldPlayground.players.filter(player => player.positionChanged && !player.isLocal);
-        this.world.setPlayersPositions(changedPlayers);
+        this.worldPlayground.players.forEach(playgroundPlayer => {
+            if(playgroundPlayer.isLocal)
+                return; // already moved him above
+
+            if(playgroundPlayer.positionChanged) {
+                let realPlayer = this.world.players.find(player => player.id === playgroundPlayer.id);
+                _.assign(realPlayer, _.pick(playgroundPlayer, ['x', 'y', 'verticalSpeed', 'controller']));
+            }
+        });
 
         this.sharedState = null;
     }
