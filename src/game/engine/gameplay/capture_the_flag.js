@@ -1,5 +1,6 @@
 const GameObject = require('../objects/game_object');
 const Gameplay = require('./gameplay');
+const physicsUtil = require('../../utils/physics');
 const _ = require('lodash');
 
 const eventHandlers = {
@@ -46,7 +47,11 @@ module.exports = class CaptureTheFlag extends Gameplay {
 
         let flag = this.flags.find(flag => flag.id === collectable.id);
         if (flag && collectingPlayer.team === flag.team) { // player collected his own flag
-            this.addEvent('FLAG_RESTORED', { flagId: flag.id, position: this.flagsSpawnPointsByTeam[flag.team] });
+            let flagSpawnPoint = this.flagsSpawnPointsByTeam[flag.team];
+            if(physicsUtil.pointsEqual(flag, flagSpawnPoint))
+                return;
+
+            this.addEvent('FLAG_RESTORED', { flagId: flag.id, flagSpawnPoint: flagSpawnPoint });
             return;
         }
 

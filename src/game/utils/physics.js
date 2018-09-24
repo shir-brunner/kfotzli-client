@@ -17,5 +17,10 @@ module.exports = {
             point.x < rect.x + rect.width &&
             point.y > rect.y &&
             point.y < rect.y + rect.height;
+    },
+
+    pointsEqual(point1, point2) {
+        return point1.x === point2.x &&
+            point1.y === point2.y;
     }
 };

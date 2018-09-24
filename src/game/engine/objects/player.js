@@ -113,6 +113,7 @@ module.exports = class Player extends Drawable {
         if(this.collectable) {
             this.collectable.collected = false;
             this.collectable.verticalSpeed = -50;
+            this.collectable.fallable = true;
             this.collectable = null;
         }
     }
