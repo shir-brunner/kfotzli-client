@@ -1,4 +1,5 @@
 const GameObject = require('../engine/objects/game_object');
+const _ = require('lodash');
 
 module.exports = class CaptureTheFlag {
     constructor(world) {
@@ -12,6 +13,10 @@ module.exports = class CaptureTheFlag {
         world.teams.forEach(team => this.scoreByTeam[team] = 0);
 
         this.flags = world.level.gameplay.flags.map(flag => this._createFlagGameObject(flag));
+
+        this.flagsSpawnPointsByTeam = {};
+        this.flags.forEach(flag => this.flagsSpawnPointsByTeam[flag.team] = _.pick(flag, ['x', 'y']));
+
         world.gameObjects.push(...this.flags);
     }
 
@@ -20,7 +25,6 @@ module.exports = class CaptureTheFlag {
         flag.width = 100;
         flag.height = 100;
         flag.collectable = true;
-        flag.collectableByTeams = this.world.teams.filter(team => team !== flag.team);
         flag.fallable = true;
 
         return new GameObject(flag);
@@ -32,6 +36,29 @@ module.exports = class CaptureTheFlag {
     }
 
     update(events) {
+        events.forEach(event => {
+            switch(event.type) {
+                case 'COLLECT':
+                    this._handleCollectEvent(event.data);
+                    break;
+            }
+        });
+    }
 
+    _handleCollectEvent(eventData) {
+        let collectingPlayer = this.world.players.find(player => player.id === eventData.collectingPlayerId);
+        let collectable = this.world.gameObjects.find(gameObject => gameObject.id === eventData.collectableId);
+
+        if (!collectingPlayer || !collectable)
+            return;
+
+        let flag = this.flags.find(flag => flag.id === collectable.id);
+        if(flag) { // "collectable" is a flag
+            if(collectingPlayer.team === flag.team) { // player collected his own flag
+                flag.collected = false;
+                collectingPlayer.collectable = null;
+                _.assign(flag, this.flagsSpawnPointsByTeam[flag.team]);
+            }
+        }
     }
 };

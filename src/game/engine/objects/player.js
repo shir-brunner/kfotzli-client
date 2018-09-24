@@ -109,6 +109,12 @@ module.exports = class Player extends Drawable {
         this.verticalSpeed = 0;
         this.controller = controllerUtil.emptyController();
         this.isDead = true;
+
+        if(this.collectable) {
+            this.collectable.collected = false;
+            this.collectable.verticalSpeed = -50;
+            this.collectable = null;
+        }
     }
 
     respawn(spawnPoint) {

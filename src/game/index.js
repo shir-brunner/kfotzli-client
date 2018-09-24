@@ -34,6 +34,9 @@ module.exports = class Game {
         this.connection.on('message.SHARED_STATE', sharedState => this.sharedState = sharedState);
         this.connection.on('message.EVENTS', events => {
             events.forEach(event => event.type === 'GAME_OVER' && this.onGameOver(event.data));
+            if(config.debug.logServerEvents)
+                events.forEach(event => console.log('SERVER EVENT', event));
+
             this.pendingEvents.push(...events);
         });
         window.requestAnimationFrame(timestamp => this._mainLoop(timestamp));

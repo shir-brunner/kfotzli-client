@@ -55,10 +55,7 @@ module.exports = class WorldEvents {
         let collectingPlayer = eventData.player;
         let collectable = eventData.gameObject;
 
-        if (collectingPlayer.team && !collectable.collectableByTeams.find(team => team === collectingPlayer.team))
-            return;
-
-        if (collectingPlayer.collectable)
+        if (collectingPlayer.collectable || collectingPlayer.isDead)
             return;
 
         this.addEvent('COLLECT', { collectingPlayerId: collectingPlayer.id, collectableId: collectable.id });

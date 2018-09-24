@@ -22,7 +22,6 @@ module.exports = class GameObject extends Drawable {
         };
 
         this.collectable = params.collectable;
-        this.collectableByTeams = params.collectableByTeams || [];
         this.collected = null;
     }
 
