@@ -60,7 +60,7 @@ module.exports = class Game {
             this.renderer.render(this.world);
 
             if (debug.stopEngine)
-                throw new Error('Engine has been stopped');
+                this.onGameOver();
 
             debug.setDebugInfo(deltaTime, this);
         }
@@ -76,7 +76,6 @@ module.exports = class Game {
         });
 
         if (this.worldPlayground.localPlayer.positionChanged) {
-            // +1 because "lastProcessedFrame" is already processed
             let fromFrame = this.worldPlayground.localPlayer.lastProcessedFrame + 1;
             let toFrame = currentFrame;
 

@@ -28,6 +28,7 @@ module.exports = class InputHandler {
         if (this.inputsToSend.length) {
             this.inputsToSend.forEach(input => {
                 input.frame = currentFrame;
+                input.position = _.pick(this.localPlayer, ['x', 'y', 'verticalSpeed']);
                 this.connection.send('INPUT', input);
                 this.applyInput(this.localPlayer, input);
             });
