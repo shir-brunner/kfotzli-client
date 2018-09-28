@@ -1,7 +1,7 @@
 module.exports = {
     debug: {
         showGameInfo: false,
-        quickStart: false,
+        quickStart: true,
         fullLevelView: false,
         showNetworkCorrections: false,
         disableSmoothCorrection: true, //TODO: improve this and re enable,
@@ -23,7 +23,8 @@ module.exports = {
                 'img/backgrounds/colored_shroom.png',
             ],
             verticalMovementInterval: 5,
-            horizontalMovementInterval: 20
+            horizontalMovementInterval: 20,
+            scrollDownOnLoad: false
         }
     },
     smoothCorrection: {

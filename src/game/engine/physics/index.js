@@ -40,6 +40,9 @@ module.exports = class Physics {
     }
 
     _updatePlayerPhysics(player, delta) {
+        if(player.isDead)
+            return;
+
         let canMoveLeft = player.x > 0;
         let canMoveRight = (player.x + player.width) < this.levelSize.width;
         let climbing = false;

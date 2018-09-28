@@ -8,5 +8,6 @@ module.exports = {
 
         _.assign(flag, data.flagSpawnPoint);
         flag.fallable = false;
+        flag.droppedAt = null;
     }
 };

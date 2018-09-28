@@ -16,11 +16,12 @@ let backgroundInterval = setInterval(() => {
     $background.css({ top: backgroundY-- });
 
     let stopY = -450;
-    if (backgroundY <= stopY || config.debug.quickStart) {
+    if (backgroundY <= stopY || config.debug.quickStart || !config.menu.background.scrollDownOnLoad) {
         $background.after($background2);
         $background2.css({ width: imageSize, height: imageSize, left: imageSize, top: stopY + 3 });
         background2X = imageSize;
         startMovingHorizontally();
+        $background.css({ top: stopY });
         backgroundReadyCallback && backgroundReadyCallback();
     }
 }, _.get(config, 'menu.background.verticalMovementInterval', 5));

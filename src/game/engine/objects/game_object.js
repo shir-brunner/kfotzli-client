@@ -23,6 +23,7 @@ module.exports = class GameObject extends Drawable {
 
         this.collectable = params.collectable;
         this.collected = null;
+        this.droppedAt = null;
     }
 
     getCollidablePosition() {
@@ -32,5 +33,12 @@ module.exports = class GameObject extends Drawable {
             width: this.width - this.padding.right - this.padding.left,
             height: this.height - this.padding.bottom - this.padding.top,
         };
+    }
+
+    drop() {
+        this.collected = false;
+        this.verticalSpeed = -50;
+        this.fallable = true;
+        this.droppedAt = Date.now();
     }
 };

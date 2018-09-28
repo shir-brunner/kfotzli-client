@@ -2,6 +2,8 @@ const GameObject = require('../objects/game_object');
 const Gameplay = require('./gameplay');
 const physicsUtil = require('../../utils/physics');
 const _ = require('lodash');
+const ms = require('ms');
+const RESTORE_DROPPED_FLAG_AFTER = ms('10 seconds');
 
 const eventHandlers = {
     FLAG_RESTORED: require('./events/capture_the_flag/flag_restored'),
@@ -17,12 +19,16 @@ module.exports = class CaptureTheFlag extends Gameplay {
         this.scoreByTeam = {};
         world.teams.forEach(team => this.scoreByTeam[team] = 0);
 
-        this.flags = world.level.gameplay.flags.map(flag => this._createFlagGameObject(flag));
-
+        this.flagsById = {};
         this.flagsSpawnPointsByTeam = {};
-        this.flags.forEach(flag => this.flagsSpawnPointsByTeam[flag.team] = _.pick(flag, ['x', 'y']));
 
-        world.gameObjects.push(...this.flags);
+        world.level.gameplay.flags.forEach(flagInfo => {
+            let flag = this._createFlagGameObject(flagInfo);
+            this.flagsById[flag.id] = flag;
+            this.flagsSpawnPointsByTeam[flag.team] = _.pick(flag, ['x', 'y']);
+            world.gameObjects.push(flag);
+        });
+
         _.assign(this.eventHandlers, eventHandlers);
     }
 
@@ -41,20 +47,44 @@ module.exports = class CaptureTheFlag extends Gameplay {
         return new CaptureTheFlagStats(this);
     }
 
+    update() {
+        super.update();
+        this._restoreFlags();
+    }
+
     _addCollectedEvent(eventData) {
         let collectingPlayer = eventData.player;
         let collectable = eventData.gameObject;
 
-        let flag = this.flags.find(flag => flag.id === collectable.id);
-        if (flag && collectingPlayer.team === flag.team) { // player collected his own flag
-            let flagSpawnPoint = this.flagsSpawnPointsByTeam[flag.team];
-            if(physicsUtil.pointsEqual(flag, flagSpawnPoint))
-                return;
-
-            this.addEvent('FLAG_RESTORED', { flagId: flag.id, flagSpawnPoint: flagSpawnPoint });
+        let flag = this.flagsById[collectable.id];
+        let playerCollectedHisOwnFlag = flag && collectingPlayer.team === flag.team;
+        if (playerCollectedHisOwnFlag) {
+            this._restoreFlag(flag);
             return;
         }
 
         super._addCollectedEvent(eventData);
+    }
+
+    _restoreFlags() {
+        _.forEach(this.flagsById, flag => {
+            if(flag.collected || !flag.droppedAt)
+                return;
+
+            if(Date.now() >= flag.droppedAt + RESTORE_DROPPED_FLAG_AFTER)
+                this._restoreFlag(flag);
+        });
+    }
+
+    _restoreFlag(flag) {
+        if (this._isFlagAtSpawnPoint(flag))
+            return;
+
+        let flagSpawnPoint = this.flagsSpawnPointsByTeam[flag.team];
+        this.addEvent('FLAG_RESTORED', { flagId: flag.id, flagSpawnPoint: flagSpawnPoint });
+    }
+
+    _isFlagAtSpawnPoint(flag) {
+        return physicsUtil.pointsEqual(flag, this.flagsSpawnPointsByTeam[flag.team]);
     }
 };
