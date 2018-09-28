@@ -24,6 +24,7 @@ module.exports = class Player extends Drawable {
         this.collectable = null;
         this.positionChanged = false;
         this.lastProcessedFrame = 0;
+        this.spawnPoint = { x: this.x, y: this.y };
     }
 
     update(delta, currentFrame) {
@@ -117,6 +118,7 @@ module.exports = class Player extends Drawable {
     }
 
     respawn(spawnPoint) {
+        spawnPoint = spawnPoint || this.spawnPoint;
         this.x = spawnPoint.x;
         this.y = spawnPoint.y - this.height + commonConfig.squareSize;
         this.opacity = 0;

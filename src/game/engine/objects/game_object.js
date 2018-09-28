@@ -24,6 +24,7 @@ module.exports = class GameObject extends Drawable {
         this.collectable = params.collectable;
         this.collected = null;
         this.droppedAt = null;
+        this.spawnPoint = { x: this.x, y: this.y };
     }
 
     getCollidablePosition() {

@@ -7,6 +7,7 @@ const RESTORE_DROPPED_FLAG_AFTER = ms('10 seconds');
 
 const eventHandlers = {
     FLAG_RESTORED: require('./events/capture_the_flag/flag_restored'),
+    ROUND_OVER: require('./events/capture_the_flag/round_over'),
 };
 
 module.exports = class CaptureTheFlag extends Gameplay {
@@ -20,12 +21,10 @@ module.exports = class CaptureTheFlag extends Gameplay {
         world.teams.forEach(team => this.scoreByTeam[team] = 0);
 
         this.flagsById = {};
-        this.flagsSpawnPointsByTeam = {};
 
         world.level.gameplay.flags.forEach(flagInfo => {
             let flag = this._createFlagGameObject(flagInfo);
             this.flagsById[flag.id] = flag;
-            this.flagsSpawnPointsByTeam[flag.team] = _.pick(flag, ['x', 'y']);
             world.gameObjects.push(flag);
         });
 
@@ -42,6 +41,18 @@ module.exports = class CaptureTheFlag extends Gameplay {
         return new GameObject(flag);
     }
 
+    applyEvents(events) {
+        super.applyEvents(events);
+
+        events.forEach(event => {
+            if(event.type === 'ROUND_OVER') {
+                this.scoreByTeam[event.data.winnerTeam]++;
+                if(this.scoreByTeam[event.data.winnerTeam] >= this.rules.roundsToWin)
+                    this.world.gameplay.addEvent('GAME_OVER', { reason: 'TEAM_WON', winnerTeam: event.data.winnerTeam });
+            }
+        });
+    }
+
     getStats() {
         const CaptureTheFlagStats = require('../../stats/capture_the_flag');
         return new CaptureTheFlagStats(this);
@@ -49,29 +60,32 @@ module.exports = class CaptureTheFlag extends Gameplay {
 
     update() {
         super.update();
-        this._restoreFlags();
+        this._autoRestoreDroppedFlags();
     }
 
     _addCollectedEvent(eventData) {
         let collectingPlayer = eventData.player;
         let collectable = eventData.gameObject;
 
-        let flag = this.flagsById[collectable.id];
-        let playerCollectedHisOwnFlag = flag && collectingPlayer.team === flag.team;
+        let collectedFlag = this.flagsById[collectable.id];
+        let playerCollectedHisOwnFlag = collectedFlag && collectingPlayer.team === collectedFlag.team;
         if (playerCollectedHisOwnFlag) {
-            this._restoreFlag(flag);
+            if (this._isFlagAtSpawnPoint(collectedFlag) && this._playerCarriesEnemyFlag(collectingPlayer))
+                this._victoryForTeam(collectingPlayer.team);
+            else
+                this._restoreFlag(collectedFlag);
             return;
         }
 
         super._addCollectedEvent(eventData);
     }
 
-    _restoreFlags() {
+    _autoRestoreDroppedFlags() {
         _.forEach(this.flagsById, flag => {
-            if(flag.collected || !flag.droppedAt)
+            if (flag.collected || !flag.droppedAt)
                 return;
 
-            if(Date.now() >= flag.droppedAt + RESTORE_DROPPED_FLAG_AFTER)
+            if (Date.now() >= flag.droppedAt + RESTORE_DROPPED_FLAG_AFTER)
                 this._restoreFlag(flag);
         });
     }
@@ -80,11 +94,34 @@ module.exports = class CaptureTheFlag extends Gameplay {
         if (this._isFlagAtSpawnPoint(flag))
             return;
 
-        let flagSpawnPoint = this.flagsSpawnPointsByTeam[flag.team];
-        this.addEvent('FLAG_RESTORED', { flagId: flag.id, flagSpawnPoint: flagSpawnPoint });
+        this.addEvent('FLAG_RESTORED', { flagId: flag.id, flagSpawnPoint: flag.spawnPoint });
     }
 
     _isFlagAtSpawnPoint(flag) {
-        return physicsUtil.pointsEqual(flag, this.flagsSpawnPointsByTeam[flag.team]);
+        return physicsUtil.pointsEqual(flag, flag.spawnPoint);
+    }
+
+    _playerCarriesEnemyFlag(player) {
+        if (!player.collectable)
+            return false;
+
+        let isCollectableAFlag = _.includes(Object.keys(this.flagsById), player.collectable.id);
+        if (!isCollectableAFlag)
+            return false;
+
+        return player.collectable.team !== player.team;
+    }
+
+    _victoryForTeam(team) {
+        this.addEvent('ROUND_OVER', { winnerTeam: team });
+    }
+
+    reset() {
+        _.forEach(this.flagsById, flag => {
+            flag.x = flag.spawnPoint.x;
+            flag.y = flag.spawnPoint.y;
+            flag.fallable = false;
+            flag.droppedAt = null;
+        });
     }
 };

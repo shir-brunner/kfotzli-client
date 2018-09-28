@@ -12,7 +12,7 @@ module.exports = class CaptureTheFlagStats extends StatsBase {
         super.refresh(events);
         this.world.teams.forEach(team => {
             let firstTeamPlayer = this.world.players.find(player => player.team === team);
-            if(!firstTeamPlayer)
+            if (!firstTeamPlayer)
                 return;
 
             $gameInfo.append(this._createTeamBar(firstTeamPlayer.team, firstTeamPlayer.image, events));
@@ -25,19 +25,16 @@ module.exports = class CaptureTheFlagStats extends StatsBase {
         $complexBar.find('.left').append(textUtil.htmlEncode(localization.translate(`teams.${team}`)));
         $complexBar.find('.wide').append(this.gameplay.scoreByTeam[team] + ' / ' + this.rules.roundsToWin);
 
-        /*events.forEach(event => {
-            if (event.type === 'DEATH' && event.data.killerPlayerId) {
-                let killerPlayer = this.world.players.find(player => player.id === event.data.killerPlayerId);
-                if(killerPlayer && killerPlayer.team === team)
-                    $complexBar.addClass('tada animated');
-            }
-        });*/
+        events.forEach(event => {
+            if (event.type === 'ROUND_OVER' && event.data.winnerTeam === team)
+                $complexBar.addClass('tada animated');
+        });
 
         return $complexBar;
     }
 
     _showWinLoseDialog(eventData, dialogButtons) {
-        /*let winnerTeam = eventData.winnerTeam;
+        let winnerTeam = eventData.winnerTeam;
         let firstTeamPlayer = this.world.players.find(player => player.team === winnerTeam);
         let localPlayer = this.world.localPlayer;
         let winMessage = localization.translate('youWin') + ' :)';
@@ -61,6 +58,6 @@ module.exports = class CaptureTheFlagStats extends StatsBase {
         if (localPlayer.team === winnerTeam)
             $dialog.addClass('tada animated');
 
-        return $dialog;*/
+        return $dialog;
     }
 };
