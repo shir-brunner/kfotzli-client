@@ -1,3 +1,5 @@
+const ms = require('ms');
+
 module.exports = {
     debug: {
         showGameInfo: false,
@@ -29,5 +31,6 @@ module.exports = {
     },
     smoothCorrection: {
         speed: 3
-    }
+    },
+    messageDuration: ms('2.5 seconds')
 };

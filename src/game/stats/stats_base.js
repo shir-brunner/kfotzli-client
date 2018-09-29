@@ -1,7 +1,9 @@
 const $ = require('jquery');
+const $game = $('#game');
 const $gameInfo = $('#game-info');
 const localization = require('../../localization');
 const dialogUtil = require('../../utils/dialog');
+const config = require('../../config');
 
 module.exports = class StatsBase {
     constructor(gameplay) {
@@ -41,5 +43,13 @@ module.exports = class StatsBase {
         });
 
         return $dialog;
+    }
+
+    showMessage(text) {
+        $('#message').remove();
+        let $message = $('<div id="message"></div>').text(text);
+        $game.append($message);
+        $message.addClass('swing animated');
+        setTimeout(() => $message.fadeOut(() => $message.remove()), config.messageDuration);
     }
 };

@@ -5,6 +5,10 @@ const _ = require('lodash');
 module.exports = {
     apply(data, world) {
         world.players.forEach(player => {
+            if(player.collectable) {
+                player.collectable && player.collectable.drop();
+                player.collectable = null;
+            }
             player.die();
             for(let i = 0; i < config.bodyParts.count; i++)
                 world.bodyParts.push(new BodyPart(player));

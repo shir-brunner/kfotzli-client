@@ -46,6 +46,10 @@ module.exports = {
         gameOverDueToFewPlayers: 'בגלל {{playerName}} שעזב/ה את המשחק והרס/ה לכל שאר השחקנים',
         gameOverDueToEmptyTeam: 'כל השחקנים ה{{team}} עזבו את המשחק',
         yourTeamHasWonTheMatch: 'ברכותינו, הקבוצה שלך ניצחה בקרב',
-        yourTeamHasLostTheMatch: 'אנו מתנצלים לבשר כי קבוצתך הפסידה בקרב ל{{winnerTeam}}'
+        yourTeamHasLostTheMatch: 'אנו מתנצלים לבשר כי קבוצתך הפסידה בקרב ל{{winnerTeam}}',
+        flagTaken: '{{by}} לקח את הדגל של ה{{team}}',
+        flagDropped: 'הדגל של ה{{team}} נפל',
+        flagReturned: 'הדגל של ה{{team}} שב הביתה',
+        teamWonRound: 'ה{{team}} ניצחו את הסיבוב',
     }
 };

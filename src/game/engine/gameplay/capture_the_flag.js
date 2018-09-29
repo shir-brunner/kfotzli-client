@@ -3,10 +3,10 @@ const Gameplay = require('./gameplay');
 const physicsUtil = require('../../utils/physics');
 const _ = require('lodash');
 const ms = require('ms');
-const RESTORE_DROPPED_FLAG_AFTER = ms('10 seconds');
+const RETURN_DROPPED_FLAG_AFTER = ms('10 seconds');
 
 const eventHandlers = {
-    FLAG_RESTORED: require('./events/capture_the_flag/flag_restored'),
+    FLAG_RETURNED: require('./events/capture_the_flag/flag_returned'),
     ROUND_OVER: require('./events/capture_the_flag/round_over'),
 };
 
@@ -29,6 +29,7 @@ module.exports = class CaptureTheFlag extends Gameplay {
         });
 
         _.assign(this.eventHandlers, eventHandlers);
+        this.reset();
     }
 
     _createFlagGameObject(flag) {
@@ -60,7 +61,7 @@ module.exports = class CaptureTheFlag extends Gameplay {
 
     update() {
         super.update();
-        this._autoRestoreDroppedFlags();
+        this._autoReturnDroppedFlags();
     }
 
     _addCollectedEvent(eventData) {
@@ -73,28 +74,28 @@ module.exports = class CaptureTheFlag extends Gameplay {
             if (this._isFlagAtSpawnPoint(collectedFlag) && this._playerCarriesEnemyFlag(collectingPlayer))
                 this._victoryForTeam(collectingPlayer.team);
             else
-                this._restoreFlag(collectedFlag);
+                this._returnFlag(collectedFlag);
             return;
         }
 
         super._addCollectedEvent(eventData);
     }
 
-    _autoRestoreDroppedFlags() {
+    _autoReturnDroppedFlags() {
         _.forEach(this.flagsById, flag => {
             if (flag.collected || !flag.droppedAt)
                 return;
 
-            if (Date.now() >= flag.droppedAt + RESTORE_DROPPED_FLAG_AFTER)
-                this._restoreFlag(flag);
+            if (Date.now() >= flag.droppedAt + RETURN_DROPPED_FLAG_AFTER)
+                this._returnFlag(flag);
         });
     }
 
-    _restoreFlag(flag) {
+    _returnFlag(flag) {
         if (this._isFlagAtSpawnPoint(flag))
             return;
 
-        this.addEvent('FLAG_RESTORED', { flagId: flag.id, flagSpawnPoint: flag.spawnPoint });
+        this.addEvent('FLAG_RETURNED', { flagId: flag.id, flagSpawnPoint: flag.spawnPoint });
     }
 
     _isFlagAtSpawnPoint(flag) {
@@ -105,7 +106,7 @@ module.exports = class CaptureTheFlag extends Gameplay {
         if (!player.collectable)
             return false;
 
-        let isCollectableAFlag = _.includes(Object.keys(this.flagsById), player.collectable.id);
+        let isCollectableAFlag = !!this.flagsById[player.collectable.id];
         if (!isCollectableAFlag)
             return false;
 

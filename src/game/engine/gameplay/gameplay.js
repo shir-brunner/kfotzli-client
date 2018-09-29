@@ -2,7 +2,8 @@ const eventHandlers = {
     DEATH: require('./events/death'),
     RESPAWN: require('./events/respawn'),
     PLAYER_LEFT: require('./events/player_left'),
-    COLLECT: require('./events/collect')
+    COLLECT: require('./events/collect'),
+    DROPPED: require('./events/dropped')
 };
 
 module.exports = class Gameplay {
@@ -15,10 +16,10 @@ module.exports = class Gameplay {
 
     applyEvents(events) {
         events.forEach(event => {
-            if(!this.eventHandlers[event.type])
+            if (!this.eventHandlers[event.type])
                 return;
 
-             this.eventHandlers[event.type].apply(event.data, this.world);
+            this.eventHandlers[event.type].apply(event.data, this.world);
         });
     }
 
@@ -40,32 +41,40 @@ module.exports = class Gameplay {
                     break;
                 case 'PLAYER_COLLIDED':
                     if (event.data.gameObject.obstacle)
-                        this._addDeathEvent(event.data);
+                        this._addDeathEvent(event.data.player);
                     if (event.data.gameObject.collectable)
                         this._addCollectedEvent(event.data);
                     break;
                 case 'PLAYER_OUTSIDE_WORLD_BOUNDS':
-                    this._addDeathEvent(event.data);
+                    this._addDeathEvent(event.data.player);
                     break;
             }
         });
     }
 
     _addDeathByHeadBumpEvent(eventData) {
-        if (eventData.bumpedPlayer.isDead || eventData.bumpedPlayer.respawning)
-            return;
-
         if (eventData.bumpingPlayer.team && eventData.bumpingPlayer.team === eventData.bumpedPlayer.team)
             return;
 
-        this.addEvent('DEATH', { deadPlayerId: eventData.bumpedPlayer.id, killerPlayerId: eventData.bumpingPlayer.id });
+        this._addDeathEvent(eventData.bumpedPlayer, eventData.bumpingPlayer);
     }
 
-    _addDeathEvent(eventData) {
-        if (eventData.player.isDead)
+    _addDeathEvent(deadPlayer, killerPlayer) {
+        if (deadPlayer.isDead || deadPlayer.respawning)
             return;
 
-        this.addEvent('DEATH', { deadPlayerId: eventData.player.id });
+        if (deadPlayer.collectable) {
+            this.addEvent('DROPPED', {
+                byPlayerId: deadPlayer.id,
+                collectableId: deadPlayer.collectable.id
+            });
+        }
+
+        let data = { deadPlayerId: deadPlayer.id };
+        if(killerPlayer)
+            data.killerPlayerId = killerPlayer.id;
+
+        this.addEvent('DEATH', data);
     }
 
     _addCollectedEvent(eventData) {

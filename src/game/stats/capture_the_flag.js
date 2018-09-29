@@ -1,11 +1,11 @@
 const menuUtil = require('../../utils/menu');
 const config = require('../../config');
 const textUtil = require('../../utils/text');
-const $ = require('jquery');
-const $gameInfo = $('#game-info');
 const localization = require('../../localization');
 const dialogUtil = require('../../utils/dialog');
 const StatsBase = require('./stats_base');
+const $ = require('jquery');
+const $gameInfo = $('#game-info');
 
 module.exports = class CaptureTheFlagStats extends StatsBase {
     refresh(events = []) {
@@ -16,6 +16,31 @@ module.exports = class CaptureTheFlagStats extends StatsBase {
                 return;
 
             $gameInfo.append(this._createTeamBar(firstTeamPlayer.team, firstTeamPlayer.image, events));
+        });
+
+        events.forEach(event => {
+            switch(event.type) {
+                case 'COLLECT':
+                    let takenFlag = this.gameplay.flagsById[event.data.collectableId];
+                    if (takenFlag) {
+                        let takingPlayer = this.world.players.find(player => player.id === event.data.collectingPlayerId);
+                        takingPlayer && this._onFlagTaken(takenFlag, takingPlayer);
+                    }
+                    break;
+                case 'DROPPED':
+                    let droppedFlag = this.gameplay.flagsById[event.data.collectableId];
+                    droppedFlag && this._onFlagDropped(droppedFlag);
+                    break;
+                case 'FLAG_RETURNED':
+                    let returnedFlag = this.gameplay.flagsById[event.data.flagId];
+                    returnedFlag && this._onFlagReturned(returnedFlag);
+                    break;
+                case 'ROUND_OVER':
+                    this.showMessage(localization.translate('messages.teamWonRound', {
+                        team: localization.translate(`teams.${event.data.winnerTeam}`)
+                    }));
+                    break;
+            }
         });
     }
 
@@ -59,5 +84,23 @@ module.exports = class CaptureTheFlagStats extends StatsBase {
             $dialog.addClass('tada animated');
 
         return $dialog;
+    }
+
+    _onFlagTaken(flag, byPlayer) {
+        let teamTranslated = localization.translate(`teams.${flag.team}`);
+        this.showMessage(localization.translate('messages.flagTaken', {
+            team: teamTranslated,
+            by: byPlayer.name
+        }) + '!');
+    }
+
+    _onFlagDropped(flag) {
+        let teamTranslated = localization.translate(`teams.${flag.team}`);
+        this.showMessage(localization.translate('messages.flagDropped', { team: teamTranslated }));
+    }
+
+    _onFlagReturned(flag) {
+        let teamTranslated = localization.translate(`teams.${flag.team}`);
+        this.showMessage(localization.translate('messages.flagReturned', { team: teamTranslated }));
     }
 };

@@ -1,15 +1,15 @@
 const ms = require('ms');
 
 module.exports = {
-    gravity: 2,
+    gravity: 1.5,
     animation: {
         changeRate: 60
     },
     squareSize: 100,
-    fps: 60,
+    fps: 45,
     bodyParts: {
         count: 15,
-        expiration: 4000
+        expiration: 5000
     },
     respawnTime: ms('2 seconds')
 };
