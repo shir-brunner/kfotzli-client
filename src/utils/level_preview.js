@@ -1,5 +1,6 @@
 const $ = require('jquery');
 const config = require('../config');
+const commonConfig = require('../game/common_config');
 
 module.exports = {
     appendTo($target, level, { showSize, height, width } = {}) {
@@ -28,8 +29,8 @@ module.exports = {
                 position: 'absolute',
                 left: gameObject.x / level.size.width * previewWidth,
                 top: gameObject.y / level.size.height * previewHeight,
-                width: 100 / level.size.width * previewWidth,
-                height: 100 / level.size.height * previewHeight,
+                width: commonConfig.squareSize / level.size.width * previewWidth,
+                height: commonConfig.squareSize / level.size.height * previewHeight,
             });
             $levelPreview.append($gameObject);
         });
@@ -40,8 +41,8 @@ module.exports = {
                 position: 'absolute',
                 left: flag.x / level.size.width * previewWidth,
                 top: flag.y / level.size.height * previewHeight,
-                width: 100 / level.size.width * previewWidth,
-                height: 100 / level.size.height * previewHeight,
+                width: commonConfig.squareSize / level.size.width * previewWidth,
+                height: commonConfig.squareSize / level.size.height * previewHeight,
             });
             $levelPreview.append($flag);
         });

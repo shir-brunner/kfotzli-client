@@ -38,7 +38,7 @@ module.exports = class InputHandler {
     }
 
     _handleInput(keyCode, isPressed) {
-        if (this.localPlayer.isDead || this.localPlayer.respawning)
+        if (this.localPlayer.isDead)
             return;
 
         if (ACTION_KEYS.indexOf(keyCode) === -1)

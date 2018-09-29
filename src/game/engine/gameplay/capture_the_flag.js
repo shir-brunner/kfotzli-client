@@ -1,6 +1,7 @@
 const GameObject = require('../objects/game_object');
 const Gameplay = require('./gameplay');
 const physicsUtil = require('../../utils/physics');
+const commonConfig = require('../../common_config');
 const _ = require('lodash');
 const ms = require('ms');
 const RETURN_DROPPED_FLAG_AFTER = ms('10 seconds');
@@ -34,8 +35,8 @@ module.exports = class CaptureTheFlag extends Gameplay {
 
     _createFlagGameObject(flag) {
         flag.id = flag.team + '_flag';
-        flag.width = 100;
-        flag.height = 100;
+        flag.width = commonConfig.squareSize;
+        flag.height = commonConfig.squareSize;
         flag.collectable = true;
         flag.fallable = true;
 

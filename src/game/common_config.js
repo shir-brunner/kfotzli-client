@@ -5,8 +5,8 @@ module.exports = {
     animation: {
         changeRate: 60
     },
-    squareSize: 100,
-    fps: 45,
+    squareSize: 80,
+    fps: 40,
     bodyParts: {
         count: 15,
         expiration: 5000
