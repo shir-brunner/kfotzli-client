@@ -14,7 +14,7 @@ module.exports = {
     pingsCount: 1,
     camera: {
         speed: 40,
-        viewSize: { width: 1920, height: 1280 }
+        viewSize: { width: 2100, height: 1180 }
     },
     menu: {
         background: {

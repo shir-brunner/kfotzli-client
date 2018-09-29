@@ -38,7 +38,7 @@ module.exports = class GameObject extends Drawable {
 
     drop() {
         this.collected = false;
-        this.verticalSpeed = -50;
+        this.verticalSpeed = -30;
         this.fallable = true;
         this.droppedAt = Date.now();
     }

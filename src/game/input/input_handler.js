@@ -31,6 +31,7 @@ module.exports = class InputHandler {
                 input.position = _.pick(this.localPlayer, ['x', 'y', 'verticalSpeed']);
                 this.connection.send('INPUT', input);
                 this.applyInput(this.localPlayer, input);
+                setTimeout(() => this.statesByKey = {}, 1000);
             });
 
             this.inputsToSend = [];

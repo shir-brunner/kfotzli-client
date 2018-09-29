@@ -1,6 +1,7 @@
 const GameObject = require('../objects/game_object');
 const Gameplay = require('./gameplay');
 const physicsUtil = require('../../utils/physics');
+const worldUtil = require('../../utils/world');
 const commonConfig = require('../../common_config');
 const _ = require('lodash');
 const ms = require('ms');
@@ -47,10 +48,13 @@ module.exports = class CaptureTheFlag extends Gameplay {
         super.applyEvents(events);
 
         events.forEach(event => {
-            if(event.type === 'ROUND_OVER') {
+            if (event.type === 'ROUND_OVER') {
                 this.scoreByTeam[event.data.winnerTeam]++;
-                if(this.scoreByTeam[event.data.winnerTeam] >= this.rules.roundsToWin)
-                    this.world.gameplay.addEvent('GAME_OVER', { reason: 'TEAM_WON', winnerTeam: event.data.winnerTeam });
+                if (this.scoreByTeam[event.data.winnerTeam] >= this.rules.roundsToWin)
+                    this.world.gameplay.addEvent('GAME_OVER', {
+                        reason: 'TEAM_WON',
+                        winnerTeam: event.data.winnerTeam
+                    });
             }
         });
     }
@@ -87,7 +91,8 @@ module.exports = class CaptureTheFlag extends Gameplay {
             if (flag.collected || !flag.droppedAt)
                 return;
 
-            if (Date.now() >= flag.droppedAt + RETURN_DROPPED_FLAG_AFTER)
+            let isOutsideWorldBounds = worldUtil.isOutsideWorldBounds(flag, this.world.level.size);
+            if ((Date.now() >= flag.droppedAt + RETURN_DROPPED_FLAG_AFTER) || isOutsideWorldBounds)
                 this._returnFlag(flag);
         });
     }

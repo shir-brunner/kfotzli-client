@@ -3,10 +3,10 @@ const ms = require('ms');
 module.exports = {
     gravity: 1.5,
     animation: {
-        changeRate: 60
+        changeRate: 100
     },
     squareSize: 80,
-    fps: 40,
+    fps: 30,
     bodyParts: {
         count: 15,
         expiration: 5000

@@ -29,5 +29,12 @@ module.exports = {
         }
 
         return _.sample(availableSpawnPoints);
+    },
+
+    isOutsideWorldBounds(gameObject, bounds) {
+        return gameObject.x + gameObject.width < 0 ||
+            gameObject.y + gameObject.height < 0 ||
+            gameObject.x > bounds.width ||
+            gameObject.y > bounds.height;
     }
 };
