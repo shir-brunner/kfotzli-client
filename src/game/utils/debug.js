@@ -22,7 +22,7 @@ class Debug {
     renderDebugTexts(context) {
         this.debugTexts.forEach((text, index) => {
             context.font = "20px Arial";
-            context.fillText(text, 20, (index + 1 + this.info.length) * 45);
+            context.fillText(text, 20, ((index + 1 + this.info.length) * 45) + 130);
         });
     }
 
@@ -76,7 +76,7 @@ class Debug {
 
         this.info.forEach((text, index) => {
             context.font = "20px Arial";
-            context.fillText(text, 20, (index + 1) * 45);
+            context.fillText(text, 20, ((index + 1) * 45) + 130);
         });
     }
 }

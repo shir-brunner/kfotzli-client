@@ -2,11 +2,11 @@ const ms = require('ms');
 
 module.exports = {
     debug: {
-        showGameInfo: false,
+        showGameInfo: true,
         quickStart: true,
         fullLevelView: false,
         showNetworkCorrections: false,
-        disableSmoothCorrection: true, //TODO: improve this and re enable,
+        disableNetworkCorrections: false
     },
     serverUrl: 'ws://192.168.14.56:4001',
     language: 'hebrew',

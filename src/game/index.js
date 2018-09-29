@@ -4,7 +4,6 @@ const config = require('../config');
 const commonConfig = require('./common_config');
 const InputHandler = require('./input/input_handler');
 const Camera = require('./graphics/camera');
-const SmoothCorrection = require('./graphics/smooth_correction');
 const debug = require('./utils/debug');
 const FRAME_RATE = Math.round(1000 / commonConfig.fps);
 const _ = require('lodash');
@@ -21,7 +20,6 @@ module.exports = class Game {
         this.stats = this.world.gameplay.getStats();
         this.pendingEvents = [];
         this.lastFrame = 0;
-        this.smoothCorrection = new SmoothCorrection(this.world);
         this.onGameOver = onGameOver;
         this.stopped = false;
     }
@@ -52,7 +50,6 @@ module.exports = class Game {
                 this.sharedState && this._onServerUpdate(this.sharedState, currentFrame - frame);
             }
 
-            this.smoothCorrection.apply();
             this.world.gameplay.applyEvents(this.pendingEvents);
             this.pendingEvents.length && this.stats.refresh(this.pendingEvents);
             this.pendingEvents = [];
@@ -70,6 +67,9 @@ module.exports = class Game {
     }
 
     _onServerUpdate(sharedState, currentFrame) {
+        if(config.debug.disableNetworkCorrections)
+            return;
+
         sharedState.players.forEach(playerState => {
             let playgroundPlayer = this.worldPlayground.players.find(player => player.id === playerState.id);
             _.assign(playgroundPlayer, playerState);
@@ -86,11 +86,7 @@ module.exports = class Game {
                 debug.point(this.localPlayer.x, this.localPlayer.y, 'red');
             }
 
-            if (config.debug.disableSmoothCorrection) {
-                _.assign(this.localPlayer, _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']));
-            } else {
-                this.localPlayer.targetPosition = _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']);
-            }
+            _.assign(this.localPlayer, _.pick(this.worldPlayground.localPlayer, ['x', 'y', 'verticalSpeed']));
         }
 
         this.worldPlayground.players.forEach(playgroundPlayer => {

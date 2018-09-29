@@ -27,6 +27,7 @@ module.exports = class Renderer {
         world.render(this.offScreenContext);
 
         debug.renderDebugPoints(this.offScreenContext);
+
         let offScreenImage = this.offScreenContext.getImageData(cameraLocation.x, cameraLocation.y, cameraLocation.width, cameraLocation.height);
         this.screenContext.putImageData(offScreenImage, 0, 0);
         debug.renderDebugTexts(this.screenContext);

@@ -20,10 +20,9 @@ module.exports = class Drawable {
     }
 
     render(context, camera) {
-        if (!physicsUtil.intersects(this, camera.location)) {
+        if (!physicsUtil.intersects(this, camera.location))
             return;
-        }
-
+        
         let image = assets.getImage(this.currentFrame);
         context.globalAlpha = this.opacity;
 

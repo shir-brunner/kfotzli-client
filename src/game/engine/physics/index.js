@@ -40,11 +40,13 @@ module.exports = class Physics {
     }
 
     _updatePlayerPhysics(player, delta) {
-        if(player.isDead)
+        if (player.isDead)
             return;
 
         let canMoveLeft = player.x > 0;
         let canMoveRight = (player.x + player.width) < this.levelSize.width;
+        let canClimbDown = true;
+        let canClimbUp = true;
         let climbing = false;
         let speed = player.speed * delta;
         player.isStanding = false;
@@ -63,6 +65,20 @@ module.exports = class Physics {
                 if (player.x - speed <= collidablePosition.x + collidablePosition.width &&
                     player.x + player.width - speed >= collidablePosition.x) {
                     canMoveLeft = false;
+                }
+            }
+
+            if (player.x + player.width > collidablePosition.x &&
+                player.x < collidablePosition.x + collidablePosition.width) {
+
+                if (player.y + player.height + player.climbSpeed >= collidablePosition.y &&
+                    player.y + player.climbSpeed <= collidablePosition.y + collidablePosition.height) {
+                    canClimbDown = false;
+                }
+
+                if (player.y - player.climbSpeed <= collidablePosition.y + collidablePosition.height &&
+                    player.y + player.height - player.climbSpeed >= collidablePosition.y) {
+                    canClimbUp = false;
                 }
             }
         });
@@ -100,9 +116,12 @@ module.exports = class Physics {
 
         this.climbables.forEach(gameObject => {
             let collidablePosition = gameObject.getCollidablePosition();
-            if (physicsUtil.intersects(player, collidablePosition) &&
-                (player.controller.isUpPressed || player.controller.isDownPressed)) {
-                climbing = true;
+            if (physicsUtil.intersects(player, collidablePosition)) {
+                if (canClimbUp && player.controller.isUpPressed)
+                    climbing = true;
+
+                if (canClimbDown && player.controller.isDownPressed)
+                    climbing = true;
             }
         });
 

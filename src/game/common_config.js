@@ -6,7 +6,7 @@ module.exports = {
         changeRate: 100
     },
     squareSize: 80,
-    fps: 30,
+    fps: 40,
     bodyParts: {
         count: 15,
         expiration: 5000
