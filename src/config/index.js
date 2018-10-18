@@ -2,13 +2,13 @@ const ms = require('ms');
 
 module.exports = {
     debug: {
-        showGameInfo: true,
+        showGameInfo: false,
         quickStart: true,
         fullLevelView: false,
         showNetworkCorrections: false,
         disableNetworkCorrections: false
     },
-    serverUrl: 'ws://192.168.14.56:4001',
+    serverUrl: 'ws://localhost:4001',
     language: 'hebrew',
     assetsBaseUrl: 'diststatic',
     pingsCount: 1,

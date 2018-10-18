@@ -10,7 +10,7 @@ module.exports = class World {
     constructor({ players, level, camera }) {
         this.players = players;
         this.level = level;
-        this.gameObjects = level.gameObjects.map(gameObject => new GameObject(gameObject));
+        this.gameObjects = _.sortBy(level.gameObjects, 'zIndex').map(gameObject => new GameObject(gameObject));
         this.physics = new Physics(this);
         this.localPlayer = this.players.find(player => player.isLocal);
         this.bodyParts = [];
