@@ -49,6 +49,7 @@ module.exports = class Player extends Drawable {
             return;
 
         super.render(context, camera);
+
         context.globalAlpha = this.opacity;
         context.font = '20px makabi';
         context.textAlign = 'center';

@@ -3,7 +3,7 @@ const ms = require('ms');
 module.exports = {
     debug: {
         showGameInfo: false,
-        quickStart: false,
+        quickStart: true,
         fullLevelView: false,
         showNetworkCorrections: false,
         disableNetworkCorrections: false

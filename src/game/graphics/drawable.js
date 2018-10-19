@@ -17,22 +17,35 @@ module.exports = class Drawable {
         this.lastFrameChangeTime = 0;
         this.crop = params.crop;
         this.opacity = 1;
+        this.angle = 0;
     }
 
     render(context, camera) {
         if (!physicsUtil.intersects(this, camera.location))
             return;
-        
+
         let image = assets.getImage(this.currentFrame);
         context.globalAlpha = this.opacity;
 
         if (this.crop)
             context.drawImage(image, this.crop.x, this.crop.y, this.crop.width, this.crop.height,
                 Math.round(this.x), Math.round(this.y), this.width, this.height);
+        else if (this.angle)
+            this._renderRotated(context, image);
         else
             context.drawImage(image, Math.round(this.x), Math.round(this.y), this.width, this.height);
 
         context.globalAlpha = 1;
+    }
+
+    _renderRotated(context, image) {
+        let translateX = this.x + (this.width / 2);
+        let translateY = this.y + (this.height / 2);
+        context.translate(translateX, translateY);
+        context.rotate(this.angle * Math.PI / 180);
+        context.drawImage(image, Math.round(-this.width / 2), Math.round(-this.height / 2), this.width, this.height);
+        context.rotate(-this.angle * Math.PI / 180);
+        context.translate(-translateX, -translateY);
     }
 
     update() {
@@ -44,13 +57,13 @@ module.exports = class Drawable {
             if (now > this.lastFrameChangeTime + config.animation.changeRate) {
                 this.currentFrameIndex++;
                 if (this.currentFrameIndex > (frames.length - 1)) {
-                    if(animation.repeatable)
+                    if (animation.repeatable)
                         this.currentFrameIndex = 0;
                     else
                         this.currentAnimation = 'idle';
                 }
                 this.currentFrame = frames[this.currentFrameIndex];
-                if(!this.currentFrame) {
+                if (!this.currentFrame) {
                     this.currentFrameIndex = 0;
                     this.currentFrame = frames[0];
                 }

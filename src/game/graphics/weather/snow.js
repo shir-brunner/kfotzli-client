@@ -9,6 +9,7 @@ module.exports = class Snow {
     }
 
     render(context) {
+        context.globalAlpha = 0.8;
         this.flakes.forEach(flake => {
             context.beginPath();
             context.arc(flake.x, flake.y, flake.radius, 0, Math.PI * 2, false);
@@ -17,6 +18,7 @@ module.exports = class Snow {
             context.strokeStyle = 'white';
             context.stroke();
         });
+        context.globalAlpha = 1;
     }
 
     update() {
