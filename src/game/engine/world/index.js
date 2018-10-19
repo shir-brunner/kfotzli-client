@@ -3,11 +3,10 @@ const GameObject = require('../objects/game_object');
 const commonConfig = require('../../common_config');
 const Physics = require('../physics/index');
 const GameplayFactory = require('../gameplay/gameplay_factory');
-
 const _ = require('lodash');
 
 module.exports = class World {
-    constructor({ players, level, camera }) {
+    constructor({ players, level, camera, weather }) {
         this.players = players;
         this.level = level;
         this.gameObjects = _.sortBy(level.gameObjects, 'zIndex').map(gameObject => new GameObject(gameObject));
@@ -24,6 +23,7 @@ module.exports = class World {
         });
 
         this.gameplay = (new GameplayFactory()).getGameplay(this);
+        this.weather = weather;
     }
 
     update(delta, currentFrame) {
@@ -33,6 +33,7 @@ module.exports = class World {
         this.gameplay.update(delta, currentFrame);
         this.removeExpiredBodyParts();
         this.camera && this.camera.update(delta);
+        this.weather && this.weather.update(delta);
     }
 
     render(context) {
@@ -44,6 +45,7 @@ module.exports = class World {
         });
         this.players.forEach(player => player.render(context, this.camera));
         this.bodyParts.forEach(bodyPart => bodyPart.render(context, this.camera));
+        this.weather && this.weather.render(context, this.camera);
     }
 
     removeExpiredBodyParts() {
@@ -56,7 +58,7 @@ module.exports = class World {
         this.bodyParts = this.bodyParts.filter(bodyPart => now < bodyPart.expiration);
     }
 
-    static create(level, clients, camera) {
+    static create(level, clients, camera, weather) {
         return new World({
             players: clients.map((client, index) => {
                 let teamClients = clients.filter(c => c.team === client.team);
@@ -69,7 +71,8 @@ module.exports = class World {
                 return new Player(playerParams);
             }),
             level: level,
-            camera: camera
+            camera: camera,
+            weather: weather
         });
     }
 };

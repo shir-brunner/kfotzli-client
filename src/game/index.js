@@ -4,15 +4,18 @@ const config = require('../config');
 const commonConfig = require('./common_config');
 const InputHandler = require('./input/input_handler');
 const Camera = require('./graphics/camera');
+const WeatherFactory = require('./graphics/weather/weather_factory');
 const debug = require('./utils/debug');
 const FRAME_RATE = Math.round(1000 / commonConfig.fps);
 const _ = require('lodash');
 
 module.exports = class Game {
     constructor(room, connection, gameCanvas, onGameOver) {
+        let camera = new Camera(config.camera.viewSize, room.level.size, config.debug.fullLevelView);
+        let weather = (new WeatherFactory()).getWeather(room.level);
+
         this.renderer = new Renderer(gameCanvas, room.level);
-        this.camera = new Camera(config.camera.viewSize, room.level.size, config.debug.fullLevelView);
-        this.world = World.create(room.level, room.clients, this.camera);
+        this.world = World.create(room.level, room.clients, camera, weather);
         this.worldPlayground = _.cloneDeep(this.world);
         this.connection = connection;
         this.localPlayer = this.world.localPlayer;
