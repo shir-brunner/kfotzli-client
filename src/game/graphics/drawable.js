@@ -41,10 +41,12 @@ module.exports = class Drawable {
     _renderRotated(context, image) {
         let translateX = this.x + (this.width / 2);
         let translateY = this.y + (this.height / 2);
+        let angleInRadians = this.angle * Math.PI / 180;
+
         context.translate(translateX, translateY);
-        context.rotate(this.angle * Math.PI / 180);
+        context.rotate(angleInRadians);
         context.drawImage(image, Math.round(-this.width / 2), Math.round(-this.height / 2), this.width, this.height);
-        context.rotate(-this.angle * Math.PI / 180);
+        context.rotate(-angleInRadians);
         context.translate(-translateX, -translateY);
     }
 
