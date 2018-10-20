@@ -28,14 +28,16 @@ module.exports = class Physics {
         this.climbables = [];
         this.collidables = [];
         this.fallables = [];
+        this.slopes = [];
 
         this.world.gameObjects.forEach(gameObject => {
-            gameObject.stuckable && this.stuckables.push(gameObject);
+            gameObject.stuckable && gameObject.slope === 'flat' && this.stuckables.push(gameObject);
             gameObject.bumpable && this.bumpables.push(gameObject);
             gameObject.climbable && this.climbables.push(gameObject);
             gameObject.obstacle && this.collidables.push(gameObject);
             gameObject.collectable && !gameObject.collected && this.collidables.push(gameObject);
             gameObject.fallable && this.fallables.push(gameObject);
+            gameObject.slope !== 'flat' && this.slopes.push(gameObject);
         });
     }
 
@@ -52,6 +54,7 @@ module.exports = class Physics {
         let climbing = false;
         let speed = player.speed * delta;
         player.isStanding = false;
+        player.angle = 0;
 
         this.stuckables.forEach(gameObject => {
             let collidablePosition = gameObject.getCollidablePosition();
@@ -62,14 +65,14 @@ module.exports = class Physics {
                 if (player.x + player.width + speed >= collidablePosition.x &&
                     player.x + speed <= collidablePosition.x + collidablePosition.width) {
                     canMoveRight = false;
-                    if(gameObject.slope === 'left')
+                    if (gameObject.slope === 'left')
                         slopeOnRight = gameObject;
                 }
 
                 if (player.x - speed <= collidablePosition.x + collidablePosition.width &&
                     player.x + player.width - speed >= collidablePosition.x) {
                     canMoveLeft = false;
-                    if(gameObject.slope === 'right')
+                    if (gameObject.slope === 'right')
                         slopeOnLeft = gameObject;
                 }
             }
@@ -85,6 +88,24 @@ module.exports = class Physics {
                 if (player.y - player.climbSpeed <= collidablePosition.y + collidablePosition.height &&
                     player.y + player.height - player.climbSpeed >= collidablePosition.y) {
                     canClimbUp = false;
+                }
+            }
+        });
+
+        this.slopes.forEach(gameObject => {
+            let collidablePosition = gameObject.getCollidablePosition();
+
+            if (player.y + player.height > collidablePosition.y &&
+                player.y < collidablePosition.y + collidablePosition.height) {
+
+                if (player.x + player.width + speed >= collidablePosition.x &&
+                    player.x + speed <= collidablePosition.x + collidablePosition.width && gameObject.slope === 'left') {
+                    slopeOnRight = gameObject;
+                }
+
+                if (player.x - speed <= collidablePosition.x + collidablePosition.width &&
+                    player.x + player.width - speed >= collidablePosition.x && gameObject.slope === 'right') {
+                    slopeOnLeft = gameObject;
                 }
             }
         });
@@ -140,10 +161,17 @@ module.exports = class Physics {
                 let collidablePosition = gameObject.getCollidablePosition();
 
                 if (this._canLand(player, collidablePosition))
-                    this._land(player, collidablePosition);
+                    this._land(player, collidablePosition, gameObject);
 
                 if (this._canButt(player, collidablePosition))
                     this._butt(player, collidablePosition);
+            });
+
+            this.slopes.forEach(gameObject => {
+                let collidablePosition = gameObject.getCollidablePosition();
+
+                if (this._canLand(player, collidablePosition))
+                    this._landOnSlope(player, gameObject);
             });
 
             this.bumpables.forEach(gameObject => {
@@ -170,10 +198,29 @@ module.exports = class Physics {
     }
 
     _land(player, collidablePosition) {
-        player.verticalSpeed = 0;
-        player.y = collidablePosition.y - player.height;
         player.isStanding = true;
         player.setAnimation('idle');
+        player.verticalSpeed = 0;
+        player.y = collidablePosition.y - player.height;
+    }
+
+    _landOnSlope(player, gameObject) {
+        player.isStanding = true;
+        player.setAnimation('idle');
+        player.verticalSpeed = 0;
+
+        let normal = 0;
+        if (gameObject.slope === 'left') {
+            normal = player.x + player.width - gameObject.x;
+            player.angle = -45;
+        } else if (gameObject.slope === 'right') {
+            normal = gameObject.x + gameObject.width - player.x;
+            player.angle = 45;
+        }
+
+        let offsetHeight = gameObject.height - normal;
+        player.y = gameObject.y - player.height + offsetHeight;
+        player.y = gameObject.y - player.height + offsetHeight;
     }
 
     _canButt(player, collidablePosition) {
@@ -219,10 +266,11 @@ module.exports = class Physics {
         else if (player.controller.isUpPressed && player.isStanding)
             player.bump(player.jumpHeight);
 
-        if(slopeOnRight && player.controller.isRightPressed) {
+        if (slopeOnRight && player.controller.isRightPressed) {
             player.move('right', speed);
             player.y -= speed;
-        } else if(slopeOnLeft && player.controller.isLeftPressed) {
+        }
+        else if (slopeOnLeft && player.controller.isLeftPressed) {
             player.move('left', speed);
             player.y -= speed;
         }
@@ -257,10 +305,5 @@ module.exports = class Physics {
 
         fallable.verticalSpeed += config.gravity * delta;
         fallable.y += fallable.verticalSpeed;
-    }
-
-    _handleSlope(player, gameObject) {
-        let slope = gameObject.slope;
-
     }
 };

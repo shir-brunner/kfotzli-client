@@ -94,10 +94,10 @@ module.exports = class Player extends Drawable {
 
         this.direction = direction;
 
-        if (this.verticalSpeed !== 0)
-            this.setAnimation('jump');
-        else
+        if (this.verticalSpeed === 0)
             this.setAnimation('walk');
+        else
+            this.setAnimation('jump');
     }
 
     climb(direction, speed) {

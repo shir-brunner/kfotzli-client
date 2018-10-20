@@ -1,7 +1,8 @@
 const assets = require('../../services/assets');
-const config = require('../common_config');
-const _ = require('lodash');
+const commonConfig = require('../common_config');
+const config = require('../../config');
 const physicsUtil = require('../utils/physics');
+const _ = require('lodash');
 
 module.exports = class Drawable {
     constructor(params) {
@@ -35,7 +36,16 @@ module.exports = class Drawable {
         else
             context.drawImage(image, Math.round(this.x), Math.round(this.y), this.width, this.height);
 
+        if (config.debug.showObjectsBounds)
+            this._renderBounds(context);
+
         context.globalAlpha = 1;
+    }
+
+    _renderBounds(context) {
+        context.rect(Math.round(this.x), Math.round(this.y), this.width, this.height);
+        context.strokeStyle = 'black';
+        context.stroke();
     }
 
     _renderRotated(context, image) {
@@ -56,7 +66,7 @@ module.exports = class Drawable {
         let frames = animation.frames || [];
         if (frames.length) {
             let now = Date.now();
-            if (now > this.lastFrameChangeTime + config.animation.changeRate) {
+            if (now > this.lastFrameChangeTime + commonConfig.animation.changeRate) {
                 this.currentFrameIndex++;
                 if (this.currentFrameIndex > (frames.length - 1)) {
                     if (animation.repeatable)
