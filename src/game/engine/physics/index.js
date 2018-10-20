@@ -211,7 +211,7 @@ module.exports = class Physics {
 
     _land(player, collidablePosition, gameObject) {
         player.y = collidablePosition.y - player.height;
-        player.standingOn.push(gameObject);
+        player.standingOn && player.standingOn.push(gameObject);
     }
 
     _landOnSlope(player, collidablePosition, gameObject) {
