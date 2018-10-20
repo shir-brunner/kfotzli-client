@@ -185,13 +185,6 @@ module.exports = class Physics {
             if (player.standingOn.length) {
                 player.setAnimation('idle');
                 player.verticalSpeed = 0;
-
-                player.standingOn.forEach(standable => {
-                    if (standable.slope === 'left')
-                        player.x--;
-                    else if (standable.slope === 'right')
-                        player.x++;
-                });
             }
         }
 

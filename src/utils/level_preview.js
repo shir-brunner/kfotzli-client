@@ -29,8 +29,8 @@ module.exports = {
                 position: 'absolute',
                 left: gameObject.x / level.size.width * previewWidth,
                 top: gameObject.y / level.size.height * previewHeight,
-                width: commonConfig.squareSize / level.size.width * previewWidth,
-                height: commonConfig.squareSize / level.size.height * previewHeight,
+                width: gameObject.width / level.size.width * previewWidth,
+                height: gameObject.height / level.size.height * previewHeight,
             });
             $levelPreview.append($gameObject);
         });
