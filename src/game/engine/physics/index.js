@@ -45,6 +45,8 @@ module.exports = class Physics {
 
         let canMoveLeft = player.x > 0;
         let canMoveRight = (player.x + player.width) < this.levelSize.width;
+        let slopeOnRight = null;
+        let slopeOnLeft = null;
         let canClimbDown = true;
         let canClimbUp = true;
         let climbing = false;
@@ -60,11 +62,15 @@ module.exports = class Physics {
                 if (player.x + player.width + speed >= collidablePosition.x &&
                     player.x + speed <= collidablePosition.x + collidablePosition.width) {
                     canMoveRight = false;
+                    if(gameObject.slope === 'left')
+                        slopeOnRight = gameObject;
                 }
 
                 if (player.x - speed <= collidablePosition.x + collidablePosition.width &&
                     player.x + player.width - speed >= collidablePosition.x) {
                     canMoveLeft = false;
+                    if(gameObject.slope === 'right')
+                        slopeOnLeft = gameObject;
                 }
             }
 
@@ -152,7 +158,7 @@ module.exports = class Physics {
         if (player.y + player.height > this.levelSize.height)
             this._addEvent('PLAYER_OUTSIDE_WORLD_BOUNDS', { player: player });
 
-        this._applyPlayerMovement(player, canMoveLeft, canMoveRight, speed, climbing, delta);
+        this._applyPlayerMovement(player, canMoveLeft, canMoveRight, speed, climbing, delta, slopeOnRight, slopeOnLeft);
     }
 
     _canLand(player, collidablePosition) {
@@ -193,7 +199,7 @@ module.exports = class Physics {
         }
     }
 
-    _applyPlayerMovement(player, canMoveLeft, canMoveRight, speed, climbing, delta) {
+    _applyPlayerMovement(player, canMoveLeft, canMoveRight, speed, climbing, delta, slopeOnRight, slopeOnLeft) {
         if (player.controller.isLeftPressed && canMoveLeft)
             player.move('left', speed);
         else if (player.controller.isRightPressed && canMoveRight) {
@@ -212,6 +218,14 @@ module.exports = class Physics {
             player.climb('down', player.climbSpeed * delta);
         else if (player.controller.isUpPressed && player.isStanding)
             player.bump(player.jumpHeight);
+
+        if(slopeOnRight && player.controller.isRightPressed) {
+            player.move('right', speed);
+            player.y -= speed;
+        } else if(slopeOnLeft && player.controller.isLeftPressed) {
+            player.move('left', speed);
+            player.y -= speed;
+        }
     }
 
     _updateBodyPartPhysics(bodyPart, delta) {
@@ -243,5 +257,10 @@ module.exports = class Physics {
 
         fallable.verticalSpeed += config.gravity * delta;
         fallable.y += fallable.verticalSpeed;
+    }
+
+    _handleSlope(player, gameObject) {
+        let slope = gameObject.slope;
+
     }
 };
