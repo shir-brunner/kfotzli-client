@@ -3,6 +3,7 @@ const SHARED_ATTRIBUTES = ['id', 'x', 'y', 'verticalSpeed', 'controller', 'posit
 const Timeline = require('../../utils/timeline');
 const controllerUtil = require('../../utils/controller');
 const commonConfig = require('../../common_config');
+const config = require('../../../config');
 const _ = require('lodash');
 
 module.exports = class Player extends Drawable {
@@ -25,6 +26,26 @@ module.exports = class Player extends Drawable {
         this.positionChanged = false;
         this.lastProcessedFrame = 0;
         this.spawnPoint = { x: this.x, y: this.y };
+        this.standingOn = [];
+    }
+
+    render(context, camera) {
+        if (this.isDead)
+            return;
+
+        super.render(context, camera);
+
+        context.globalAlpha = this.opacity;
+        context.font = '20px makabi';
+        context.textAlign = 'center';
+        context.fillStyle = 'black';
+        context.fillText(this.name, this.x + (this.width / 2), this.y - 20);
+        context.globalAlpha = 1;
+
+        if(config.debug.markLandedObjects)
+            this.standingOn.forEach(standable => standable.renderBounds(context, 'red'));
+
+        this.collectable && this.collectable.render(context, camera);
     }
 
     update(delta, currentFrame) {
@@ -42,22 +63,6 @@ module.exports = class Player extends Drawable {
         }
 
         super.update(delta, currentFrame);
-    }
-
-    render(context, camera) {
-        if (this.isDead)
-            return;
-
-        super.render(context, camera);
-
-        context.globalAlpha = this.opacity;
-        context.font = '20px makabi';
-        context.textAlign = 'center';
-        context.fillStyle = 'black';
-        context.fillText(this.name, this.x + (this.width / 2), this.y - 20);
-        context.globalAlpha = 1;
-
-        this.collectable && this.collectable.render(context, camera);
     }
 
     getSharedState() {

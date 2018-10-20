@@ -53,9 +53,11 @@ module.exports = class Game {
                 this.sharedState && this._onServerUpdate(this.sharedState, currentFrame - frame);
             }
 
-            this.world.gameplay.applyEvents(this.pendingEvents);
-            this.pendingEvents.length && this.stats.refresh(this.pendingEvents);
-            this.pendingEvents = [];
+            if(!config.debug.ignoreServer) {
+                this.world.gameplay.applyEvents(this.pendingEvents);
+                this.pendingEvents.length && this.stats.refresh(this.pendingEvents);
+                this.pendingEvents = [];
+            }
 
             this.renderer.render(this.world);
 
@@ -70,7 +72,7 @@ module.exports = class Game {
     }
 
     _onServerUpdate(sharedState, currentFrame) {
-        if(config.debug.disableNetworkCorrections)
+        if(config.debug.ignoreServer)
             return;
 
         sharedState.players.forEach(playerState => {

@@ -53,7 +53,7 @@ module.exports = class Physics {
         let canClimbUp = true;
         let climbing = false;
         let speed = player.speed * delta;
-        player.isStanding = false;
+        player.standingOn = [];
         player.angle = 0;
 
         this.stuckables.forEach(gameObject => {
@@ -171,7 +171,7 @@ module.exports = class Physics {
                 let collidablePosition = gameObject.getCollidablePosition();
 
                 if (this._canLand(player, collidablePosition))
-                    this._landOnSlope(player, gameObject);
+                    this._landOnSlope(player, collidablePosition, gameObject);
             });
 
             this.bumpables.forEach(gameObject => {
@@ -181,6 +181,18 @@ module.exports = class Physics {
                     player.bump(gameObject.bumpHeight);
                 }
             });
+
+            if (player.standingOn.length) {
+                player.setAnimation('idle');
+                player.verticalSpeed = 0;
+
+                player.standingOn.forEach(standable => {
+                    if (standable.slope === 'left')
+                        player.x--;
+                    else if (standable.slope === 'right')
+                        player.x++;
+                });
+            }
         }
 
         if (player.y + player.height > this.levelSize.height)
@@ -192,35 +204,29 @@ module.exports = class Physics {
     _canLand(player, collidablePosition) {
         return player.isFalling() &&
             player.y + player.height >= collidablePosition.y &&
-            player.x + player.width >= collidablePosition.x &&
+            player.x + player.width > collidablePosition.x &&
             player.x < collidablePosition.x + collidablePosition.width &&
             player.y <= collidablePosition.y + collidablePosition.height - (player.height / 2);
     }
 
-    _land(player, collidablePosition) {
-        player.isStanding = true;
-        player.setAnimation('idle');
-        player.verticalSpeed = 0;
+    _land(player, collidablePosition, gameObject) {
         player.y = collidablePosition.y - player.height;
+        player.standingOn.push(gameObject);
     }
 
-    _landOnSlope(player, gameObject) {
-        player.isStanding = true;
-        player.setAnimation('idle');
-        player.verticalSpeed = 0;
+    _landOnSlope(player, collidablePosition, gameObject) {
+        if (player.standingOn.length)
+            return;
 
         let normal = 0;
-        if (gameObject.slope === 'left') {
-            normal = player.x + player.width - gameObject.x;
-            player.angle = -45;
-        } else if (gameObject.slope === 'right') {
-            normal = gameObject.x + gameObject.width - player.x;
-            player.angle = 45;
-        }
+        if (gameObject.slope === 'left')
+            normal = player.x + player.width - collidablePosition.x;
+        else if (gameObject.slope === 'right')
+            normal = collidablePosition.x + collidablePosition.width - player.x;
 
-        let offsetHeight = gameObject.height - normal;
-        player.y = gameObject.y - player.height + offsetHeight;
-        player.y = gameObject.y - player.height + offsetHeight;
+        let offsetHeight = collidablePosition.height - normal;
+        player.y = collidablePosition.y - player.height + offsetHeight;
+        player.standingOn.push(gameObject);
     }
 
     _canButt(player, collidablePosition) {
@@ -249,9 +255,8 @@ module.exports = class Physics {
     _applyPlayerMovement(player, canMoveLeft, canMoveRight, speed, climbing, delta, slopeOnRight, slopeOnLeft) {
         if (player.controller.isLeftPressed && canMoveLeft)
             player.move('left', speed);
-        else if (player.controller.isRightPressed && canMoveRight) {
+        else if (player.controller.isRightPressed && canMoveRight)
             player.move('right', speed);
-        }
 
         if (player.x < 0)
             player.x = 0;
@@ -263,15 +268,14 @@ module.exports = class Physics {
             player.climb('up', player.climbSpeed * delta);
         else if (player.controller.isDownPressed && climbing)
             player.climb('down', player.climbSpeed * delta);
-        else if (player.controller.isUpPressed && player.isStanding)
+        else if (player.controller.isUpPressed && player.standingOn.length)
             player.bump(player.jumpHeight);
 
         if (slopeOnRight && player.controller.isRightPressed) {
-            player.move('right', speed);
+            player.move('right', 0);
             player.y -= speed;
-        }
-        else if (slopeOnLeft && player.controller.isLeftPressed) {
-            player.move('left', speed);
+        } else if (slopeOnLeft && player.controller.isLeftPressed) {
+            player.move('left', 0);
             player.y -= speed;
         }
     }

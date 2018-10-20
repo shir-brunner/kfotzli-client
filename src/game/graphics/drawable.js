@@ -36,15 +36,16 @@ module.exports = class Drawable {
         else
             context.drawImage(image, Math.round(this.x), Math.round(this.y), this.width, this.height);
 
-        if (config.debug.showObjectsBounds)
-            this._renderBounds(context);
-
         context.globalAlpha = 1;
+
+        if (config.debug.showObjectsBounds)
+            this.renderBounds(context);
     }
 
-    _renderBounds(context) {
+    renderBounds(context, color) {
+        context.beginPath();
         context.rect(Math.round(this.x), Math.round(this.y), this.width, this.height);
-        context.strokeStyle = 'black';
+        context.strokeStyle = color || 'black';
         context.stroke();
     }
 

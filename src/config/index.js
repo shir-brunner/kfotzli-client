@@ -6,8 +6,9 @@ module.exports = {
         quickStart: true,
         fullLevelView: false,
         showNetworkCorrections: false,
-        disableNetworkCorrections: true,
-        showObjectsBounds: true
+        ignoreServer: false,
+        showObjectsBounds: false,
+        markLandedObjects: false
     },
     serverUrl: 'ws://localhost:4001',
     language: 'hebrew',
